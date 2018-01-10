@@ -1,0 +1,7 @@
+linux.sh
+*.sln
+*.vcxproj*
+Debug
+.vs/
+*.docx
+*.header
