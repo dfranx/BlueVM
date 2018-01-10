@@ -1,7 +1,9 @@
 linux.sh
+linux_build
 *.sln
 *.vcxproj*
 Debug
 .vs/
 *.docx
 *.header
+*.bv.bak

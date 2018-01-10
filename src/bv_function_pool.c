@@ -26,7 +26,7 @@ u32 bv_function_pool_get_address(bv_function_pool* pool, bv_string str)
 {
 	for (u16 i = 0; i < pool->count; i++) {
 		bv_string* cur = &pool->names[i];
-		if (cur->length == str.length && strcmp(str.data, cur->data) == 0)
+		if (strcmp(str.data, cur->data) == 0)
 			return pool->address[i];
 	}
 
