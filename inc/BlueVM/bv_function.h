@@ -3,6 +3,7 @@
 
 #include <BlueVM/types.h>
 #include <BlueVM/bv_type.h>
+#include <BlueVM/bv_opcode.h>
 #include <BlueVM/bv_function_pool.h>
 
 typedef struct bv_function
@@ -11,7 +12,7 @@ typedef struct bv_function
 	u8 args;
 	bv_type* arg_type;
 	u32 op_length;
-	u8* op;
+	bv_opcode* op;
 } bv_function;
 
 bv_function* bv_function_create(byte* mem);

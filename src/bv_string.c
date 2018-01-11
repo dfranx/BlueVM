@@ -23,7 +23,7 @@ bv_string bv_string_copy(char * text, u32 len)
 	return ret;
 }
 
-bv_string bv_string_read(char * mem)
+bv_string bv_string_read(byte* mem)
 {
 	bv_string ret;
 

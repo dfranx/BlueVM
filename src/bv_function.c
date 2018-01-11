@@ -3,7 +3,7 @@
 
 bv_function * bv_function_create(byte * mem)
 {
-	if (bv_opcode_get(mem) != bv_opcode_func_start)
+	if (bv_opcode_read(mem) != bv_opcode_func_start)
 		return 0;
 	mem += sizeof(bv_opcode);
 

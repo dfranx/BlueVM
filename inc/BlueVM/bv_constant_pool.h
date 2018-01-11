@@ -16,6 +16,7 @@ typedef struct bv_constant_pool {
 } bv_constant_pool;
 
 bv_constant_pool* bv_constant_pool_create(byte* mem);
+u32 bv_constant_pool_length(bv_constant_pool* pool);
 void bv_constant_pool_delete(bv_constant_pool* pool);
 
 #endif

@@ -43,6 +43,15 @@ bv_constant_pool * bv_constant_pool_create(byte * mem)
 	return pool;
 }
 
+u32 bv_constant_pool_length(bv_constant_pool * pool)
+{
+	u32 strLen = 0;
+	for (u16 i = 0; i < pool->str_count; i++)
+		strLen += pool->str[i].length + 1;
+
+	return sizeof(u16) * 4 + pool->u_count * sizeof(u32) + pool->s_count * sizeof(s32) + pool->f_count * sizeof(float) + strLen;
+}
+
 void bv_constant_pool_delete(bv_constant_pool * pool)
 {
 	// UInt32
