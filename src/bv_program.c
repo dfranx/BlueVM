@@ -40,6 +40,8 @@ bv_variable bv_program_call(bv_program * prog, bv_function * func)
 {
 	bv_stack stack = bv_stack_create();
 	bv_variable rtrn;
+
+	bv_constant_pool* cpool = prog->block->constants;
 	byte* code = func->code;
 
 	while ((code - func->code) < func->code_length) {
@@ -60,6 +62,16 @@ bv_variable bv_program_call(bv_program * prog, bv_function * func)
 
 				bv_stack_push(&stack, bv_variable_create_int(sum));
 			}
+		} else if (op == bv_opcode_const_get) {
+			bv_type type = bv_type_read(&code);
+			u16 index = u16_read(&code);
+
+			for (u8 i = 0; i < cpool->type_count; i++)
+				if (cpool->val_type[i] == type) {
+					if (index < cpool->val_count[i])
+						bv_stack_push(&stack, bv_variable_copy(cpool->val[i][index]));
+					break;
+				}
 		}
 	}
 

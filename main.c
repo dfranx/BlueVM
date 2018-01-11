@@ -74,6 +74,12 @@ void decode(bv_program* prog)
 				print_variable(var);
 				bv_variable_deinitialize(&var);
 			}
+			else if (b == bv_opcode_const_get) {
+				bv_type type = bv_type_read(&code);
+				u16 index = u16_read(&code);
+
+				printf("const_get 0x%02x %u", type, index);
+			}
 			else if (b == bv_opcode_add) {
 				printf("add");
 			}
