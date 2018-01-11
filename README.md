@@ -1,13 +1,14 @@
 ## TODO
 - [x] const_get
-- [ ] cast add variables to the type of the first variable
-- [ ] other operators (div, mul, etc...)
-- [ ] opcode_cast
-- [ ] have a function for executing each opcode
+- [ ] other opcodes (check bv_opcode.h)
+- [ ] have a seperate function for executing each opcode (for example: bv_execute_opcode_add)
+- [ ] local variables (get/set_local)
+- [ ] global variables (get/set_global)
 - [ ] arrays
 - [ ] function arguments
 - [ ] opcode_call (calls a function)
-- [ ] if/for/while
+- [ ] if
 - [ ] call C functions from BlueVM
 - [ ] import other bv_programs into current one (call functions from another file)
-- [ ] classes/objects/namespaces/enums
+- [ ] [OPTIONAL] classes/objects/namespaces/enums
+- [ ] [OPTIONAL] exceptions

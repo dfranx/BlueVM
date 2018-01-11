@@ -47,8 +47,7 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func)
 	while ((code - func->code) < func->code_length) {
 		bv_opcode op = bv_opcode_read(&code);
 
-		if (op == bv_opcode_return)
-			break;
+		if (op == bv_opcode_return) break;
 		else if (op == bv_opcode_push_stack) {
 			bv_type type = bv_type_read(&code);
 			bv_stack_push(&stack, bv_variable_read(&code, type));
@@ -64,10 +63,10 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func)
 
 				if (var1.type == bv_type_float)
 					sum += bv_variable_get_float(var1);
-				else sum += bv_variable_get_uint(var1);
+				else sum += bv_variable_get_int(var1);
 				if (var2.type == bv_type_float)
 					sum += bv_variable_get_float(var2);
-				else sum += bv_variable_get_uint(var2);
+				else sum += bv_variable_get_int(var2);
 
 				bv_stack_pop(&stack);
 				bv_stack_pop(&stack);
@@ -77,7 +76,7 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func)
 			else if (var1.type == bv_type_string && var2.type == bv_type_string) {
 				string result = malloc(strlen(var1.value) + strlen(var2.value) + 1);
 				strcpy(result, var1.value);
-				strcpy(result+strlen(var1.value), var2.value);
+				strcpy(result + strlen(var1.value), var2.value);
 				result[strlen(var1.value) + strlen(var2.value)] = 0;
 
 				bv_stack_pop(&stack);
@@ -87,7 +86,7 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func)
 				free(result);
 			}
 			else {
-				u32 sum = bv_variable_get_uint(var1) + bv_variable_get_uint(var2);
+				u32 sum = bv_variable_get_int(var1) + bv_variable_get_int(var2);
 				bv_type type = var1.type;
 
 				bv_stack_pop(&stack);
@@ -95,7 +94,270 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func)
 
 				bv_stack_push(&stack, bv_variable_create(type, sum));
 			}
-		} else if (op == bv_opcode_const_get) {
+		}
+		else if (op == bv_opcode_subtract) {
+			if (stack.length < 2) // dont do anything if there is not enough arguments in stack
+				continue;
+
+			bv_variable var1 = bv_stack_penultimate(&stack);
+			bv_variable var2 = bv_stack_top(&stack);
+
+			if (var1.type == bv_type_float || var2.type == bv_type_float) {
+				float sum = 0;
+
+				if (var1.type == bv_type_float)
+					sum = bv_variable_get_float(var1);
+				else sum = bv_variable_get_int(var1);
+				if (var2.type == bv_type_float)
+					sum -= bv_variable_get_float(var2);
+				else sum -= bv_variable_get_int(var2);
+
+				bv_stack_pop(&stack);
+				bv_stack_pop(&stack);
+
+				bv_stack_push(&stack, bv_variable_create_float(sum));
+			}
+			else {
+				u32 sum = bv_variable_get_int(var1) - bv_variable_get_int(var2);
+				bv_type type = var1.type;
+
+				bv_stack_pop(&stack);
+				bv_stack_pop(&stack);
+
+				bv_stack_push(&stack, bv_variable_create(type, sum));
+			}
+		}
+		else if (op == bv_opcode_multiply) {
+			if (stack.length < 2) // dont do anything if there is not enough arguments in stack
+				continue;
+
+			bv_variable var1 = bv_stack_penultimate(&stack);
+			bv_variable var2 = bv_stack_top(&stack);
+
+			if (var1.type == bv_type_float || var2.type == bv_type_float) {
+				float sum = 0;
+
+				if (var1.type == bv_type_float)
+					sum = bv_variable_get_float(var1);
+				else sum = bv_variable_get_int(var1);
+				if (var2.type == bv_type_float)
+					sum *= bv_variable_get_float(var2);
+				else sum *= bv_variable_get_int(var2);
+
+				bv_stack_pop(&stack);
+				bv_stack_pop(&stack);
+
+				bv_stack_push(&stack, bv_variable_create_float(sum));
+			}
+			else {
+				u32 sum = bv_variable_get_int(var1) * bv_variable_get_int(var2);
+				bv_type type = var1.type;
+
+				bv_stack_pop(&stack);
+				bv_stack_pop(&stack);
+
+				bv_stack_push(&stack, bv_variable_create(type, sum));
+			}
+		}
+		else if (op == bv_opcode_divide) {
+			if (stack.length < 2) // dont do anything if there is not enough arguments in stack
+				continue;
+
+			bv_variable var1 = bv_stack_penultimate(&stack);
+			bv_variable var2 = bv_stack_top(&stack);
+
+			if (var1.type == bv_type_float || var2.type == bv_type_float) {
+				float sum = 0;
+
+				if (var1.type == bv_type_float)
+					sum = bv_variable_get_float(var1);
+				else sum = bv_variable_get_int(var1);
+				if (var2.type == bv_type_float)
+					sum /= bv_variable_get_float(var2); // [TODO] check if == 0
+				else sum /= bv_variable_get_int(var2);
+
+				bv_stack_pop(&stack);
+				bv_stack_pop(&stack);
+
+				bv_stack_push(&stack, bv_variable_create_float(sum));
+			}
+			else {
+				u32 sum = bv_variable_get_int(var1) / bv_variable_get_int(var2);
+				bv_type type = var1.type;
+
+				bv_stack_pop(&stack);
+				bv_stack_pop(&stack);
+
+				bv_stack_push(&stack, bv_variable_create(type, sum));
+			}
+		}
+		else if (op == bv_opcode_increment) {
+			bv_variable var = bv_stack_top(&stack);
+
+			if (var.type == bv_type_float) {
+				float val = bv_variable_get_float(var) + 1;
+
+				bv_stack_pop(&stack);
+
+				bv_stack_push(&stack, bv_variable_create_float(val));
+			}
+			else {
+				u32 val = bv_variable_get_int(var) + 1;
+				bv_type type = var.type;
+
+				bv_stack_pop(&stack);
+
+				bv_stack_push(&stack, bv_variable_create(type, val));
+			}
+		}
+		else if (op == bv_opcode_decrement) {
+			bv_variable var = bv_stack_top(&stack);
+
+			if (var.type == bv_type_float) {
+				float val = bv_variable_get_float(var) - 1;
+
+				bv_stack_pop(&stack);
+
+				bv_stack_push(&stack, bv_variable_create_float(val));
+			}
+			else {
+				u32 val = bv_variable_get_int(var) - 1;
+				bv_type type = var.type;
+
+				bv_stack_pop(&stack);
+
+				bv_stack_push(&stack, bv_variable_create(type, val));
+			}
+		}
+		else if (op == bv_opcode_negate) {
+			bv_variable var = bv_stack_top(&stack);
+
+			if (var.type == bv_type_float) {
+				float val = -bv_variable_get_float(var);
+
+				bv_stack_pop(&stack);
+
+				bv_stack_push(&stack, bv_variable_create_float(val));
+			}
+			else {
+				u32 val = -bv_variable_get_int(var);
+				bv_type type = var.type;
+
+				bv_stack_pop(&stack);
+
+				bv_stack_push(&stack, bv_variable_create(type, val));
+			}
+		}
+		else if (op == bv_opcode_modulo) {
+			if (stack.length < 2) // dont do anything if there is not enough arguments in stack
+				continue;
+
+			bv_variable var1 = bv_stack_penultimate(&stack);
+			bv_variable var2 = bv_stack_top(&stack);
+			bv_type type = var1.type;
+			s32 val1 = 0, val2 = 1;
+
+			if (type == bv_type_float)
+				val1 = bv_variable_get_float(var1);
+			else
+				val1 = bv_variable_get_int(var1);
+
+			if (var2.type == bv_type_float)
+				val2 = bv_variable_get_float(var2);
+			else
+				val2 = bv_variable_get_int(var2);
+
+			bv_stack_pop(&stack);
+			bv_stack_pop(&stack);
+
+			bv_stack_push(&stack, bv_variable_create_uint(val1 % val2));
+		}
+		else if (op == bv_opcode_bit_or) {
+			if (stack.length < 2) // dont do anything if there is not enough arguments in stack
+				continue;
+
+			bv_variable var1 = bv_stack_penultimate(&stack);
+			bv_variable var2 = bv_stack_top(&stack);
+
+			u32 res = bv_variable_get_uint(var1) | bv_variable_get_uint(var2);
+			bv_type type = var1.type;
+
+			bv_stack_pop(&stack);
+			bv_stack_pop(&stack);
+
+			bv_stack_push(&stack, bv_variable_create(type, res));
+		}
+		else if (op == bv_opcode_bit_and) {
+			if (stack.length < 2) // dont do anything if there is not enough arguments in stack
+				continue;
+
+			bv_variable var1 = bv_stack_penultimate(&stack);
+			bv_variable var2 = bv_stack_top(&stack);
+
+			u32 res = bv_variable_get_uint(var1) & bv_variable_get_uint(var2);
+			bv_type type = var1.type;
+
+			bv_stack_pop(&stack);
+			bv_stack_pop(&stack);
+
+			bv_stack_push(&stack, bv_variable_create(type, res));
+		}
+		else if (op == bv_opcode_bit_xor) {
+			if (stack.length < 2) // dont do anything if there is not enough arguments in stack
+				continue;
+
+			bv_variable var1 = bv_stack_penultimate(&stack);
+			bv_variable var2 = bv_stack_top(&stack);
+
+			u32 res = bv_variable_get_uint(var1) ^ bv_variable_get_uint(var2);
+			bv_type type = var1.type;
+
+			bv_stack_pop(&stack);
+			bv_stack_pop(&stack);
+
+			bv_stack_push(&stack, bv_variable_create(type, res));
+		}
+		else if (op == bv_opcode_bit_lshift) {
+			if (stack.length < 2) // dont do anything if there is not enough arguments in stack
+				continue;
+
+			bv_variable var1 = bv_stack_penultimate(&stack);
+			bv_variable var2 = bv_stack_top(&stack);
+
+			u32 res = bv_variable_get_uint(var1) << bv_variable_get_uint(var2);
+			bv_type type = var1.type;
+
+			bv_stack_pop(&stack);
+			bv_stack_pop(&stack);
+
+			bv_stack_push(&stack, bv_variable_create(type, res));
+		}
+		else if (op == bv_opcode_bit_rshift) {
+			if (stack.length < 2) // dont do anything if there is not enough arguments in stack
+				continue;
+
+			bv_variable var1 = bv_stack_penultimate(&stack);
+			bv_variable var2 = bv_stack_top(&stack);
+
+			u32 res = bv_variable_get_uint(var1) >> bv_variable_get_uint(var2);
+			bv_type type = var1.type;
+
+			bv_stack_pop(&stack);
+			bv_stack_pop(&stack);
+
+			bv_stack_push(&stack, bv_variable_create(type, res));
+		}
+		else if (op == bv_opcode_bit_not) {
+			bv_variable var = bv_stack_top(&stack);
+
+			u32 res = ~bv_variable_get_uint(var);
+			bv_type type = var.type;
+
+			bv_stack_pop(&stack);
+
+			bv_stack_push(&stack, bv_variable_create(type, res));
+		}
+		else if (op == bv_opcode_const_get) {
 			bv_type type = bv_type_read(&code);
 			u16 index = u16_read(&code);
 
