@@ -13,7 +13,6 @@ typedef struct bv_program {
 } bv_program;
 
 bv_program* bv_program_create(byte* mem);
-u32 bv_program_length(bv_program* prog);
 void bv_program_delete(bv_program* program);
 
 u16 bv_program_get_function_count(bv_program* prog);

@@ -1,4 +1,6 @@
 #include <BlueVM/bv_program.h>
+#include <string.h>
+#include <stdlib.h>
 
 bv_program* bv_program_create(byte * mem)
 {
@@ -8,26 +10,6 @@ bv_program* bv_program_create(byte * mem)
 	ret->block = bv_block_create(mem + sizeof(ret->header));
 	ret->functions = bv_function_create_array(ret->block->functions, mem);
 
-	return ret;
-}
-u32 bv_program_length(bv_program * prog)
-{
-	// header
-	u32 ret = sizeof(prog->header.major) + sizeof(prog->header.minor) + 3;
-	
-	// block
-	ret += bv_function_pool_length(prog->block->functions);
-	ret += bv_constant_pool_length(prog->block->constants);
-
-	// functions
-	u16 func_count = bv_program_get_function_count(prog);
-	ret += (sizeof(bv_type) + sizeof(u8) + sizeof(u32)) * func_count;
-
-	for (u16 i = 0; i < func_count; i++) {
-		bv_function* func = prog->functions[i];
-		ret += func->op_length*sizeof(bv_opcode) + func->args*sizeof(bv_type);
-	}
-	
 	return ret;
 }
 void bv_program_delete(bv_program * prog)
@@ -55,13 +37,14 @@ bv_function* bv_program_get_function(bv_program* prog, const char* str)
 
 bv_variable bv_program_call(bv_program * prog, bv_function * func)
 {
-	bv_opcode* code = func->op;
+	byte* code = func->code;
 
-	while ((code - func->op) < func->op_length) {
-		bv_opcode op = bv_opcode_read(code);
-		code += sizeof(bv_opcode);
+	while ((code - func->code) < func->code_length) {
+		bv_opcode op = bv_opcode_read(&code);
 
 		if (op == bv_opcode_return)
-			return bv_variable_read(code, func->return_type);
+			return bv_variable_read(&code, func->return_type);
 	}
+
+	return bv_variable_create_int(-1);
 }

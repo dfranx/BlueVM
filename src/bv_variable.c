@@ -1,4 +1,6 @@
 #include <BlueVM/bv_variable.h>
+#include <string.h>
+#include <stdlib.h>
 
 s32 bv_variable_get_int(bv_variable var)
 {
@@ -101,37 +103,37 @@ void bv_variable_set_int(bv_variable * var, s32 val)
 {
 	if (var->type != bv_type_int)
 		return;
-	var->value = val;
+	var->value = (s32)val;
 }
 void bv_variable_set_uint(bv_variable * var, u32 val)
 {
 	if (var->type != bv_type_uint)
 		return;
-	var->value = val;
+	var->value = (u32)val;
 }
 void bv_variable_set_short(bv_variable * var, s16 val)
 {
 	if (var->type != bv_type_short)
 		return;
-	var->value = val;
+	var->value = (s16)val;
 }
 void bv_variable_set_ushort(bv_variable * var, u16 val)
 {
 	if (var->type != bv_type_ushort)
 		return;
-	var->value = val;
+	var->value = (u16)val;
 }
 void bv_variable_set_char(bv_variable * var, s8 val)
 {
 	if (var->type != bv_type_char)
 		return;
-	var->value = val;
+	var->value = (s8)val;
 }
 void bv_variable_set_uchar(bv_variable * var, u8 val)
 {
 	if (var->type != bv_type_uchar)
 		return;
-	var->value = val;
+	var->value = (u8)val;
 }
 void bv_variable_set_float(bv_variable * var, float val)
 {
@@ -146,9 +148,10 @@ void bv_variable_set_string(bv_variable * var, string val)
 
 	free(var->value);
 
+
 	s32 len = strlen(val);
 
-	var->value = malloc((len + 1)*sizeof(char));
+	var->value = malloc((len + 1) * sizeof(char));
 	memcpy(var->value, val, len);
 
 	((string)var->value)[len] = 0;
@@ -162,7 +165,7 @@ void bv_variable_deinitialize(bv_variable * var)
 	// else if var == class
 	//		bv_program_call(prog, "~ClassName");
 }
-bv_variable bv_variable_read(byte * mem, bv_type type)
+bv_variable bv_variable_read(byte** mem, bv_type type)
 {
 	if (type == bv_type_uint)
 		return bv_variable_create_uint(u32_read(mem));
@@ -178,6 +181,12 @@ bv_variable bv_variable_read(byte * mem, bv_type type)
 		return bv_variable_create_uchar(u8_read(mem));
 	else if (type == bv_type_float)
 		return bv_variable_create_float(float_read(mem));
-	else if (type == bv_type_string)
-		return bv_variable_create_string(string_read(mem)); // [TODO] delete bv_string
+	else if (type == bv_type_string) {
+		bv_variable var;
+		var.type = bv_type_string;
+		var.value = string_read(mem);
+		return var;
+	}
+
+	return bv_variable_create_int(0);
 }

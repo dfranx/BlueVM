@@ -20,6 +20,6 @@ typedef enum __bv_type {
 bv_type bv_type_create_array(enum __bv_type type);
 u8 bv_type_is_array(bv_type var);
 bv_type bv_type_get(bv_type var);
-bv_type bv_type_read(byte* mem);
+bv_type bv_type_read(byte** mem);
 
 #endif

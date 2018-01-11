@@ -1,5 +1,5 @@
 #include <BlueVM/bv_block.h>
-
+#include <stdlib.h>
 bv_block* bv_block_create(byte* mem)
 {
 	bv_block* block = malloc(sizeof(bv_block));

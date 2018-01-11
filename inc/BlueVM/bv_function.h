@@ -11,8 +11,8 @@ typedef struct bv_function
 	bv_type return_type;
 	u8 args;
 	bv_type* arg_type;
-	u32 op_length;
-	bv_opcode* op;
+	u32 code_length;
+	byte* code;
 } bv_function;
 
 bv_function* bv_function_create(byte* mem);

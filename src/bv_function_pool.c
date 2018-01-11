@@ -1,22 +1,19 @@
 #include <BlueVM/bv_function_pool.h>
 #include <string.h>
+#include <stdlib.h>
 
 bv_function_pool* bv_function_pool_create(byte* mem)
 {
 	bv_function_pool* pool = malloc(sizeof(bv_function_pool));
 
-	pool->count = u16_read(mem);
-	mem += sizeof(u16);
+	pool->count = u16_read(&mem);
 
 	pool->names = malloc(sizeof(string)*pool->count);
 	pool->address = malloc(sizeof(u32)*pool->count);
 
 	for (u16 i = 0; i < pool->count; i++) {
-		pool->names[i] = string_read(mem);
-		mem += strlen(pool->names[i])+1;
-
-		pool->address[i] = u32_read(mem);
-		mem += sizeof(u32);
+		pool->names[i] = string_read(&mem);
+		pool->address[i] = u32_read(&mem);
 	}
 
 	return pool;
@@ -25,7 +22,7 @@ bv_function_pool* bv_function_pool_create(byte* mem)
 u32 bv_function_pool_get_address(bv_function_pool* pool, string str)
 {
 	for (u16 i = 0; i < pool->count; i++) {
-		string* cur = &pool->names[i];
+		string cur = pool->names[i];
 		if (strcmp(str, cur) == 0)
 			return pool->address[i];
 	}

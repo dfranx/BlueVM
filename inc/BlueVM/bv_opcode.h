@@ -17,6 +17,6 @@ typedef enum __bv_opcode {
 	bv_opcode_COUNT			// this is not an actual opcode
 } __bv_opcode;
 
-bv_opcode bv_opcode_read(byte* mem);
+bv_opcode bv_opcode_read(byte** mem);
 
 #endif

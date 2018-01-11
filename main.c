@@ -1,6 +1,6 @@
 #include <BlueVM.h>
 #include <stdio.h>
-#include <memory.h>
+#include <stdlib.h>
 
 char* read_file(char const* path)
 {
@@ -30,14 +30,20 @@ void decode(bv_program* prog)
 {
 	bv_constant_pool* cpool = prog->block->constants;
 
-	for (u16 i = 0; i < cpool->u_count; i++)
-		printf("const_add 0x%02x %u\n", bv_type_uint, cpool->u[i]);
-	for (u16 i = 0; i < cpool->s_count; i++)
-		printf("const_add 0x%02x %d\n", bv_type_int, cpool->s[i]);
-	for (u16 i = 0; i < cpool->f_count; i++)
-		printf("const_add 0x%02x %f\n", bv_type_float, cpool->f[i]);
-	for (u16 i = 0; i < cpool->str_count; i++)
-		printf("const_add 0x%02x \"%s\"\n", bv_type_string, cpool->str[i]);
+	for (u8 i = 0; i < cpool->type_count; i++) {
+		for (u16 j = 0; j < cpool->val_count[i]; j++) {
+			printf("const_add 0x%02x ", cpool->val_type[i]);
+			if (cpool->val_type[i] == bv_type_string)
+				printf("%s", bv_variable_get_string(cpool->val[i][j]));
+			else if (cpool->val_type[i] == bv_type_int)
+				printf("%d", bv_variable_get_uint(cpool->val[i][j]));
+			else if (cpool->val_type[i] == bv_type_float)
+				printf("%f", bv_variable_get_float(cpool->val[i][j]));
+			// [TODO] etc...
+			printf("\n");
+		}
+	}
+
 
 	bv_function_pool* fpool = prog->block->functions;
 	for (u16 i = 0; i < fpool->count; i++) {
@@ -48,8 +54,8 @@ void decode(bv_program* prog)
 		for (u8 j = 0; j < func->args; j++)
 			printf("\targ_add 0x%02x\n", func->arg_type[j]);
 		printf("\t[CODE]\n");
-		for (u32 j = 0; j < func->op_length; j++)
-			printf("\t\t0x%02x\n", func->op[j]);
+		for (u32 j = 0; j < func->code_length; j++)
+			printf("\t\t0x%02x\n", func->code[j]);
 		printf("\t[/CODE]\n");
 	}
 }
@@ -60,7 +66,7 @@ int main()
 
 	bv_program* prog = bv_program_create(mem);
 	
-	printf("This program takes %dB of RAM - BlueVM %d.%d\n", bv_program_length(prog), prog->header.major, prog->header.minor);
+	printf("BlueVM %d.%d\n", prog->header.major, prog->header.minor);
 	printf("DECODE\n----------------------------------------------\n");
 	decode(prog);
 	printf("----------------------------------------------\n");

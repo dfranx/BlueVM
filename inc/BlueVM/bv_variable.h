@@ -36,6 +36,6 @@ void bv_variable_set_float(bv_variable* var, float val);
 void bv_variable_set_string(bv_variable* var, string val);
 
 void bv_variable_deinitialize(bv_variable* var);
-bv_variable bv_variable_read(byte* mem, bv_type type);
+bv_variable bv_variable_read(byte** mem, bv_type type);
 
 #endif
