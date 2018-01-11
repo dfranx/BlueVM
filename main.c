@@ -36,76 +36,18 @@ void print_variable(bv_variable var)
 		printf("%f", bv_variable_get_float(var));
 }
 
-void decode(bv_program* prog)
-{
-	bv_constant_pool* cpool = prog->block->constants;
-
-	for (u8 i = 0; i < cpool->type_count; i++) {
-		for (u16 j = 0; j < cpool->val_count[i]; j++) {
-			printf("const_add 0x%02x ", cpool->val_type[i]);
-			print_variable(cpool->val[i][j]);
-			printf("\n");
-		}
-	}
-
-
-	bv_function_pool* fpool = prog->block->functions;
-	for (u16 i = 0; i < fpool->count; i++) {
-		printf("func %s\n", fpool->names[i]);
-		bv_function* func = bv_program_get_function(prog, fpool->names[i]);
-		byte* code = func->code;
-
-		printf("\tset_return 0x%02x\n", func->return_type);
-		for (u8 j = 0; j < func->args; j++)
-			printf("\targ_add 0x%02x\n", func->arg_type[j]);
-
-		printf("\t[CODE]\n");
-		while ((code - func->code) < func->code_length) {
-			bv_opcode b = bv_opcode_read(&code);
-
-			printf("\t\t");
-			if (b == bv_opcode_return)
-				printf("return");
-			else if (b == bv_opcode_push_stack) {
-				bv_type type = bv_type_read(&code);
-				printf("push_stack 0x%02x ", type);
-				
-				bv_variable var = bv_variable_read(&code, type);
-				print_variable(var);
-				bv_variable_deinitialize(&var);
-			}
-			else if (b == bv_opcode_const_get) {
-				bv_type type = bv_type_read(&code);
-				u16 index = u16_read(&code);
-
-				printf("const_get 0x%02x %u", type, index);
-			}
-			else if (b == bv_opcode_add) {
-				printf("add");
-			}
-			printf("\n");
-		}
-		printf("\t[/CODE]\n");
-	}
-}
-
 int main()
 {
 	char* mem = read_file("test.bv");
 
 	bv_program* prog = bv_program_create(mem);
 	
-	printf("BlueVM %d.%d\n", prog->header.major, prog->header.minor);
-	printf("DECODE\n----------------------------------------------\n");
-	decode(prog);
-	printf("----------------------------------------------\n");
-
 	bv_function* func_main = bv_program_get_function(prog, "main");
 	if (func_main == NULL)
 		printf("Program is missing function 'main'.\n");
 	else {
 		bv_variable ret = bv_program_call(prog, func_main);
-		printf("main() returned: %d\n", bv_variable_get_int(ret));
+		printf("main() returned: %d\n", bv_variable_get_uchar(ret));
 		bv_variable_deinitialize(&ret);
 	}
 	bv_program_delete(prog);

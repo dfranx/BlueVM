@@ -13,6 +13,8 @@ typedef enum __bv_opcode {
 	bv_opcode_func_start,	// func_start
 	bv_opcode_return,		// return {value}
 	bv_opcode_push_stack,	// push_stack [type] [value] -> {value}
+	bv_opcode_pop_stack,	// duplicate {value} -> {value, value}
+	bv_opcode_const_get,	// push_const_stack [type] [index] -> {const_value[index]}
 	bv_opcode_add,			// add {value1, value2} -> {value1+value2}
 	bv_opcode_subtract,		// sub {value1, value2} -> {value1-value2}
 	bv_opcode_multiply,		// mul {value1, value2} -> {value1*value2}
@@ -27,7 +29,6 @@ typedef enum __bv_opcode {
 	bv_opcode_bit_xor,		// bitwise xor {value1, value2} -> {value1 ^ value2}
 	bv_opcode_bit_lshift,	// bitwise lshift {value1, value2} -> {value1 << value2}
 	bv_opcode_bit_rshift,	// bitwise rshift {value1, value2} -> {value1 >> value2}
-	bv_opcode_const_get,	// push_const_stack [type] [index] -> {const_value[index]}
 	bv_opcode_equal,		// equal {value1, value2} -> {value1 == value2}
 	bv_opcode_not_equal,	// not_equal {value1, value2} -> {value1 != value2}
 	bv_opcode_not,			// not {value} -> {!value1}
@@ -35,14 +36,12 @@ typedef enum __bv_opcode {
 	bv_opcode_less,			// less_than {value1, value2} -> {value1 < value2}
 	bv_opcode_greater_equal,// greater_equal {value1, value2} -> {value1 >= value2}
 	bv_opcode_less_equal,	// less_equal {value1, value2} -> {value1 <= value2}
+	bv_opcode_nop,			// does nothing
+	bv_opcode_convert,		// convert [new_type] {value} -> {new_type_value}
+	bv_opcode_duplicate,	// duplicate {value} -> {value, value}
+	bv_opcode_swap,			// swap {value1, value2} -> {value2, value1}
 	bv_opcode_COUNT			// this is not an actual opcode
 } __bv_opcode;
-
-// convert [new_type] {value} -> {new_type_value}
-// dup {value} -> {value,value}
-// nop // do nothing
-// pop {value} -> {}
-// swap {value1, value2} -> {value2, value1}
 
 // get_local -> {value}
 // set_local 

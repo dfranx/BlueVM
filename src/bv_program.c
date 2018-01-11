@@ -52,6 +52,18 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func)
 			bv_type type = bv_type_read(&code);
 			bv_stack_push(&stack, bv_variable_read(&code, type));
 		}
+		else if (op == bv_opcode_pop_stack) bv_stack_pop(&stack);
+		else if (op == bv_opcode_const_get) {
+			bv_type type = bv_type_read(&code);
+			u16 index = u16_read(&code);
+
+			for (u8 i = 0; i < cpool->type_count; i++)
+				if (cpool->val_type[i] == type) {
+					if (index < cpool->val_count[i])
+						bv_stack_push(&stack, bv_variable_copy(cpool->val[i][index]));
+					break;
+				}
+		}
 		else if (op == bv_opcode_add) {
 			if (stack.length < 2) // dont do anything if there is not enough arguments in stack
 				continue;
@@ -302,6 +314,16 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func)
 
 			bv_stack_push(&stack, bv_variable_create(type, res));
 		}
+		else if (op == bv_opcode_bit_not) {
+			bv_variable var = bv_stack_top(&stack);
+
+			u32 res = ~bv_variable_get_uint(var);
+			bv_type type = var.type;
+
+			bv_stack_pop(&stack);
+
+			bv_stack_push(&stack, bv_variable_create(type, res));
+		}
 		else if (op == bv_opcode_bit_xor) {
 			if (stack.length < 2) // dont do anything if there is not enough arguments in stack
 				continue;
@@ -343,16 +365,6 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func)
 			bv_type type = var1.type;
 
 			bv_stack_pop(&stack);
-			bv_stack_pop(&stack);
-
-			bv_stack_push(&stack, bv_variable_create(type, res));
-		}
-		else if (op == bv_opcode_bit_not) {
-			bv_variable var = bv_stack_top(&stack);
-
-			u32 res = ~bv_variable_get_uint(var);
-			bv_type type = var.type;
-
 			bv_stack_pop(&stack);
 
 			bv_stack_push(&stack, bv_variable_create(type, res));
@@ -549,16 +561,43 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func)
 
 			bv_stack_push(&stack, bv_variable_create_uchar(out));
 		}
-		else if (op == bv_opcode_const_get) {
-			bv_type type = bv_type_read(&code);
-			u16 index = u16_read(&code);
+		else if (op == bv_opcode_nop) continue;
+		else if (op == bv_opcode_convert) {
+			bv_variable var = bv_stack_top(&stack);
+			bv_type new_type = bv_type_read(&code);
+			bv_type old_type = var.type;
 
-			for (u8 i = 0; i < cpool->type_count; i++)
-				if (cpool->val_type[i] == type) {
-					if (index < cpool->val_count[i])
-						bv_stack_push(&stack, bv_variable_copy(cpool->val[i][index]));
-					break;
-				}
+			var.type = new_type;
+
+			if (old_type == bv_type_string || new_type == bv_type_string || old_type == new_type) {}// convert doesnt support strings
+			else if (old_type == bv_type_float) {
+				u32 value = (u32)bv_variable_get_float(var);
+				bv_variable_deinitialize(&var);
+				var = bv_variable_create(new_type, value);
+			}
+			else {
+				u32 value = bv_variable_get_uint(var);
+
+				if (new_type == bv_type_float)
+					var = bv_variable_create_float(value);
+				else
+					var = bv_variable_create(new_type, value);
+			}
+
+			bv_stack_pop(&stack);
+			bv_stack_push(&stack, var);
+		}
+		else if (op == bv_opcode_duplicate) {
+			bv_variable var = bv_variable_copy(bv_stack_top(&stack));
+			bv_stack_push(&stack, var);
+		}
+		else if (op == bv_opcode_swap) {
+			bv_variable var1 = bv_variable_copy(bv_stack_penultimate(&stack));
+			bv_variable var2 = bv_variable_copy(bv_stack_top(&stack));
+			bv_stack_pop(&stack);
+			bv_stack_pop(&stack);
+			bv_stack_push(&stack, var2);
+			bv_stack_push(&stack, var1);
 		}
 	}
 
