@@ -165,6 +165,24 @@ void bv_variable_deinitialize(bv_variable * var)
 	// else if var == class
 	//		bv_program_call(prog, "~ClassName");
 }
+bv_variable bv_variable_copy(bv_variable var)
+{
+	bv_variable ret;
+	ret.type = var.type;
+
+	if (var.type == bv_type_float) {
+		ret.value = malloc(sizeof(float));
+		memcpy(ret.value, var.value, sizeof(float));
+	} else if (var.type == bv_type_string) {
+		s32 len = strlen(var.value);
+		ret.value = malloc((len + 1) * sizeof(char));
+		memcpy(ret.value, var.value, len);
+		((string)ret.value)[len] = 0;
+	} else
+		ret.value = var.value;
+
+	return ret;
+}
 bv_variable bv_variable_read(byte** mem, bv_type type)
 {
 	if (type == bv_type_uint)

@@ -1,4 +1,5 @@
 #include <BlueVM/bv_program.h>
+#include <BlueVM/bv_stack.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -37,14 +38,38 @@ bv_function* bv_program_get_function(bv_program* prog, const char* str)
 
 bv_variable bv_program_call(bv_program * prog, bv_function * func)
 {
+	bv_stack stack = bv_stack_create();
+	bv_variable rtrn;
 	byte* code = func->code;
 
 	while ((code - func->code) < func->code_length) {
 		bv_opcode op = bv_opcode_read(&code);
 
 		if (op == bv_opcode_return)
-			return bv_variable_read(&code, func->return_type);
+			break;
+		else if (op == bv_opcode_push_stack) {
+			bv_type type = bv_type_read(&code);
+			bv_stack_push(&stack, bv_variable_read(&code, type));
+		} else if (op == bv_opcode_add) { // [TODO] add_i, add_f, etc...
+			if (stack.length >= 2) { // dont do anything if there is not enough arguments in stack
+				int sum = bv_variable_get_int(bv_stack_top(&stack));
+				bv_stack_pop(&stack);
+
+				sum += bv_variable_get_int(bv_stack_top(&stack));
+				bv_stack_pop(&stack);
+
+				bv_stack_push(&stack, bv_variable_create_int(sum));
+			}
+		}
 	}
 
-	return bv_variable_create_int(-1);
+	// get return value
+	if (stack.length > 0)
+		rtrn = bv_variable_copy(bv_stack_top(&stack)); // on return, make a copy of the return value
+	else
+		rtrn = bv_variable_create_int(0);
+
+	bv_stack_delete(&stack);
+
+	return rtrn;
 }
