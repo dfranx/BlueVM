@@ -28,19 +28,26 @@ typedef enum __bv_opcode {
 	bv_opcode_bit_lshift,	// bitwise lshift {value1, value2} -> {value1 << value2}
 	bv_opcode_bit_rshift,	// bitwise rshift {value1, value2} -> {value1 >> value2}
 	bv_opcode_const_get,	// push_const_stack [type] [index] -> {const_value[index]}
+	bv_opcode_equal,		// equal {value1, value2} -> {value1 == value2}
+	bv_opcode_not_equal,	// not_equal {value1, value2} -> {value1 != value2}
+	bv_opcode_not,			// not {value} -> {!value1}
+	bv_opcode_greater,		// greater_than {value1, value2} -> {value1 > value2}
+	bv_opcode_less,			// less_than {value1, value2} -> {value1 < value2}
+	bv_opcode_greater_equal,// greater_equal {value1, value2} -> {value1 >= value2}
+	bv_opcode_less_equal,	// less_equal {value1, value2} -> {value1 <= value2}
 	bv_opcode_COUNT			// this is not an actual opcode
 } __bv_opcode;
 
-// eq neq not greater less greater_eq less_eq
 // convert [new_type] {value} -> {new_type_value}
 // dup {value} -> {value,value}
+// nop // do nothing
+// pop {value} -> {}
+// swap {value1, value2} -> {value2, value1}
+
 // get_local -> {value}
 // set_local 
 // get_global -> {value}
 // set_global
-// nop // do nothing
-// pop {value} -> {}
-// swap {value1, value2} -> {value2, value1}
 // newarray [type] [arg_count] <[is_initialized] {arg1, arg2, ..., argN} -> {array}>
 // call [argc] {name, arg1, arg2 ... argN} -> {return_value}
 // goto [address]
