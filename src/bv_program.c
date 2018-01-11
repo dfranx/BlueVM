@@ -36,7 +36,7 @@ bv_function* bv_program_get_function(bv_program* prog, const char* str)
 	return 0;
 }
 
-bv_variable bv_program_call(bv_program * prog, bv_function * func)
+bv_variable bv_program_call(bv_program* prog, bv_function* func)
 {
 	bv_stack stack = bv_stack_create();
 	bv_variable rtrn;
@@ -52,15 +52,48 @@ bv_variable bv_program_call(bv_program * prog, bv_function * func)
 		else if (op == bv_opcode_push_stack) {
 			bv_type type = bv_type_read(&code);
 			bv_stack_push(&stack, bv_variable_read(&code, type));
-		} else if (op == bv_opcode_add) { // [TODO] add_i, add_f, etc...
-			if (stack.length >= 2) { // dont do anything if there is not enough arguments in stack
-				int sum = bv_variable_get_int(bv_stack_top(&stack));
+		}
+		else if (op == bv_opcode_add) {
+			if (stack.length < 2) // dont do anything if there is not enough arguments in stack
+				continue;
+			bv_variable var1 = bv_stack_penultimate(&stack);
+			bv_variable var2 = bv_stack_top(&stack);
+
+			if (var1.type == bv_type_float || var2.type == bv_type_float) {
+				float sum = 0;
+
+				if (var1.type == bv_type_float)
+					sum += bv_variable_get_float(var1);
+				else sum += bv_variable_get_uint(var1);
+				if (var2.type == bv_type_float)
+					sum += bv_variable_get_float(var2);
+				else sum += bv_variable_get_uint(var2);
+
+				bv_stack_pop(&stack);
 				bv_stack_pop(&stack);
 
-				sum += bv_variable_get_int(bv_stack_top(&stack));
+				bv_stack_push(&stack, bv_variable_create_float(sum));
+			}
+			else if (var1.type == bv_type_string && var2.type == bv_type_string) {
+				string result = malloc(strlen(var1.value) + strlen(var2.value) + 1);
+				strcpy(result, var1.value);
+				strcpy(result+strlen(var1.value), var2.value);
+				result[strlen(var1.value) + strlen(var2.value)] = 0;
+
+				bv_stack_pop(&stack);
 				bv_stack_pop(&stack);
 
-				bv_stack_push(&stack, bv_variable_create_int(sum));
+				bv_stack_push(&stack, bv_variable_create_string(result));
+				free(result);
+			}
+			else {
+				u32 sum = bv_variable_get_uint(var1) + bv_variable_get_uint(var2);
+				bv_type type = var1.type;
+
+				bv_stack_pop(&stack);
+				bv_stack_pop(&stack);
+
+				bv_stack_push(&stack, bv_variable_create(type, sum));
 			}
 		} else if (op == bv_opcode_const_get) {
 			bv_type type = bv_type_read(&code);

@@ -36,6 +36,14 @@ string bv_variable_get_string(bv_variable var)
 }
 
 
+bv_variable bv_variable_create(bv_type type, void* value)
+{
+	bv_variable ret;
+	ret.type = type;
+	ret.value = value;
+	return ret;
+}
+
 bv_variable bv_variable_create_int(s32 var)
 {
 	bv_variable ret;

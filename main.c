@@ -105,7 +105,7 @@ int main()
 		printf("Program is missing function 'main'.\n");
 	else {
 		bv_variable ret = bv_program_call(prog, func_main);
-		printf("main() returned: %d\n", bv_variable_get_int(ret));
+		printf("main() returned: %s\n", bv_variable_get_string(ret));
 		bv_variable_deinitialize(&ret);
 	}
 	bv_program_delete(prog);

@@ -3,6 +3,7 @@
 - [ ] cast add variables to the type of the first variable
 - [ ] other operators (div, mul, etc...)
 - [ ] opcode_cast
+- [ ] have a function for executing each opcode
 - [ ] arrays
 - [ ] function arguments
 - [ ] opcode_call (calls a function)
