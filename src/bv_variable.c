@@ -28,10 +28,9 @@ float bv_variable_get_float(bv_variable var)
 {
 	return *((float*)var.value);
 }
-bv_string bv_variable_get_string(bv_variable var)
+string bv_variable_get_string(bv_variable var)
 {
-	char* data = (char*)var.value;
-	return bv_string_copy(data, strlen(data));
+	return (string)var.value;
 }
 
 
@@ -85,11 +84,16 @@ bv_variable bv_variable_create_float(float var)
 	*((float*)ret.value) = var;
 	return ret;
 }
-bv_variable bv_variable_create_string(const char * var)
+bv_variable bv_variable_create_string(string var)
 {
 	bv_variable ret;
 	ret.type = bv_type_string;
-	ret.value = var;
+
+	s32 len = strlen(var);
+	ret.value = malloc((len + 1) * sizeof(char));
+	memcpy(ret.value, var, len);
+	((string)ret.value)[len] = 0;
+	
 	return ret;
 }
 
@@ -135,17 +139,25 @@ void bv_variable_set_float(bv_variable * var, float val)
 		return;
 	*((float*)var->value) = val;
 }
-void bv_variable_set_string(bv_variable * var, const char * val)
+void bv_variable_set_string(bv_variable * var, string val)
 {
-	if (var->type != bv_type_short)
+	if (var->type != bv_type_string)
 		return;
-	var->value = val;
+
+	free(var->value);
+
+	s32 len = strlen(val);
+
+	var->value = malloc((len + 1)*sizeof(char));
+	memcpy(var->value, val, len);
+
+	((string)var->value)[len] = 0;
 }
 
 void bv_variable_deinitialize(bv_variable * var)
 {
 	// this is sort of deconstructor
-	if (var->type == bv_type_float)
+	if (var->type == bv_type_float || var->type == bv_type_string)
 		free(var->value);
 	// else if var == class
 	//		bv_program_call(prog, "~ClassName");
@@ -167,5 +179,5 @@ bv_variable bv_variable_read(byte * mem, bv_type type)
 	else if (type == bv_type_float)
 		return bv_variable_create_float(float_read(mem));
 	else if (type == bv_type_string)
-		return bv_variable_create_string("NotSupported"); // [TODO] delete bv_string
+		return bv_variable_create_string(string_read(mem)); // [TODO] delete bv_string
 }

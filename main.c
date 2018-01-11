@@ -37,13 +37,13 @@ void decode(bv_program* prog)
 	for (u16 i = 0; i < cpool->f_count; i++)
 		printf("const_add 0x%02x %f\n", bv_type_float, cpool->f[i]);
 	for (u16 i = 0; i < cpool->str_count; i++)
-		printf("const_add 0x%02x \"%s\"\n", bv_type_string, cpool->str[i].data);
+		printf("const_add 0x%02x \"%s\"\n", bv_type_string, cpool->str[i]);
 
 	bv_function_pool* fpool = prog->block->functions;
 	for (u16 i = 0; i < fpool->count; i++) {
-		printf("func %s\n", fpool->names[i].data);
+		printf("func %s\n", fpool->names[i]);
 		
-		bv_function* func = bv_program_get_function(prog, fpool->names[i].data);
+		bv_function* func = bv_program_get_function(prog, fpool->names[i]);
 		printf("\tset_return 0x%02x\n", func->return_type);
 		for (u8 j = 0; j < func->args; j++)
 			printf("\targ_add 0x%02x\n", func->arg_type[j]);

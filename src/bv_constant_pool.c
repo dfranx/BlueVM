@@ -34,10 +34,10 @@ bv_constant_pool * bv_constant_pool_create(byte * mem)
 	// String
 	pool->str_count = u16_read(mem);
 	mem += sizeof(u16);
-	pool->str = malloc(sizeof(bv_string)*pool->str_count);
+	pool->str = malloc(sizeof(string)*pool->str_count);
 	for (u16 i = 0; i < pool->str_count; i++) {
-		pool->str[i] = bv_string_read(mem);
-		mem += pool->str[i].length+sizeof(u32);
+		pool->str[i] = string_read(mem);
+		mem += strlen(pool->str[i])+1;
 	}
 
 	return pool;
@@ -47,7 +47,7 @@ u32 bv_constant_pool_length(bv_constant_pool * pool)
 {
 	u32 strLen = 0;
 	for (u16 i = 0; i < pool->str_count; i++)
-		strLen += pool->str[i].length + 1;
+		strLen += strlen(pool->str[i]) + 1;
 
 	return sizeof(u16) * 4 + pool->u_count * sizeof(u32) + pool->s_count * sizeof(s32) + pool->f_count * sizeof(float) + strLen;
 }
@@ -68,7 +68,7 @@ void bv_constant_pool_delete(bv_constant_pool * pool)
 
 	// String
 	for (u16 i = 0; i < pool->str_count; i++)
-		bv_string_delete(pool->str[i]);
+		free(pool->str[i]);
 	free(pool->str);
 	pool->str_count = 0;
 

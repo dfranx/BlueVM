@@ -8,12 +8,12 @@ bv_function_pool* bv_function_pool_create(byte* mem)
 	pool->count = u16_read(mem);
 	mem += sizeof(u16);
 
-	pool->names = malloc(sizeof(bv_string)*pool->count);
+	pool->names = malloc(sizeof(string)*pool->count);
 	pool->address = malloc(sizeof(u32)*pool->count);
 
 	for (u16 i = 0; i < pool->count; i++) {
-		pool->names[i] = bv_string_create(mem);
-		mem += pool->names[i].length+1;
+		pool->names[i] = string_read(mem);
+		mem += strlen(pool->names[i])+1;
 
 		pool->address[i] = u32_read(mem);
 		mem += sizeof(u32);
@@ -22,11 +22,11 @@ bv_function_pool* bv_function_pool_create(byte* mem)
 	return pool;
 }
 
-u32 bv_function_pool_get_address(bv_function_pool* pool, bv_string str)
+u32 bv_function_pool_get_address(bv_function_pool* pool, string str)
 {
 	for (u16 i = 0; i < pool->count; i++) {
-		bv_string* cur = &pool->names[i];
-		if (strcmp(str.data, cur->data) == 0)
+		string* cur = &pool->names[i];
+		if (strcmp(str, cur) == 0)
 			return pool->address[i];
 	}
 
@@ -37,15 +37,14 @@ u32 bv_function_pool_length(bv_function_pool * pool)
 {
 	u32 ret = sizeof(u16) + sizeof(u32)*pool->count;
 	for (u16 i = 0; i < pool->count; i++)
-		ret += pool->names[i].length + 1;
+		ret += strlen(pool->names[i]) + 1;
 	return ret;
 }
 
 void bv_function_pool_delete(bv_function_pool* pool)
 {
-	for (u16 i = 0; i < pool->count; i++) {
-		bv_string_delete(pool->names[i]);
-	}
+	for (u16 i = 0; i < pool->count; i++)
+		free(pool->names[i]);
 
 	pool->count = 0;
 	free(pool->names);

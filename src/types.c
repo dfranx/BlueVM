@@ -37,3 +37,18 @@ float float_read(byte * mem)
 		*((byte*)(&output) + i) = mem[i];
 	return output;
 }
+
+string string_read(byte* mem)
+{
+	u16 size = 0;
+	while (1) {  // [TODO] add some limitation here
+		if (mem[size] == 0)
+			break;
+		size++;
+	}
+
+	string ret = malloc((size+1)* sizeof(char));
+	memcpy(ret, mem, size+1);
+
+	return ret;
+}

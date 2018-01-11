@@ -12,7 +12,7 @@ bv_block* bv_block_create(byte* mem)
 
 void bv_block_delete(bv_block * block)
 {
-	bv_constant_pool_delete(block->constants);
 	bv_function_pool_delete(block->functions);
+	bv_constant_pool_delete(block->constants);
 	free(block);
 }

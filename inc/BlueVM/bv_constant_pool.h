@@ -2,7 +2,6 @@
 #define __BLUEVM_CONSTANT_POOL_H__
 
 #include <BlueVM/types.h>
-#include <BlueVM/bv_string.h>
 
 typedef struct bv_constant_pool {
 	u16 u_count;
@@ -12,7 +11,7 @@ typedef struct bv_constant_pool {
 	u16 f_count;
 	float* f;
 	u16 str_count;
-	bv_string* str;
+	string* str;
 } bv_constant_pool;
 
 bv_constant_pool* bv_constant_pool_create(byte* mem);

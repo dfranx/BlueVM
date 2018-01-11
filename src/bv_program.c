@@ -47,7 +47,7 @@ bv_function* bv_program_get_function(bv_program* prog, const char* str)
 	u16 func_count = bv_program_get_function_count(prog);
 
 	for (u16 i = 0; i < func_count; i++)
-		if (strcmp(prog->block->functions->names[i].data, str) == 0)
+		if (strcmp(prog->block->functions->names[i], str) == 0)
 			return prog->functions[i];
 
 	return 0;
@@ -55,7 +55,8 @@ bv_function* bv_program_get_function(bv_program* prog, const char* str)
 
 bv_variable bv_program_call(bv_program * prog, bv_function * func)
 {
-	char* code = func->op;
+	bv_opcode* code = func->op;
+
 	while ((code - func->op) < func->op_length) {
 		bv_opcode op = bv_opcode_read(code);
 		code += sizeof(bv_opcode);
