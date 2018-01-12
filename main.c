@@ -26,18 +26,11 @@ char* read_file(char const* path)
 	return buffer;
 }
 
-void print_variable(bv_variable var)
-{
-	if (var.type == bv_type_string)
-		printf("%s", bv_variable_get_string(var));
-	else if (var.type == bv_type_int)
-		printf("%d", bv_variable_get_uint(var));
-	else if (var.type == bv_type_float)
-		printf("%f", bv_variable_get_float(var));
-}
-
 int main()
 {
+	// int i = 5;
+	// i = i*i;
+	// return i;
 	char* mem = read_file("test.bv");
 
 	bv_program* prog = bv_program_create(mem);

@@ -1,6 +1,6 @@
 ## TODO
 - [x] const_get
-- [ ] other opcodes (check bv_opcode.h)
+- [x] other opcodes (check bv_opcode.h)
 - [ ] have a seperate function for executing each opcode (for example: bv_execute_opcode_add)
 - [ ] local variables (get/set_local)
 - [ ] global variables (get/set_global)

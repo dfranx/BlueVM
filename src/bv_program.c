@@ -39,7 +39,10 @@ bv_function* bv_program_get_function(bv_program* prog, const char* str)
 bv_variable bv_program_call(bv_program* prog, bv_function* func)
 {
 	bv_stack stack = bv_stack_create();
+	bv_stack locals = bv_stack_create(); // local variable container
 	bv_variable rtrn;
+
+	locals.length = 0;
 
 	bv_constant_pool* cpool = prog->block->constants;
 	byte* code = func->code;
@@ -599,6 +602,59 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func)
 			bv_stack_push(&stack, var2);
 			bv_stack_push(&stack, var1);
 		}
+		else if (op == bv_opcode_get_local) {
+			u16 index = u16_read(&code);
+
+			if (index >= locals.length)
+				bv_stack_push(&stack, bv_variable_create_int(0)); // push a 0 to the stack
+			else
+				bv_stack_push(&stack, bv_variable_copy(locals.data[index])); // make a copy (no pointers :()
+		}
+		else if (op == bv_opcode_set_local) {
+			u16 index = u16_read(&code);
+			bv_variable var = bv_stack_top(&stack);
+
+			if (index == locals.length) { // 'declare' a new variable
+				bv_stack_push(&locals, bv_variable_copy(var));
+			} else {
+				bv_variable* pLocal = &locals.data[index];
+
+				bv_type my_type = pLocal->type;
+				bv_type st_type = var.type;
+
+				if (st_type == bv_type_string && my_type != bv_type_string)
+					continue; // cant assign string to an int/float
+
+				if (my_type == bv_type_string) {
+					if (st_type != bv_type_string) // cant assign int/float to a string
+						continue;
+
+					*pLocal = bv_variable_copy(var);
+				}
+				else if (my_type == bv_type_float) {
+					if (st_type == bv_type_float) {
+						*pLocal = bv_variable_copy(var);
+					}
+					else {
+						if (st_type == bv_type_uint || st_type == bv_type_ushort || st_type == bv_type_uchar)
+							*pLocal = bv_variable_create_float(bv_variable_get_uint(var));
+						else
+							*pLocal = bv_variable_create_float(bv_variable_get_int(var));
+
+						pLocal->type = my_type; // return the old type
+					}
+				}
+				else {
+					if (st_type == bv_type_float) {
+						u32 newVal = bv_variable_get_float(var);
+						*pLocal = bv_variable_create(my_type, newVal);
+					}
+					else pLocal->value = var.value;
+				}
+			}
+
+			bv_stack_pop(&stack);
+		}
 	}
 
 	// get return value
@@ -608,6 +664,7 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func)
 		rtrn = bv_variable_create_int(0);
 
 	bv_stack_delete(&stack);
+	bv_stack_delete(&locals);
 
 	return rtrn;
 }

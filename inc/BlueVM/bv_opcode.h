@@ -40,6 +40,8 @@ typedef enum __bv_opcode {
 	bv_opcode_convert,		// convert [new_type] {value} -> {new_type_value}
 	bv_opcode_duplicate,	// duplicate {value} -> {value, value}
 	bv_opcode_swap,			// swap {value1, value2} -> {value2, value1}
+	bv_opcode_get_local,	// get_local [index]
+	bv_opcode_set_local,	// set_local [index] {value} -> {}
 	bv_opcode_COUNT			// this is not an actual opcode
 } __bv_opcode;
 
