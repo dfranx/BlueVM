@@ -5,7 +5,7 @@
 
 typedef struct bv_stack {
 	bv_variable* data;
-	u32 length;
+	u16 length;
 } bv_stack;
 
 bv_stack bv_stack_create();

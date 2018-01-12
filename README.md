@@ -1,14 +1,15 @@
 ## TODO
 - [x] const_get
-- [x] other opcodes (check bv_opcode.h)
+- [x] other opcodes
 - [ ] have a seperate function for executing each opcode (for example: bv_execute_opcode_add)
-- [ ] local variables (get/set_local)
-- [ ] global variables (get/set_global)
+- [x] local variables (get/set_local)
+- [x] global variables (get/set_global)
 - [ ] arrays
 - [ ] function arguments
 - [ ] opcode_call (calls a function)
 - [ ] if
 - [ ] call C functions from BlueVM
 - [ ] import other bv_programs into current one (call functions from another file)
+- [ ] [OPTIONAL] use bv_name_list to store function names
 - [ ] [OPTIONAL] classes/objects/namespaces/enums
 - [ ] [OPTIONAL] exceptions

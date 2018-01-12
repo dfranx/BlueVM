@@ -40,7 +40,8 @@ int main()
 		printf("Program is missing function 'main'.\n");
 	else {
 		bv_variable ret = bv_program_call(prog, func_main);
-		printf("main() returned: %d\n", bv_variable_get_uchar(ret));
+		printf("main() returned: %u\n", bv_variable_get_uint(ret));
+		printf("global variable 'pow': %u\n", bv_variable_get_uint(bv_program_get_global(prog, "pow")));
 		bv_variable_deinitialize(&ret);
 	}
 	bv_program_delete(prog);

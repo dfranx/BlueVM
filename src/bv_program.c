@@ -1,5 +1,4 @@
 #include <BlueVM/bv_program.h>
-#include <BlueVM/bv_stack.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -8,7 +7,9 @@ bv_program* bv_program_create(byte * mem)
 	bv_program* ret = malloc(sizeof(bv_program));
 
 	ret->header = bv_header_create(mem);
-	ret->block = bv_block_create(mem + sizeof(ret->header));
+	ret->global_names = bv_name_list_create(mem + sizeof(ret->header));
+	ret->globals = bv_stack_create();
+	ret->block = bv_block_create(mem + sizeof(ret->header) + bv_name_list_length(ret->global_names));
 	ret->functions = bv_function_create_array(ret->block->functions, mem);
 
 	return ret;
@@ -17,6 +18,8 @@ void bv_program_delete(bv_program * prog)
 {
 	bv_function_delete_array(prog->functions, bv_program_get_function_count(prog));
 	bv_block_delete(prog->block);
+	bv_stack_delete(&prog->globals);
+	bv_name_list_delete(&prog->global_names);
 
 	free(prog);
 }
@@ -34,6 +37,15 @@ bv_function* bv_program_get_function(bv_program* prog, const char* str)
 			return prog->functions[i];
 
 	return 0;
+}
+
+u16 bv_program_get_global_count(bv_program * prog)
+{
+	return prog->globals.length;
+}
+bv_variable bv_program_get_global(bv_program* prog, string name)
+{
+	return prog->globals.data[bv_name_list_get_id(prog->global_names, name)];
 }
 
 bv_variable bv_program_call(bv_program* prog, bv_function* func)
@@ -616,8 +628,63 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func)
 
 			if (index == locals.length) { // 'declare' a new variable
 				bv_stack_push(&locals, bv_variable_copy(var));
-			} else {
+			}
+			else {
 				bv_variable* pLocal = &locals.data[index];
+
+				bv_type my_type = pLocal->type;
+				bv_type st_type = var.type;
+
+				if (st_type == bv_type_string && my_type != bv_type_string)
+					continue; // cant assign string to an int/float
+
+				if (my_type == bv_type_string) {
+					if (st_type != bv_type_string) // cant assign int/float to a string
+						continue;
+
+					*pLocal = bv_variable_copy(var);
+				}
+				else if (my_type == bv_type_float) {
+					if (st_type == bv_type_float) {
+						*pLocal = bv_variable_copy(var);
+					}
+					else {
+						if (st_type == bv_type_uint || st_type == bv_type_ushort || st_type == bv_type_uchar)
+							*pLocal = bv_variable_create_float(bv_variable_get_uint(var));
+						else
+							*pLocal = bv_variable_create_float(bv_variable_get_int(var));
+
+						pLocal->type = my_type; // return the old type
+					}
+				}
+				else {
+					if (st_type == bv_type_float) {
+						u32 newVal = bv_variable_get_float(var);
+						*pLocal = bv_variable_create(my_type, newVal);
+					}
+					else pLocal->value = var.value;
+				}
+			}
+
+			bv_stack_pop(&stack);
+		}
+		else if (op == bv_opcode_get_global) {
+			u16 index = u16_read(&code);
+
+			if (index >= prog->globals.length)
+				bv_stack_push(&stack, bv_variable_create_int(0)); // push a 0 to the stack
+			else
+				bv_stack_push(&stack, bv_variable_copy(prog->globals.data[index])); // make a copy ( no pointers :( )
+		}
+		else if (op == bv_opcode_set_global) {
+			u16 index = u16_read(&code);
+			bv_variable var = bv_stack_top(&stack);
+
+			if (index == prog->globals.length) { // 'declare' a new variable
+				bv_stack_push(&prog->globals, bv_variable_copy(var));
+			}
+			else {
+				bv_variable* pLocal = &prog->globals.data[index];
 
 				bv_type my_type = pLocal->type;
 				bv_type st_type = var.type;

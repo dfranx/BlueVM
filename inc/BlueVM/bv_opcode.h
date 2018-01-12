@@ -42,13 +42,11 @@ typedef enum __bv_opcode {
 	bv_opcode_swap,			// swap {value1, value2} -> {value2, value1}
 	bv_opcode_get_local,	// get_local [index]
 	bv_opcode_set_local,	// set_local [index] {value} -> {}
+	bv_opcode_get_global,	// get_global [index]
+	bv_opcode_set_global,	// set_global [index] {value} -> {}
 	bv_opcode_COUNT			// this is not an actual opcode
 } __bv_opcode;
 
-// get_local -> {value}
-// set_local 
-// get_global -> {value}
-// set_global
 // newarray [type] [arg_count] <[is_initialized] {arg1, arg2, ..., argN} -> {array}>
 // call [argc] {name, arg1, arg2 ... argN} -> {return_value}
 // goto [address]
