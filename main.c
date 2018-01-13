@@ -34,7 +34,8 @@ int main()
 	char* mem = read_file("test.bv");
 
 	bv_program* prog = bv_program_create(mem);
-	
+
+	bv_program_set_global(prog, "val", bv_variable_create_int(10));
 	bv_function* func_main = bv_program_get_function(prog, "main");
 	if (func_main == NULL)
 		printf("Program is missing function 'main'.\n");

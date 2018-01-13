@@ -47,6 +47,16 @@ bv_variable bv_program_get_global(bv_program* prog, string name)
 {
 	return prog->globals.data[bv_name_list_get_id(prog->global_names, name)];
 }
+void bv_program_set_global(bv_program * prog, string name, bv_variable var)
+{
+	u16 ind = bv_name_list_get_id(prog->global_names, name);
+	if (ind >= bv_program_get_global_count(prog)) {
+		prog->globals.data = realloc(prog->globals.data, sizeof(bv_variable) * (ind+1)); // [TODO] maybe change this! idea: use u16* indices (?)
+		prog->globals.length = (ind + 1);
+	}
+
+	prog->globals.data[ind] = var;
+}
 
 bv_variable bv_program_call(bv_program* prog, bv_function* func)
 {

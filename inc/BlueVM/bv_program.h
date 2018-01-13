@@ -25,6 +25,7 @@ bv_function* bv_program_get_function(bv_program* prog, const char* str);
 
 u16 bv_program_get_global_count(bv_program* prog);
 bv_variable bv_program_get_global(bv_program* prog, string name);
+void bv_program_set_global(bv_program* prog, string name, bv_variable var);
 
 bv_variable bv_program_call(bv_program* prog, bv_function* func);
 
