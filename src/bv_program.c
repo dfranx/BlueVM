@@ -1,4 +1,5 @@
 #include <BlueVM/bv_program.h>
+#include <BlueVM/bv_array.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -629,54 +630,86 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func)
 
 			if (index >= locals.length)
 				bv_stack_push(&stack, bv_variable_create_int(0)); // push a 0 to the stack
-			else
-				bv_stack_push(&stack, bv_variable_copy(locals.data[index])); // make a copy (no pointers :()
+			else {
+				bv_variable* pLocal = &locals.data[index];
+				if (pLocal->type == bv_type_array) {
+					bv_array arr = bv_variable_get_array(*pLocal);
+
+					int* lens = malloc(sizeof(int) * arr.dim);
+					int i = arr.dim;
+					while (i != 0) {
+						lens[arr.dim - i] = bv_variable_get_int(bv_stack_top(&stack));
+						bv_stack_pop(&stack);
+						i--;
+					}
+
+					bv_stack_push(&stack, bv_array_get(arr, lens));
+
+					free(lens);
+				} else
+					bv_stack_push(&stack, bv_variable_copy(*pLocal)); // make a copy (no pointers :()
+			}
 		}
 		else if (op == bv_opcode_set_local) {
 			u16 index = u16_read(&code);
 			bv_variable var = bv_stack_top(&stack);
+			bv_stack_pop(&stack);
 
 			if (index == locals.length) { // 'declare' a new variable
 				bv_stack_push(&locals, bv_variable_copy(var));
-			}
-			else {
+			} else {
 				bv_variable* pLocal = &locals.data[index];
 
 				bv_type my_type = pLocal->type;
-				bv_type st_type = var.type;
+				if (my_type == bv_type_array) {
+					bv_array arr = bv_variable_get_array(*pLocal);
 
-				if (st_type == bv_type_string && my_type != bv_type_string)
-					continue; // cant assign string to an int/float
+					int* lens = malloc(sizeof(int) * arr.dim);
+					int i = arr.dim;
+					while (i != 0) {
+						lens[arr.dim - i] = bv_variable_get_int(bv_stack_top(&stack));
+						bv_stack_pop(&stack);
+						i--;
+					}
 
-				if (my_type == bv_type_string) {
-					if (st_type != bv_type_string) // cant assign int/float to a string
-						continue;
+					bv_variable_deinitialize(&arr.data[bv_array_get_index(arr, lens)]);
+					bv_array_set(arr, lens, bv_variable_copy(var));
 
-					*pLocal = bv_variable_copy(var);
-				}
-				else if (my_type == bv_type_float) {
-					if (st_type == bv_type_float) {
+					free(lens);
+				} else {
+					bv_type st_type = var.type;
+
+					if (st_type == bv_type_string && my_type != bv_type_string)
+						continue; // cant assign string to an int/float
+
+					if (my_type == bv_type_string) {
+						if (st_type != bv_type_string) // cant assign int/float to a string
+							continue;
+
 						*pLocal = bv_variable_copy(var);
 					}
-					else {
-						if (st_type == bv_type_uint || st_type == bv_type_ushort || st_type == bv_type_uchar)
-							*pLocal = bv_variable_create_float(bv_variable_get_uint(var));
-						else
-							*pLocal = bv_variable_create_float(bv_variable_get_int(var));
+					else if (my_type == bv_type_float) {
+						if (st_type == bv_type_float) {
+							*pLocal = bv_variable_copy(var);
+						}
+						else {
+							if (st_type == bv_type_uint || st_type == bv_type_ushort || st_type == bv_type_uchar)
+								*pLocal = bv_variable_create_float(bv_variable_get_uint(var));
+							else
+								*pLocal = bv_variable_create_float(bv_variable_get_int(var));
 
-						pLocal->type = my_type; // return the old type
+							pLocal->type = my_type; // return the old type
+						}
 					}
-				}
-				else {
-					if (st_type == bv_type_float) {
-						u32 newVal = bv_variable_get_float(var);
-						*pLocal = bv_variable_create(my_type, newVal);
+					else {
+						if (st_type == bv_type_float) {
+							u32 newVal = bv_variable_get_float(var);
+							*pLocal = bv_variable_create(my_type, newVal);
+						}
+						else pLocal->value = var.value;
 					}
-					else pLocal->value = var.value;
 				}
 			}
-
-			bv_stack_pop(&stack);
 		}
 		else if (op == bv_opcode_get_global) {
 			u16 index = u16_read(&code);
@@ -731,6 +764,23 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func)
 			}
 
 			bv_stack_pop(&stack);
+		}
+		else if (op == bv_opcode_new_array) {
+			int dim = u8_read(&code);
+
+			if (stack.length < dim)
+				continue;
+
+			int* lens = malloc(sizeof(int) * dim);
+			int i = dim;
+			while (i != 0) {
+				lens[dim - i] = bv_variable_get_int(bv_stack_top(&stack));
+				bv_stack_pop(&stack);
+				i--;
+			}
+
+			bv_stack_push(&locals, bv_variable_create_array(bv_array_create(dim, lens)));
+			free(lens);
 		}
 	}
 

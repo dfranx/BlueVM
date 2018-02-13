@@ -41,13 +41,13 @@ typedef enum __bv_opcode {
 	bv_opcode_duplicate,	// duplicate {value} -> {value, value}
 	bv_opcode_swap,			// swap {value1, value2} -> {value2, value1}
 	bv_opcode_get_local,	// get_local [index]
-	bv_opcode_set_local,	// set_local [index] {value} -> {}
+	bv_opcode_set_local,	// set_local [index] {value} -> {}			NOTE: stack if local at given index is array: { value, ind0, ..., indN } 
 	bv_opcode_get_global,	// get_global [index]
 	bv_opcode_set_global,	// set_global [index] {value} -> {}
+	bv_opcode_new_array,	// new_array [dim] { size0, ..., sizeN } -> { }
 	bv_opcode_COUNT			// this is not an actual opcode
 } __bv_opcode;
 
-// newarray [type] [arg_count] <[is_initialized] {arg1, arg2, ..., argN} -> {array}>
 // call [argc] {name, arg1, arg2 ... argN} -> {return_value}
 // goto [address]
 // if [address] {boolean}

@@ -28,9 +28,6 @@ char* read_file(char const* path)
 
 int main()
 {
-	// int i = 5;
-	// i = i*i;
-	// return i;
 	char* mem = read_file("test.bv");
 
 	bv_program* prog = bv_program_create(mem);

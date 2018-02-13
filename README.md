@@ -4,7 +4,8 @@
 - [ ] have a seperate function for executing each opcode (for example: bv_execute_opcode_add)
 - [x] local variables (get/set_local)
 - [x] global variables (get/set_global)
-- [ ] arrays
+- [x] arrays
+- [ ] opcode_is_type_of
 - [ ] function arguments
 - [ ] opcode_call (calls a function)
 - [ ] if
@@ -12,6 +13,7 @@
 - [ ] pass C variables to BlueVM
 - [ ] import other bv_programs into current one (call functions from another file)
 - [ ] fix all warnings
+- [ ] more control over arrays - pushing arrays on stack, copying, global arrays, etc...
 - [ ] [OPTIONAL] use bv_name_list to store function names
 - [ ] [OPTIONAL] classes/objects/namespaces/enums
-- [ ] [OPTIONAL] exceptions
+- [ ] [OPTIONAL] exceptions/error handling

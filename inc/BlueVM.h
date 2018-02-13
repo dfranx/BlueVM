@@ -4,5 +4,6 @@
 #include <BlueVM/bv_program.h>
 #include <BlueVM/bv_type.h>
 #include <BlueVM/bv_variable.h>
+#include <BlueVM/bv_array.h>
 
 #endif

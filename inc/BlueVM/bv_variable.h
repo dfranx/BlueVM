@@ -3,6 +3,8 @@
 
 #include <BlueVM/bv_type.h>
 
+typedef struct bv_array bv_array;
+
 typedef struct bv_variable {
 	bv_type type;
 	void* value;
@@ -16,6 +18,7 @@ s8 bv_variable_get_char(bv_variable var);
 u8 bv_variable_get_uchar(bv_variable var);
 float bv_variable_get_float(bv_variable var);
 string bv_variable_get_string(bv_variable var);
+bv_array bv_variable_get_array(bv_variable var);
 
 bv_variable bv_variable_create(bv_type type, void* value);
 bv_variable bv_variable_create_int(s32 var);
@@ -26,6 +29,7 @@ bv_variable bv_variable_create_char(s8 var);
 bv_variable bv_variable_create_uchar(u8 var);
 bv_variable bv_variable_create_float(float var);
 bv_variable bv_variable_create_string(string var);
+bv_variable bv_variable_create_array(bv_array var);
 
 void bv_variable_set_int(bv_variable* var, s32 val);
 void bv_variable_set_uint(bv_variable* var, u32 val);
@@ -35,6 +39,7 @@ void bv_variable_set_char(bv_variable* var, s8 val);
 void bv_variable_set_uchar(bv_variable* var, u8 val);
 void bv_variable_set_float(bv_variable* var, float val);
 void bv_variable_set_string(bv_variable* var, string val);
+void bv_variable_set_array(bv_variable* var, bv_array val);
 
 void bv_variable_deinitialize(bv_variable* var);
 bv_variable bv_variable_copy(bv_variable var);
