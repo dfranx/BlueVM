@@ -45,13 +45,15 @@ typedef enum __bv_opcode {
 	bv_opcode_get_global,	// get_global [index]
 	bv_opcode_set_global,	// set_global [index] {value} -> {}
 	bv_opcode_new_array,	// new_array [dim] { size0, ..., sizeN } -> { }
+	bv_opcode_call,			// call [name] {arg1, arg2 ... argN} -> {}
+	bv_opcode_call_return,	// call_return [name] {arg1, arg2, ... argN} -> {return_value}
 	bv_opcode_COUNT			// this is not an actual opcode
 } __bv_opcode;
 
-// call [argc] {name, arg1, arg2 ... argN} -> {return_value}
-// goto [address]
-// if [address] {boolean}
+// jump [address]
+// if [address] {boolean} -> {}
 // switch [type] [default_address] [case_count] <[case_value] [case_address]> {value}
+// TODO: new_array [dim] -> new_array [locals id] [dim]
 
 bv_opcode bv_opcode_read(byte** mem);
 

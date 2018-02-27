@@ -59,13 +59,17 @@ void bv_program_set_global(bv_program * prog, string name, bv_variable var)
 	prog->globals.data[ind] = var;
 }
 
-bv_variable bv_program_call(bv_program* prog, bv_function* func)
+bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args)
 {
 	bv_stack stack = bv_stack_create();
 	bv_stack locals = bv_stack_create(); // local variable container
 	bv_variable rtrn;
 
-	locals.length = 0;
+	if (args != NULL && args->length == func->args) {
+		// push arguments to local variables
+		for (int i = 0; i < args->length; i++)
+			bv_stack_push(&locals, args->data[i]);
+	}
 
 	bv_constant_pool* cpool = prog->block->constants;
 	byte* code = func->code;
@@ -646,7 +650,8 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func)
 					bv_stack_push(&stack, bv_array_get(arr, lens));
 
 					free(lens);
-				} else
+				}
+				else
 					bv_stack_push(&stack, bv_variable_copy(*pLocal)); // make a copy (no pointers :()
 			}
 		}
@@ -657,7 +662,8 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func)
 
 			if (index == locals.length) { // 'declare' a new variable
 				bv_stack_push(&locals, bv_variable_copy(var));
-			} else {
+			}
+			else {
 				bv_variable* pLocal = &locals.data[index];
 
 				bv_type my_type = pLocal->type;
@@ -676,7 +682,8 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func)
 					bv_array_set(arr, lens, bv_variable_copy(var));
 
 					free(lens);
-				} else {
+				}
+				else {
 					bv_type st_type = var.type;
 
 					if (st_type == bv_type_string && my_type != bv_type_string)
@@ -781,6 +788,41 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func)
 
 			bv_stack_push(&locals, bv_variable_create_array(bv_array_create(dim, lens)));
 			free(lens);
+		}
+		else if (op == bv_opcode_call)
+		{
+			char* name = string_read(&code);
+			bv_function* func = bv_program_get_function(prog, name);
+			bv_stack func_args = bv_stack_create();
+
+			if (stack.length < func->args)
+				continue; // [TODO] error, not enough arguments
+			
+			for (int i = 0; i < func->args; i++) {
+				bv_stack_push(&func_args, bv_stack_top(&stack));
+				bv_stack_pop(&stack);
+			}
+
+			bv_program_call(prog, func, &func_args);
+
+			// [TODO] check if bv_stack_delete(&func_args); is needed
+		}
+		else if (op == bv_opcode_call_return) {
+			char* name = string_read(&code);
+			bv_function* func = bv_program_get_function(prog, name);
+			bv_stack func_args = bv_stack_create();
+
+			if (stack.length < func->args)
+				continue; // [TODO] error, not enough arguments
+
+			for (int i = 0; i < func->args; i++) {
+				bv_stack_push(&func_args, bv_stack_top(&stack));
+				bv_stack_pop(&stack);
+			}
+
+			bv_stack_push(&stack, bv_program_call(prog, func, &func_args));
+
+			// [TODO] check if bv_stack_delete(&func_args); is needed
 		}
 	}
 

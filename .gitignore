@@ -1,5 +1,6 @@
 linux.sh
 linux_build
+*.exe
 *.sln
 *.vcxproj*
 Debug

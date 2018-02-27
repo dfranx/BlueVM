@@ -28,18 +28,16 @@ char* read_file(char const* path)
 
 int main()
 {
-	char* mem = read_file("test.bv");
+	char* mem = read_file("func_arg.bv");
 
 	bv_program* prog = bv_program_create(mem);
 
-	bv_program_set_global(prog, "val", bv_variable_create_int(10));
 	bv_function* func_main = bv_program_get_function(prog, "main");
 	if (func_main == NULL)
 		printf("Program is missing function 'main'.\n");
 	else {
-		bv_variable ret = bv_program_call(prog, func_main);
+		bv_variable ret = bv_program_call(prog, func_main, NULL);
 		printf("main() returned: %u\n", bv_variable_get_uint(ret));
-		printf("global variable 'pow': %u\n", bv_variable_get_uint(bv_program_get_global(prog, "pow")));
 		bv_variable_deinitialize(&ret);
 	}
 	bv_program_delete(prog);

@@ -1,4 +1,5 @@
 ## TODO
+- [ ] typedef bv_stack bv_vector;
 - [x] const_get
 - [x] other opcodes
 - [ ] have a seperate function for executing each opcode (for example: bv_execute_opcode_add)
