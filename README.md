@@ -9,9 +9,10 @@
 - [x] opcode_is_type_of
 - [x] function arguments
 - [x] opcode_call (calls a function)
-- [ ] if
+- [x] if
 - [x] call C functions from BlueVM
 - [x] pass C variables to BlueVM
+- [ ] goto
 - [ ] import other bv_programs into current one (call functions from another file)
 - [ ] 2# fix all warnings
 - [ ] more control over arrays - pushing arrays on stack, copying, global arrays, etc...

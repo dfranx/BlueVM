@@ -39,7 +39,7 @@ bv_variable my_print(int count, bv_variable* args)
 
 int main()
 {
-	char* mem = read_file("test.bv");
+	char* mem = read_file("E:/bluevm/test.bv");
 
 	bv_program* prog = bv_program_create(mem);
 

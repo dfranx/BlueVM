@@ -883,6 +883,10 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args)
 				if (bv_variable_get_int(var) == 0)
 					code = func->code + addr;
 		}
+		else if (op == bv_opcode_goto) {
+			u32 addr = u32_read(&code);
+			code = func->code + addr;
+		}
 	}
 
 	// get return value
