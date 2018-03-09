@@ -862,6 +862,17 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args)
 
 			// bv_stack_delete(&func_args); ?
 		}
+		else if (op == bv_opcode_is_type_of) {
+			bv_type type = bv_type_read(&code);
+
+			bv_variable var = bv_stack_top(&stack);
+			bv_stack_pop(&stack);
+		
+			if (var.type == type)
+				bv_stack_push(&stack, bv_variable_create_char(1));
+			else
+				bv_stack_push(&stack, bv_variable_create_char(0));
+		}
 	}
 
 	// get return value

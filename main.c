@@ -29,8 +29,8 @@ char* read_file(char const* path)
 bv_variable my_print(int count, bv_variable* args)
 {
 	for (int i = 0; i < count; i++) {
-		if (args[i].type == bv_type_int)
-			printf("%d", bv_variable_get_int(args[i]));
+		if (args[i].type == bv_type_char)
+			printf("%d", (int)bv_variable_get_char(args[i]));
 	}
 
 	return bv_variable_create_void();

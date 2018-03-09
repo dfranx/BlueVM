@@ -10,7 +10,7 @@
 - [x] function arguments
 - [x] opcode_call (calls a function)
 - [ ] if
-- [ ] call C functions from BlueVM
+- [x] call C functions from BlueVM
 - [x] pass C variables to BlueVM
 - [ ] import other bv_programs into current one (call functions from another file)
 - [ ] fix all warnings
