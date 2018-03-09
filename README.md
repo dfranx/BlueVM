@@ -7,11 +7,11 @@
 - [x] global variables (get/set_global)
 - [x] arrays
 - [ ] opcode_is_type_of
-- [ ] function arguments
-- [ ] opcode_call (calls a function)
+- [x] function arguments
+- [x] opcode_call (calls a function)
 - [ ] if
 - [ ] call C functions from BlueVM
-- [ ] pass C variables to BlueVM
+- [x] pass C variables to BlueVM
 - [ ] import other bv_programs into current one (call functions from another file)
 - [ ] fix all warnings
 - [ ] more control over arrays - pushing arrays on stack, copying, global arrays, etc...

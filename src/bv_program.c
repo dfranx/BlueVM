@@ -13,6 +13,10 @@ bv_program* bv_program_create(byte * mem)
 	ret->block = bv_block_create(mem + sizeof(ret->header) + bv_name_list_length(ret->global_names));
 	ret->functions = bv_function_create_array(ret->block->functions, mem);
 
+	ret->external_functions = NULL;
+	ret->external_function_names = NULL;
+	ret->external_function_count = 0;
+
 	return ret;
 }
 void bv_program_delete(bv_program * prog)
@@ -32,12 +36,32 @@ u16 bv_program_get_function_count(bv_program * prog)
 bv_function* bv_program_get_function(bv_program* prog, const char* str)
 {
 	u16 func_count = bv_program_get_function_count(prog);
+	u16 ext_func_count = prog->external_function_count;
 
 	for (u16 i = 0; i < func_count; i++)
 		if (strcmp(prog->block->functions->names[i], str) == 0)
 			return prog->functions[i];
-
+	
 	return 0;
+}
+bv_external_function bv_program_get_ext_function(bv_program * prog, const char * str)
+{
+	u16 ext_func_count = prog->external_function_count;
+	for (u16 i = 0; i < ext_func_count; i++)
+		if (strcmp(prog->external_function_names[i], str) == 0)
+			return prog->external_functions[i];
+	
+	return NULL;
+}
+void bv_program_add_function(bv_program * prog, const char * name, bv_external_function* ext_func)
+{
+	prog->external_functions = realloc(prog->external_functions, sizeof(bv_external_function) * (prog->external_function_count + 1));
+	prog->external_function_names = realloc(prog->external_function_names, sizeof(char*) * (prog->external_function_count + 1));
+	
+	prog->external_functions[prog->external_function_count] = ext_func;
+	prog->external_function_names[prog->external_function_count] = name;
+
+	prog->external_function_count++;
 }
 
 u16 bv_program_get_global_count(bv_program * prog)
@@ -792,37 +816,51 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args)
 		else if (op == bv_opcode_call)
 		{
 			char* name = string_read(&code);
+			u8 argc = u8_read(&code);
+
 			bv_function* func = bv_program_get_function(prog, name);
 			bv_stack func_args = bv_stack_create();
 
-			if (stack.length < func->args)
+			if (stack.length < argc)
 				continue; // [TODO] error, not enough arguments
 			
-			for (int i = 0; i < func->args; i++) {
+			for (int i = 0; i < argc; i++) {
 				bv_stack_push(&func_args, bv_stack_top(&stack));
 				bv_stack_pop(&stack);
 			}
 
-			bv_program_call(prog, func, &func_args);
+			if (func != NULL) {
+				bv_program_call(prog, func, &func_args);
+			} else {
+				bv_external_function ext_func = bv_program_get_ext_function(prog, name);
+				(*ext_func)(argc, func_args.data);
+			}
 
-			// [TODO] check if bv_stack_delete(&func_args); is needed
+			// bv_stack_delete(&func_args); ?
 		}
 		else if (op == bv_opcode_call_return) {
 			char* name = string_read(&code);
+			u8 argc = u8_read(&code);
+
 			bv_function* func = bv_program_get_function(prog, name);
 			bv_stack func_args = bv_stack_create();
 
-			if (stack.length < func->args)
+			if (stack.length < argc)
 				continue; // [TODO] error, not enough arguments
 
-			for (int i = 0; i < func->args; i++) {
+			for (int i = 0; i < argc; i++) {
 				bv_stack_push(&func_args, bv_stack_top(&stack));
 				bv_stack_pop(&stack);
 			}
 
-			bv_stack_push(&stack, bv_program_call(prog, func, &func_args));
+			if (func != NULL)
+				bv_stack_push(&stack, bv_program_call(prog, func, &func_args));
+			else {
+				bv_external_function ext_func = bv_program_get_ext_function(prog, name);
+				bv_stack_push(&stack, (*ext_func)(argc, func_args.data));
+			}
 
-			// [TODO] check if bv_stack_delete(&func_args); is needed
+			// bv_stack_delete(&func_args); ?
 		}
 	}
 

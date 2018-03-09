@@ -21,6 +21,7 @@ string bv_variable_get_string(bv_variable var);
 bv_array bv_variable_get_array(bv_variable var);
 
 bv_variable bv_variable_create(bv_type type, void* value);
+bv_variable bv_variable_create_void();
 bv_variable bv_variable_create_int(s32 var);
 bv_variable bv_variable_create_uint(u32 var);
 bv_variable bv_variable_create_short(s16 var);

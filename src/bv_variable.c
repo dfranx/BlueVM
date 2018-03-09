@@ -49,6 +49,14 @@ bv_variable bv_variable_create(bv_type type, void* value)
 	return ret;
 }
 
+bv_variable bv_variable_create_void()
+{
+	bv_variable ret;
+	ret.type = bv_type_void;
+	ret.value = NULL;
+	return ret;
+}
+
 bv_variable bv_variable_create_int(s32 var)
 {
 	bv_variable ret;
