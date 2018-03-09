@@ -20,4 +20,6 @@ typedef enum __bv_type {
 
 bv_type bv_type_read(byte** mem);
 
+byte bv_type_is_integer(bv_type type);
+
 #endif

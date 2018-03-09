@@ -54,6 +54,8 @@ string string_read(byte** mem)
 	string ret = malloc(size * sizeof(char));
 	memcpy(ret, *mem, size);
 
+	ret[size-1] = 0;
+
 	*mem += size;
 
 	return ret;

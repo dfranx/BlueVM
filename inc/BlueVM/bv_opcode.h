@@ -47,7 +47,8 @@ typedef enum __bv_opcode {
 	bv_opcode_new_array,	// new_array [dim] { size0, ..., sizeN } -> { }
 	bv_opcode_call,			// call [name] {arg1, arg2 ... argN} -> {}
 	bv_opcode_call_return,	// call_return [name] {arg1, arg2, ... argN} -> {return_value}
-	bv_opcode_is_type_of,
+	bv_opcode_is_type_of,	// is_type [type] {value} -> {false/true}
+	bv_opcode_if,			// if [address_if_false] {value} -> {}
 	bv_opcode_COUNT			// this is not an actual opcode
 } __bv_opcode;
 

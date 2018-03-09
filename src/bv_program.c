@@ -825,7 +825,7 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args)
 				continue; // [TODO] error, not enough arguments
 			
 			for (int i = 0; i < argc; i++) {
-				bv_stack_push(&func_args, bv_stack_top(&stack));
+				bv_stack_push(&func_args, bv_variable_copy(bv_stack_top(&stack)));
 				bv_stack_pop(&stack);
 			}
 
@@ -872,6 +872,16 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args)
 				bv_stack_push(&stack, bv_variable_create_char(1));
 			else
 				bv_stack_push(&stack, bv_variable_create_char(0));
+		} 
+		else if (op == bv_opcode_if) {
+			u32 addr = u32_read(&code);
+
+			bv_variable var = bv_stack_top(&stack);
+			bv_stack_pop(&stack);
+
+			if (bv_type_is_integer(var.type))
+				if (bv_variable_get_int(var) == 0)
+					code = func->code + addr;
 		}
 	}
 
