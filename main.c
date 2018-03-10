@@ -1,6 +1,7 @@
 #include <BlueVM.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 char* read_file(char const* path)
 {
@@ -44,13 +45,16 @@ int main()
 	bv_program* prog = bv_program_create(mem);
 
 	bv_program_add_function(prog, "print", my_print);
+	bv_program_set_global(prog, "a", bv_variable_create_int(25));
 
 	bv_function* func_main = bv_program_get_function(prog, "main");
 	if (func_main == NULL)
 		printf("Program is missing function 'main'.\n");
 	else {
+		clock_t t = clock();
 		bv_variable ret = bv_program_call(prog, func_main, NULL);
-		printf("\nmain() returned: %u\n", bv_variable_get_uint(ret));
+		printf("time: %.2f\n", ((float)clock() - t) / CLOCKS_PER_SEC);
+		printf("main() returned: %u\n", bv_variable_get_uint(ret));
 		bv_variable_deinitialize(&ret);
 	}
 	bv_program_delete(prog);

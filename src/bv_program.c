@@ -3,19 +3,26 @@
 #include <string.h>
 #include <stdlib.h>
 
-bv_program* bv_program_create(byte * mem)
+bv_program* bv_program_create(byte* mem)
 {
 	bv_program* ret = malloc(sizeof(bv_program));
 
-	ret->header = bv_header_create(mem);
-	ret->global_names = bv_name_list_create(mem + sizeof(ret->header));
+	byte* original_mem = mem;
+
+	ret->header = bv_header_create(&mem);
+	ret->global_names = bv_name_list_create(&mem);
 	ret->globals = bv_stack_create();
-	ret->block = bv_block_create(mem + sizeof(ret->header) + bv_name_list_length(ret->global_names));
-	ret->functions = bv_function_create_array(ret->block->functions, mem);
+	ret->block = bv_block_create(&mem);
+	ret->functions = bv_function_create_array(ret->block->functions, original_mem);
 
 	ret->external_functions = NULL;
 	ret->external_function_names = NULL;
 	ret->external_function_count = 0;
+
+	ret->globals.length = ret->global_names.name_count;
+	ret->globals.data = malloc(sizeof(bv_variable) * ret->globals.length);
+	for (u16 i = 0; i < ret->globals.length; i++)
+		ret->globals.data[i] = bv_variable_create_void();
 
 	return ret;
 }
@@ -75,11 +82,6 @@ bv_variable bv_program_get_global(bv_program* prog, string name)
 void bv_program_set_global(bv_program * prog, string name, bv_variable var)
 {
 	u16 ind = bv_name_list_get_id(prog->global_names, name);
-	if (ind >= bv_program_get_global_count(prog)) {
-		prog->globals.data = realloc(prog->globals.data, sizeof(bv_variable) * (ind+1)); // [TODO] maybe change this! idea: use u16* indices (?)
-		prog->globals.length = (ind + 1);
-	}
-
 	prog->globals.data[ind] = var;
 }
 
@@ -752,49 +754,44 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args)
 		}
 		else if (op == bv_opcode_set_global) {
 			u16 index = u16_read(&code);
+
 			bv_variable var = bv_stack_top(&stack);
+			bv_stack_pop(&stack);
 
-			if (index == prog->globals.length) { // 'declare' a new variable
-				bv_stack_push(&prog->globals, bv_variable_copy(var));
+			bv_variable* pLocal = &prog->globals.data[index];
+
+			bv_type my_type = pLocal->type;
+			bv_type st_type = var.type;
+
+			if (st_type == bv_type_string && my_type != bv_type_string)
+				continue; // cant assign string to an int/float
+
+			if (my_type == bv_type_string) {
+				if (st_type != bv_type_string) // cant assign int/float to a string
+					continue;
+
+				*pLocal = bv_variable_copy(var);
 			}
-			else {
-				bv_variable* pLocal = &prog->globals.data[index];
-
-				bv_type my_type = pLocal->type;
-				bv_type st_type = var.type;
-
-				if (st_type == bv_type_string && my_type != bv_type_string)
-					continue; // cant assign string to an int/float
-
-				if (my_type == bv_type_string) {
-					if (st_type != bv_type_string) // cant assign int/float to a string
-						continue;
-
+			else if (my_type == bv_type_float) {
+				if (st_type == bv_type_float) {
 					*pLocal = bv_variable_copy(var);
 				}
-				else if (my_type == bv_type_float) {
-					if (st_type == bv_type_float) {
-						*pLocal = bv_variable_copy(var);
-					}
-					else {
-						if (st_type == bv_type_uint || st_type == bv_type_ushort || st_type == bv_type_uchar)
-							*pLocal = bv_variable_create_float(bv_variable_get_uint(var));
-						else
-							*pLocal = bv_variable_create_float(bv_variable_get_int(var));
-
-						pLocal->type = my_type; // return the old type
-					}
-				}
 				else {
-					if (st_type == bv_type_float) {
-						u32 newVal = bv_variable_get_float(var);
-						*pLocal = bv_variable_create(my_type, newVal);
-					}
-					else pLocal->value = var.value;
+					if (st_type == bv_type_uint || st_type == bv_type_ushort || st_type == bv_type_uchar)
+						*pLocal = bv_variable_create_float(bv_variable_get_uint(var));
+					else
+						*pLocal = bv_variable_create_float(bv_variable_get_int(var));
+
+					pLocal->type = my_type; // return the old type
 				}
 			}
-
-			bv_stack_pop(&stack);
+			else {
+				if (st_type == bv_type_float) {
+					u32 newVal = bv_variable_get_float(var);
+					*pLocal = bv_variable_create(my_type, newVal);
+				}
+				else pLocal->value = var.value;
+			}
 		}
 		else if (op == bv_opcode_new_array) {
 			int dim = u8_read(&code);

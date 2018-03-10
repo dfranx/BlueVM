@@ -8,6 +8,7 @@ bv_function* bv_function_create(byte* mem)
 		return 0;
 
 	bv_function* func = malloc(sizeof(bv_function));
+
 	func->return_type = bv_type_read(&mem);
 	func->args = u8_read(&mem);
 
@@ -27,7 +28,7 @@ void bv_function_delete(bv_function * func)
 	free(func);
 }
 
-bv_function** bv_function_create_array(bv_function_pool* funcs, byte * mem)
+bv_function** bv_function_create_array(bv_function_pool* funcs, byte* mem)
 {
 	bv_function** arr = malloc(sizeof(bv_function)*funcs->count);
 	

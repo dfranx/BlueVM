@@ -1,8 +1,6 @@
 ## TODO
-- [ ] 2# typedef bv_stack bv_vector;
 - [x] const_get
 - [x] other opcodes
-- [ ] 2# have a seperate function for executing each opcode (for example: bv_execute_opcode_add)
 - [x] local variables (get/set_local)
 - [x] global variables (get/set_global)
 - [x] arrays
@@ -12,10 +10,18 @@
 - [x] if
 - [x] call C functions from BlueVM
 - [x] pass C variables to BlueVM
-- [ ] goto
+- [x] goto
+- [ ] remove all memory leaks (related to new object structures)
+- [ ] have a seperate function for executing each opcode (for example: bv_execute_opcode_add)
+- [ ] objects & enums
 - [ ] import other bv_programs into current one (call functions from another file)
-- [ ] 2# fix all warnings
-- [ ] more control over arrays - pushing arrays on stack, copying, global arrays, etc...
-- [ ] 2# use bv_name_list to store function names
-- [ ] objects, namespaces & enums
-- [ ] exceptions/error handling
+- [ ] #2 new_array [dim] -> new_array [ locals id ] [dim]
+- [ ] #2 more control over arrays - pushing arrays on stack, copying, global arrays, etc...
+- [ ] #2 change order of subtract, add, etc operations... (for example, subtract var2 - var1, not var1-var2)
+- [ ] #2 typedef bv_stack bv_vector;
+- [ ] #2 use bv_name_list to store function names
+- [ ] #2 fix all warnings
+- [ ] + switch
+- [ ] + make const and static last 2 bits 0bCSXXXXXX C-> const, S-> static, X-> any (remove const_pool)
+- [ ] + exceptions/error handling
+- [ ] + test function stack when calling functions in BlueVm (instead of using recursion with bv_program_call)

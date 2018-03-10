@@ -10,6 +10,6 @@ typedef struct bv_header {
 	// func_pool functions;
 } bv_header;
 
-bv_header bv_header_create(byte* mem);
+bv_header bv_header_create(byte** mem);
 
 #endif
