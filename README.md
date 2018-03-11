@@ -8,12 +8,12 @@
 - [x] function arguments
 - [x] opcode_call (calls a function)
 - [x] if
-- [x] call C functions from BlueVM
-- [x] pass C variables to BlueVM
+- [x] call C functions
+- [x] pass C variables
 - [x] goto
 - [ ] remove all memory leaks (related to new object structures)
-- [ ] have a seperate function for executing each opcode (for example: bv_execute_opcode_add)
-- [ ] objects & enums
+- [ ] have a seperate function for executing each opcode (for example: bv_execute_add)
+- [ ] objects
 - [ ] import other bv_programs into current one (call functions from another file)
 - [ ] #2 new_array [dim] -> new_array [ locals id ] [dim]
 - [ ] #2 more control over arrays - pushing arrays on stack, copying, global arrays, etc...
@@ -21,7 +21,8 @@
 - [ ] #2 typedef bv_stack bv_vector;
 - [ ] #2 use bv_name_list to store function names
 - [ ] #2 fix all warnings
+- [ ] #2 better casting (set object value to array variable, etc...)
 - [ ] + switch
-- [ ] + make const and static last 2 bits 0bCSXXXXXX C-> const, S-> static, X-> any (remove const_pool)
+- [ ] + make const and static last 2 bits in bv_type ===> 0bCSXXXXXX C-> const, S-> static, X-> any
 - [ ] + exceptions/error handling
 - [ ] + test function stack when calling functions in BlueVm (instead of using recursion with bv_program_call)

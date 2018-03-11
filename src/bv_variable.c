@@ -39,6 +39,10 @@ bv_array bv_variable_get_array(bv_variable var)
 {
 	return *((bv_array*)var.value);
 }
+bv_object* bv_variable_get_object(bv_variable var)
+{
+	return ((bv_object*)var.value);
+}
 
 
 bv_variable bv_variable_create(bv_type type, void* value)
@@ -127,6 +131,21 @@ bv_variable bv_variable_create_array(bv_array var)
 	*((bv_array*)ret.value) = var;
 	return ret;
 }
+bv_variable bv_variable_create_object(bv_object* var)
+{
+	bv_variable ret;
+	ret.type = bv_type_object;
+	ret.value = malloc(sizeof(bv_object));
+	*((bv_object*)ret.value) = *var;
+	return ret;
+}
+bv_variable bv_variable_create_null_object()
+{
+	bv_variable ret;
+	ret.type = bv_type_object;
+	ret.value = 0;
+	return ret;
+}
 
 void bv_variable_set_int(bv_variable * var, s32 val)
 {
@@ -191,6 +210,12 @@ void bv_variable_set_array(bv_variable * var, bv_array val)
 		return;
 	*((bv_array*)var->value) = val;
 }
+void bv_variable_set_object(bv_variable* var, bv_object* val)
+{
+	if (var->type != bv_type_object)
+		return;
+	*((bv_object*)var->value) = *val;
+}
 
 void bv_variable_deinitialize(bv_variable * var)
 {
@@ -200,9 +225,10 @@ void bv_variable_deinitialize(bv_variable * var)
 	else if (var->type == bv_type_array) {
 		bv_array_deinitialize(var->value);
 		free(var->value);
+	} else if (var->type == bv_type_object) {
+		bv_object_deinitialize(var->value);
+		free(var->value);
 	}
-	// else if var == class
-	//		bv_program_call(prog, "~ClassName");
 }
 bv_variable bv_variable_copy(bv_variable var)
 {
@@ -220,6 +246,14 @@ bv_variable bv_variable_copy(bv_variable var)
 	} else if (var.type == bv_type_array) {
 		ret.value = malloc(sizeof(bv_array) + bv_array_get_size(bv_variable_get_array(var)));
 		memcpy(ret.value, var.value, sizeof(bv_array) + bv_array_get_size(bv_variable_get_array(var)));
+	}
+	else if (var.type == bv_type_object) {
+		if (var.value == 0)
+			ret.value = 0;
+		else {
+			ret.value = malloc(sizeof(bv_object));
+			memcpy(ret.value, var.value, sizeof(bv_object));
+		}
 	} else
 		ret.value = var.value;
 

@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include <BlueVM/bv_object.h>
+
 char* read_file(char const* path)
 {
 	char* buffer = 0;

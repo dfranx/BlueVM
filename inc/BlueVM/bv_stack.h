@@ -3,8 +3,11 @@
 
 #include <BlueVM/bv_variable.h>
 
+#define STACK_RULE 16
+
 typedef struct bv_stack {
 	bv_variable* data;
+	u16 capacity;
 	u16 length;
 } bv_stack;
 

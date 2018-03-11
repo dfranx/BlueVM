@@ -3,15 +3,15 @@
 
 #include <BlueVM/types.h>
 #include <BlueVM/bv_name_list.h>
+#include <BlueVM/bv_object_info.h>
 
 typedef struct bv_variable bv_variable;
 
 typedef struct bv_object {
 	bv_object_info* type;	// points to information object
-
-	int prop_count;
 	bv_variable* prop;		// properties
 } bv_object;
 
+void bv_object_deinitialize(bv_object* val);
 
 #endif

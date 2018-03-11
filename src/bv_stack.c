@@ -5,6 +5,7 @@ bv_stack bv_stack_create()
 {
 	bv_stack ret;
 	ret.length = 0;
+	ret.capacity = 0;
 	ret.data = 0;
 	return ret;
 }
@@ -33,13 +34,21 @@ void bv_stack_pop(bv_stack* stack)
 	bv_variable_deinitialize(&stack->data[stack->length - 1]);
 
 	stack->length--;
-	stack->data = realloc(stack->data, stack->length * sizeof(bv_variable));
+
+	if (stack->capacity - stack->length > STACK_RULE) {
+		stack->capacity = (((stack->length / STACK_RULE) + 1)*STACK_RULE);
+		stack->data = realloc(stack->data, stack->capacity * sizeof(bv_variable));
+	}
 }
 
 void bv_stack_push(bv_stack* stack, bv_variable var)
 {
 	stack->length++;
-	stack->data = realloc(stack->data, stack->length * sizeof(bv_variable));
+
+	if (stack->length >= stack->capacity) {
+		stack->capacity += STACK_RULE;
+		stack->data = realloc(stack->data, stack->capacity * sizeof(bv_variable));
+	}
 
 	stack->data[stack->length - 1] = var;
 }
