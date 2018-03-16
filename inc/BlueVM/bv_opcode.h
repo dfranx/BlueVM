@@ -51,14 +51,14 @@ typedef enum __bv_opcode {
 	bv_opcode_if,					// if [address_if_false] {value} -> {}
 	bv_opcode_goto,					// goto [address]
 	bv_opcode_new_object,			// new_object [id] {} -> {object}
-	bv_opcode_set_prop,				// set_prop [propid] {object, value} -> {object}
-	bv_opcode_set_my_prop,			// set_my_prop [propid] {value} -> {}
-	bv_opcode_get_prop,				// get_prop [propid] {object} -> {porperty_value}
-	bv_opcode_get_my_prop,			// get_my_prop [propid] {} -> {property_value}
-	bv_opcode_call_method,			// call_method [methodid] {object} -> {}
-	bv_opcode_call_my_method,		// call_my_method [methodid] {} -> {}
-	bv_opcode_call_ret_method,		// call_method [methodid] {object} -> {return_value}
-	bv_opcode_call_ret_my_method,	// call_my_method [methodid] {} -> {return_value}
+	bv_opcode_set_prop,				// set_prop [prop_name] {object, value} -> {object}
+	bv_opcode_set_my_prop,			// set_my_prop [prop_name] {value} -> {}
+	bv_opcode_get_prop,				// get_prop [prop_name] {object} -> {porperty_value}
+	bv_opcode_get_my_prop,			// get_my_prop [prop_name] {} -> {property_value}
+	bv_opcode_call_method,			// call_method [method_name] {object} -> {}
+	bv_opcode_call_my_method,		// call_my_method [method_name] {} -> {}
+	bv_opcode_call_ret_method,		// call_method [method_name] {object} -> {return_value}
+	bv_opcode_call_ret_my_method,	// call_my_method [method_name] {} -> {return_value}
 	bv_opcode_COUNT					// this is not an actual opcode
 } __bv_opcode;
 

@@ -8,7 +8,7 @@ bv_object_info* bv_object_info_read(byte** mem)
 	ret->props = bv_name_list_create(mem);
 
 	bv_function_pool* methods = bv_function_pool_create(mem);
-	ret->methods = bv_function_create_array(methods);
+	ret->methods = bv_function_create_array(methods, *mem);
 	bv_function_pool_delete(methods);
 
 	return ret;

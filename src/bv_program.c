@@ -1,4 +1,5 @@
 #include <BlueVM/bv_program.h>
+#include <BlueVM/bv_object.h>
 #include <BlueVM/bv_array.h>
 #include <string.h>
 #include <stdlib.h>
@@ -683,11 +684,11 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args)
 		}
 		else if (op == bv_opcode_set_local) {
 			u16 index = u16_read(&code);
-			bv_variable var = bv_stack_top(&stack);
+			bv_variable var = bv_variable_copy(bv_stack_top(&stack));
 			bv_stack_pop(&stack);
 
 			if (index == locals.length) { // 'declare' a new variable
-				bv_stack_push(&locals, bv_variable_copy(var));
+				bv_stack_push(&locals, var);
 			}
 			else {
 				bv_variable* pLocal = &locals.data[index];
@@ -705,7 +706,7 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args)
 					}
 
 					bv_variable_deinitialize(&arr.data[bv_array_get_index(arr, lens)]);
-					bv_array_set(arr, lens, bv_variable_copy(var));
+					bv_array_set(arr, lens, var);
 
 					free(lens);
 				}
@@ -883,6 +884,34 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args)
 		else if (op == bv_opcode_goto) {
 			u32 addr = u32_read(&code);
 			code = func->code + addr;
+		}
+		else if (op == bv_opcode_new_object) {
+			u16 id = u16_read(&code);
+			bv_stack_push(&stack, bv_variable_create_object(prog->block->objects->info[id]));
+		}
+		else if (op == bv_opcode_get_prop) {
+			string name = string_read(&code);
+			
+			bv_variable var = bv_variable_copy(bv_stack_top(&stack));
+			bv_object* top = bv_variable_get_object(var);
+			bv_stack_pop(&stack);
+
+			bv_stack_push(&stack, bv_variable_copy(*bv_object_get_property(top, name)));
+			bv_variable_deinitialize(&var);
+		}
+		else if (op == bv_opcode_set_prop) {
+			string name = string_read(&code);
+
+			bv_variable var = bv_variable_copy(bv_stack_top(&stack));
+			bv_stack_pop(&stack);
+			
+			bv_variable* prop = bv_object_get_property(bv_variable_get_object(var), name);
+
+			bv_variable newval = bv_variable_copy(bv_stack_top(&stack));
+			*prop = bv_variable_copy(newval);
+			bv_stack_pop(&stack);
+
+			bv_stack_push(&stack, var);
 		}
 	}
 

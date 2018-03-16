@@ -21,8 +21,11 @@
 - [ ] #2 typedef bv_stack bv_vector;
 - [ ] #2 use bv_name_list to store function names
 - [ ] #2 fix all warnings
-- [ ] #2 better casting (set object value to array variable, etc...)
+- [ ] #2 better casting (set object value to array variable, etc... => bv_variable_set(var1, var2))
+- [ ] #2 fix bv_stack_pop in opcode calls (remove bv_variable_copy(bv_stack_top()) or put bv_stack_pop on proper lines)
+- [ ] #2 better var copying (for example, copying bv_array will copy pointer address not data)
 - [ ] + switch
 - [ ] + make const and static last 2 bits in bv_type ===> 0bCSXXXXXX C-> const, S-> static, X-> any
 - [ ] + exceptions/error handling
-- [ ] + test function stack when calling functions in BlueVm (instead of using recursion with bv_program_call)
+- [ ] + try linear_function_stack when calling functions in BlueVm (instead of using recursion with bv_program_call)
+- [ ] + bv_memory, also cast when allocating memory

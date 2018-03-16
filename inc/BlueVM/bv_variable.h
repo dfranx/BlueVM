@@ -2,9 +2,10 @@
 #define __BLUEVM_VARIABLE_H__
 
 #include <BlueVM/bv_type.h>
-#include <BlueVM/bv_object.h>
 
 typedef struct bv_array bv_array;
+typedef struct bv_object bv_object;
+typedef struct bv_object_info bv_object_info;
 
 typedef struct bv_variable {
 	bv_type type;
@@ -33,7 +34,7 @@ bv_variable bv_variable_create_uchar(u8 var);
 bv_variable bv_variable_create_float(float var);
 bv_variable bv_variable_create_string(string var);
 bv_variable bv_variable_create_array(bv_array var);
-bv_variable bv_variable_create_object(bv_object* var);
+bv_variable bv_variable_create_object(bv_object_info* var);
 bv_variable bv_variable_create_null_object();
 
 void bv_variable_set_int(bv_variable* var, s32 val);

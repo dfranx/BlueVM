@@ -60,4 +60,5 @@ void bv_array_deinitialize(bv_array* arr)
 
 	free(arr->data);
 	free(arr->length);
+	free(arr);
 }

@@ -1,5 +1,7 @@
 #include <BlueVM/bv_variable.h>
 #include <BlueVM/bv_array.h>
+#include <BlueVM/bv_object.h>
+#include <BlueVM/bv_object_info.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -131,12 +133,11 @@ bv_variable bv_variable_create_array(bv_array var)
 	*((bv_array*)ret.value) = var;
 	return ret;
 }
-bv_variable bv_variable_create_object(bv_object* var)
+bv_variable bv_variable_create_object(bv_object_info* var)
 {
 	bv_variable ret;
 	ret.type = bv_type_object;
-	ret.value = malloc(sizeof(bv_object));
-	*((bv_object*)ret.value) = *var;
+	((bv_object*)ret.value) = bv_object_create(var);
 	return ret;
 }
 bv_variable bv_variable_create_null_object()
@@ -222,13 +223,10 @@ void bv_variable_deinitialize(bv_variable * var)
 	// this is sort of deconstructor
 	if (var->type == bv_type_float || var->type == bv_type_string)
 		free(var->value);
-	else if (var->type == bv_type_array) {
+	else if (var->type == bv_type_array)
 		bv_array_deinitialize(var->value);
-		free(var->value);
-	} else if (var->type == bv_type_object) {
+	else if (var->type == bv_type_object)
 		bv_object_deinitialize(var->value);
-		free(var->value);
-	}
 }
 bv_variable bv_variable_copy(bv_variable var)
 {
@@ -251,8 +249,11 @@ bv_variable bv_variable_copy(bv_variable var)
 		if (var.value == 0)
 			ret.value = 0;
 		else {
-			ret.value = malloc(sizeof(bv_object));
-			memcpy(ret.value, var.value, sizeof(bv_object));
+			bv_object* cobj = (bv_object*)var.value;
+			bv_object* nobj = bv_object_create(cobj->type);
+			for (u16 i = 0; i < nobj->type->props.name_count; i++)
+				nobj->prop[i] = bv_variable_copy(cobj->prop[i]);
+			ret.value = nobj;			
 		}
 	} else
 		ret.value = var.value;

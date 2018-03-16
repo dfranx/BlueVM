@@ -34,7 +34,10 @@ bv_variable my_print(int count, bv_variable* args)
 	for (int i = 0; i < count; i++)
 		if (args[i].type == bv_type_string) {
 			string s = bv_variable_get_string(args[i]);
-			printf("%s", s);
+			printf("%s\n", s);
+		} else if (args[i].type == bv_type_int) {
+			int n = bv_variable_get_int(args[i]);
+			printf("%d\n", n);
 		}
 
 	return bv_variable_create_void();
@@ -42,7 +45,7 @@ bv_variable my_print(int count, bv_variable* args)
 
 int main()
 {
-	char* mem = read_file("E:/bluevm/test.bv");
+	char* mem = read_file("E:/agen/test.bv");
 
 	bv_program* prog = bv_program_create(mem);
 
