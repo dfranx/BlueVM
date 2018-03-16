@@ -1,6 +1,6 @@
 #include <BlueVM/bv_object_pool.h>
 
-bv_object_pool* bv_object_pool_create(byte** mem)
+bv_object_pool* bv_object_pool_create(byte** mem, byte* orig_mem)
 {
 	bv_object_pool* ret = malloc(sizeof(bv_object_pool));
 	
@@ -8,7 +8,7 @@ bv_object_pool* bv_object_pool_create(byte** mem)
 	ret->info = malloc(sizeof(bv_object_info) * ret->count);
 
 	for (u16 i = 0; i < ret->count; i++)
-		ret->info[i] = bv_object_info_read(mem);
+		ret->info[i] = bv_object_info_read(mem, orig_mem);
 
 	return ret;
 }

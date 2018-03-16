@@ -15,7 +15,8 @@
 - [ ] have a seperate function for executing each opcode (for example: bv_execute_add)
 - [ ] objects
 - [ ] import other bv_programs into current one (call functions from another file)
-- [ ] #2 new_array [dim] -> new_array [ locals id ] [dim]
+- [ ] #2 object constructors
+- [ ] #2 new_array [dim] -> push array on stack
 - [ ] #2 more control over arrays - pushing arrays on stack, copying, global arrays, etc...
 - [ ] #2 change order of subtract, add, etc operations... (for example, subtract var2 - var1, not var1-var2)
 - [ ] #2 typedef bv_stack bv_vector;
@@ -24,8 +25,17 @@
 - [ ] #2 better casting (set object value to array variable, etc... => bv_variable_set(var1, var2))
 - [ ] #2 fix bv_stack_pop in opcode calls (remove bv_variable_copy(bv_stack_top()) or put bv_stack_pop on proper lines)
 - [ ] #2 better var copying (for example, copying bv_array will copy pointer address not data)
-- [ ] + switch
 - [ ] + make const and static last 2 bits in bv_type ===> 0bCSXXXXXX C-> const, S-> static, X-> any
-- [ ] + exceptions/error handling
+- [ ] + remove types from argument list
+- [ ] + cast when using malloc
+
+speed up bv_stack_push and bv_stack_delete (which take 50% of processing time)
 - [ ] + try linear_function_stack when calling functions in BlueVm (instead of using recursion with bv_program_call)
-- [ ] + bv_memory, also cast when allocating memory
+and/or
+- [ ] + bv_memory
+
+lower down the file size:
+- [ ] + implement string look up table
+
+to gain more speed:
+- [ ] + pointers (for example, local0 pointing to object on stack so when that object changes the value of local0 also changes - removes the need for pushing object on stack after modifying it)

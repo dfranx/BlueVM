@@ -14,6 +14,8 @@ typedef struct bv_object {
 
 bv_object* bv_object_create(bv_object_info* info);
 bv_variable* bv_object_get_property(bv_object* obj, const string name);
+bv_function* bv_object_get_method(bv_object* obj, const string name);
+void bv_object_set_property(bv_object* obj, const string name, bv_variable val);
 void bv_object_deinitialize(bv_object* val);
 
 #endif

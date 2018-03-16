@@ -34,10 +34,10 @@ bv_variable my_print(int count, bv_variable* args)
 	for (int i = 0; i < count; i++)
 		if (args[i].type == bv_type_string) {
 			string s = bv_variable_get_string(args[i]);
-			printf("%s\n", s);
+			printf("%s", s);
 		} else if (args[i].type == bv_type_int) {
 			int n = bv_variable_get_int(args[i]);
-			printf("%d\n", n);
+			printf("%d", n);
 		}
 
 	return bv_variable_create_void();
@@ -57,7 +57,7 @@ int main()
 		printf("Program is missing function 'main'.\n");
 	else {
 		clock_t t = clock();
-		bv_variable ret = bv_program_call(prog, func_main, NULL);
+		bv_variable ret = bv_program_call(prog, func_main, NULL, NULL);
 		printf("time: %.2f\n", ((float)clock() - t) / CLOCKS_PER_SEC);
 		printf("main() returned: %u\n", bv_variable_get_uint(ret));
 		bv_variable_deinitialize(&ret);

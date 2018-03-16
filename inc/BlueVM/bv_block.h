@@ -11,7 +11,7 @@ typedef struct bv_block {
 	bv_object_pool* objects;
 } bv_block;
 
-bv_block* bv_block_create(byte** mem);
+bv_block* bv_block_create(byte** mem, byte* orig_mem);
 void bv_block_delete(bv_block* block);
 
 #endif

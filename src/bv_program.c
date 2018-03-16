@@ -13,7 +13,7 @@ bv_program* bv_program_create(byte* mem)
 	ret->header = bv_header_create(&mem);
 	ret->global_names = bv_name_list_create(&mem);
 	ret->globals = bv_stack_create();
-	ret->block = bv_block_create(&mem);
+	ret->block = bv_block_create(&mem, original_mem);
 	ret->functions = bv_function_create_array(ret->block->functions, original_mem);
 
 	ret->external_functions = NULL;
@@ -86,7 +86,7 @@ void bv_program_set_global(bv_program * prog, string name, bv_variable var)
 	prog->globals.data[ind] = var;
 }
 
-bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args)
+bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args, bv_object* parent)
 {
 	bv_stack stack = bv_stack_create();
 	bv_stack locals = bv_stack_create(); // local variable container
@@ -821,15 +821,16 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args)
 
 			if (stack.length < argc)
 				continue; // [TODO] error, not enough arguments
-			
+
 			for (int i = 0; i < argc; i++) {
 				bv_stack_push(&func_args, bv_variable_copy(bv_stack_top(&stack)));
 				bv_stack_pop(&stack);
 			}
 
 			if (func != NULL) {
-				bv_program_call(prog, func, &func_args);
-			} else {
+				bv_program_call(prog, func, &func_args, 0);
+			}
+			else {
 				bv_external_function ext_func = bv_program_get_ext_function(prog, name);
 				(*ext_func)(argc, func_args.data);
 			}
@@ -852,7 +853,7 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args)
 			}
 
 			if (func != NULL)
-				bv_stack_push(&stack, bv_program_call(prog, func, &func_args));
+				bv_stack_push(&stack, bv_program_call(prog, func, &func_args, 0));
 			else {
 				bv_external_function ext_func = bv_program_get_ext_function(prog, name);
 				bv_stack_push(&stack, (*ext_func)(argc, func_args.data));
@@ -865,12 +866,12 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args)
 
 			bv_variable var = bv_stack_top(&stack);
 			bv_stack_pop(&stack);
-		
+
 			if (var.type == type)
 				bv_stack_push(&stack, bv_variable_create_char(1));
 			else
 				bv_stack_push(&stack, bv_variable_create_char(0));
-		} 
+		}
 		else if (op == bv_opcode_if) {
 			u32 addr = u32_read(&code);
 
@@ -891,7 +892,7 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args)
 		}
 		else if (op == bv_opcode_get_prop) {
 			string name = string_read(&code);
-			
+
 			bv_variable var = bv_variable_copy(bv_stack_top(&stack));
 			bv_object* top = bv_variable_get_object(var);
 			bv_stack_pop(&stack);
@@ -904,14 +905,66 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args)
 
 			bv_variable var = bv_variable_copy(bv_stack_top(&stack));
 			bv_stack_pop(&stack);
-			
-			bv_variable* prop = bv_object_get_property(bv_variable_get_object(var), name);
 
-			bv_variable newval = bv_variable_copy(bv_stack_top(&stack));
-			*prop = bv_variable_copy(newval);
+			bv_object_set_property(bv_variable_get_object(var), name, bv_stack_top(&stack));
 			bv_stack_pop(&stack);
 
 			bv_stack_push(&stack, var);
+		}
+		else if (op == bv_opcode_call_method || op == bv_opcode_call_ret_method || op == bv_opcode_call_my_method || op == bv_opcode_call_ret_my_method) {
+			string name = string_read(&code);
+			u8 argc = u8_read(&code);
+
+			bv_object* obj = 0;
+			bv_variable var; // not used if bv_opcode_call_my_method || bv_opcode_call_ret_my_method
+			if (op == bv_opcode_call_method || op == bv_opcode_call_my_method) {
+				var = bv_variable_copy(bv_stack_top(&stack));
+				bv_stack_pop(&stack);
+
+				obj = bv_variable_get_object(var);
+			}
+			else if (op == bv_opcode_call_my_method || op == bv_opcode_call_ret_my_method)
+				obj = parent;
+
+			bv_function* func = bv_object_get_method(obj, name);
+			bv_stack func_args = bv_stack_create();
+
+			if (stack.length < argc)
+				continue; // [TODO] error, not enough arguments
+
+			for (int i = 0; i < argc; i++) {
+				bv_stack_push(&func_args, bv_variable_copy(bv_stack_top(&stack)));
+				bv_stack_pop(&stack);
+			}
+
+			if (func != NULL) {
+				if (op == bv_opcode_call_method || op == bv_opcode_call_my_method)
+					bv_program_call(prog, func, &func_args, obj);
+				else // bv_opcode_call_ret_method || bv_opcode_call_ret_my_method
+					bv_stack_push(&stack, bv_program_call(prog, func, &func_args, obj));
+			} else {
+				// [TODO] external functions for objects
+			}
+
+			if (op == bv_opcode_call_method || op == bv_opcode_call_ret_method)
+				bv_stack_push(&stack, var); // [TODO] pointers plzz :(
+		}
+		else if (op == bv_opcode_set_my_prop) {
+			string name = string_read(&code);
+			
+			if (parent == 0)
+				continue;
+			
+			bv_object_set_property(parent, name, bv_stack_top(&stack));
+			bv_stack_pop(&stack);
+		}
+		else if (op == bv_opcode_get_my_prop) {
+			string name = string_read(&code);
+
+			if (parent == 0)
+				continue;
+
+			bv_stack_push(&stack, bv_variable_copy(*bv_object_get_property(parent, name)));
 		}
 	}
 

@@ -12,9 +12,11 @@ typedef struct bv_object_info {
 	string name;	// class type/object name (eg "Vehicle", "Animal", etc...)
 
 	bv_name_list props;			// property names
+
+	bv_function_pool* method_info;
 	bv_function** methods;	// method data
 } bv_object_info;
 
-bv_object_info* bv_object_info_read(byte** mem);
+bv_object_info* bv_object_info_read(byte** mem, byte* orig_mem);
 
 #endif
