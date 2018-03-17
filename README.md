@@ -12,10 +12,11 @@
 - [x] pass C variables
 - [x] goto
 - [ ] remove all memory leaks (related to new object structures)
-- [ ] have a seperate function for executing each opcode (for example: bv_execute_add)
+- [x] have a seperate function for executing each opcode (for example: bv_execute_add)
 - [x] objects
 - [ ] import other bv_programs into current one (call functions from another file)
 - [x] #2 object constructors
+- [ ] #2 bv_variable_equal, bv_variable_greater_than, bv_variable_cast, bv_variable_operator_add, etc.. + object operators
 - [ ] #2 new_array [dim] -> push array on stack
 - [ ] #2 more control over arrays - pushing arrays on stack, copying, global arrays, etc...
 - [ ] #2 change order of subtract, add, etc operations... (for example, subtract var2 - var1, not var1-var2)
@@ -28,6 +29,7 @@
 - [ ] + make const and static last 2 bits in bv_type ===> 0bCSXXXXXX C-> const, S-> static, X-> any
 - [ ] + remove types from argument list
 - [ ] + cast when using malloc
+- [ ] + pack external_* in seperate struct
 
 speed up bv_stack_push and bv_stack_delete (which take 50% of processing time)
 - [ ] + try linear_function_stack when calling functions in BlueVm (instead of using recursion with bv_program_call)

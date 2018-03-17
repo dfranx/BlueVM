@@ -7,11 +7,14 @@
 #include <BlueVM/bv_variable.h>
 #include <BlueVM/bv_stack.h>
 #include <BlueVM/bv_name_list.h>
+#include <BlueVM/bv_execute.h>
 
 typedef struct bv_program {
 	bv_header header;
 	bv_block* block;
 	bv_function** functions;
+
+	bv_execute* opcodes;
 
 	int external_function_count;
 	bv_external_function* external_functions;
@@ -22,6 +25,7 @@ typedef struct bv_program {
 } bv_program;
 
 bv_program* bv_program_create(byte* mem);
+void bv_program_build_opcode_table(bv_program* prog);
 void bv_program_delete(bv_program* program);
 
 u16 bv_program_get_function_count(bv_program* prog);

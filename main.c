@@ -45,12 +45,12 @@ bv_variable my_print(int count, bv_variable* args)
 
 int main()
 {
-	char* mem = read_file("test.bv");
+	char* mem = read_file("E:/agen/test.bv");
 
 	bv_program* prog = bv_program_create(mem);
 
 	bv_program_add_function(prog, "print", my_print);
-	bv_program_set_global(prog, "a", bv_variable_create_int(10));
+	bv_program_set_global(prog, "a", bv_variable_create_int(25));
 
 	bv_function* func_main = bv_program_get_function(prog, "main");
 	if (func_main == NULL)
