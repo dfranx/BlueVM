@@ -888,7 +888,24 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args,
 		}
 		else if (op == bv_opcode_new_object) {
 			u16 id = u16_read(&code);
-			bv_stack_push(&stack, bv_variable_create_object(prog->block->objects->info[id]));
+			u8 argc = u8_read(&code);
+			
+			bv_object_info* info = prog->block->objects->info[id];
+			bv_variable var = bv_variable_create_object(info);
+			bv_object* obj = bv_variable_get_object(var);
+
+			bv_stack func_args = bv_stack_create();
+			if (stack.length >= argc) 
+				for (int i = 0; i < argc; i++) {
+					bv_stack_push(&func_args, bv_variable_copy(bv_stack_top(&stack)));
+					bv_stack_pop(&stack);
+				}
+
+
+			bv_function* constructor = bv_object_get_method(obj, info->name); // get constructor
+			bv_program_call(prog, constructor, &func_args, obj); // call constructor
+
+			bv_stack_push(&stack, var);
 		}
 		else if (op == bv_opcode_get_prop) {
 			string name = string_read(&code);

@@ -13,9 +13,9 @@
 - [x] goto
 - [ ] remove all memory leaks (related to new object structures)
 - [ ] have a seperate function for executing each opcode (for example: bv_execute_add)
-- [ ] objects
+- [x] objects
 - [ ] import other bv_programs into current one (call functions from another file)
-- [ ] #2 object constructors
+- [x] #2 object constructors
 - [ ] #2 new_array [dim] -> push array on stack
 - [ ] #2 more control over arrays - pushing arrays on stack, copying, global arrays, etc...
 - [ ] #2 change order of subtract, add, etc operations... (for example, subtract var2 - var1, not var1-var2)
@@ -38,4 +38,5 @@ lower down the file size:
 - [ ] + implement string look up table
 
 to gain more speed:
-- [ ] + pointers (for example, local0 pointing to object on stack so when that object changes the value of local0 also changes - removes the need for pushing object on stack after modifying it)
+- [ ] !!! pointers (for example, local0 pointing to object on stack so when that object changes the value of local0 also changes - removes the need for pushing object on stack after modifying it)
+BVM will push object on stack after modifying it with function which causes bugs... int x = Animal().status() will cause bugs unless we first pop the value from stack
