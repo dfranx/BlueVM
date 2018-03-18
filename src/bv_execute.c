@@ -721,7 +721,7 @@ void bv_execute_new_array(bv_state* state) {
 	free(lens);
 }
 void bv_execute_call(bv_state* state) {
-	char* name = string_read(state->code);
+	string name = string_read(state->code);
 	u8 argc = u8_read(state->code);
 
 	bv_function* func = bv_program_get_function(state->prog, name);
@@ -743,10 +743,11 @@ void bv_execute_call(bv_state* state) {
 		(*ext_func)(argc, func_args.data);
 	}
 
-	// bv_stack_delete(&func_args); ?
+	bv_stack_delete(&func_args);
+	free(name);
 }
 void bv_execute_call_return(bv_state* state) {
-	char* name = string_read(state->code);
+	string name = string_read(state->code);
 	u8 argc = u8_read(state->code);
 
 	bv_function* func = bv_program_get_function(state->prog, name);
@@ -767,7 +768,8 @@ void bv_execute_call_return(bv_state* state) {
 		bv_stack_push(state->stack, (*ext_func)(argc, func_args.data));
 	}
 
-	// bv_stack_delete(&func_args); ?
+	bv_stack_delete(&func_args);
+	free(name);
 }
 void bv_execute_is_type_of(bv_state* state) {
 	bv_type type = bv_type_read(state->code);
@@ -825,6 +827,8 @@ void bv_execute_set_prop(bv_state* state) {
 	bv_stack_pop(state->stack);
 
 	bv_stack_push(state->stack, var);
+
+	free(name);
 }
 void bv_execute_set_my_prop(bv_state* state) {
 	string name = string_read(state->code);
@@ -834,6 +838,8 @@ void bv_execute_set_my_prop(bv_state* state) {
 
 	bv_object_set_property(state->obj, name, bv_stack_top(state->stack));
 	bv_stack_pop(state->stack);
+
+	free(name);
 }
 void bv_execute_get_prop(bv_state* state) {
 	string name = string_read(state->code);
@@ -844,6 +850,8 @@ void bv_execute_get_prop(bv_state* state) {
 
 	bv_stack_push(state->stack, bv_variable_copy(*bv_object_get_property(top, name)));
 	bv_variable_deinitialize(&var);
+
+	free(name);
 }
 void bv_execute_get_my_prop(bv_state* state) {
 	string name = string_read(state->code);
@@ -852,6 +860,8 @@ void bv_execute_get_my_prop(bv_state* state) {
 		return;
 
 	bv_stack_push(state->stack, bv_variable_copy(*bv_object_get_property(state->obj, name)));
+
+	free(name);
 }
 void bv_execute_call_method(bv_state* state) {
 	string name = string_read(state->code);
@@ -880,6 +890,9 @@ void bv_execute_call_method(bv_state* state) {
 	}
 
 	bv_stack_push(state->stack, var); // [TODO] pointers plzz :(
+
+	bv_stack_delete(&func_args);
+	free(name);
 }
 void bv_execute_call_my_method(bv_state* state) {
 	string name = string_read(state->code);
@@ -904,6 +917,9 @@ void bv_execute_call_my_method(bv_state* state) {
 	else {
 		// [TODO] external functions for objects
 	}
+
+	bv_stack_delete(&func_args);
+	free(name);
 }
 void bv_execute_call_ret_method(bv_state* state) {
 	string name = string_read(state->code);
@@ -933,6 +949,9 @@ void bv_execute_call_ret_method(bv_state* state) {
 	}
 	
 	bv_stack_push(state->stack, var); // [TODO] pointers plzz :(
+
+	bv_stack_delete(&func_args);
+	free(name);
 }
 void bv_execute_call_ret_my_method(bv_state* state) {
 	string name = string_read(state->code);
@@ -957,4 +976,7 @@ void bv_execute_call_ret_my_method(bv_state* state) {
 	else {
 		// [TODO] external functions for objects
 	}
+
+	bv_stack_delete(&func_args);
+	free(name);
 }

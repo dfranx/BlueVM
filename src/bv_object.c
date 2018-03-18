@@ -1,4 +1,4 @@
-#include <BlueVm/bv_object.h>
+#include <BlueVM/bv_object.h>
 #include <BlueVM/bv_variable.h>
 
 bv_object* bv_object_create(bv_object_info* info)

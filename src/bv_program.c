@@ -92,6 +92,9 @@ void bv_program_delete(bv_program * prog)
 	bv_stack_delete(&prog->globals);
 	bv_name_list_delete(&prog->global_names);
 
+	free(prog->external_functions);
+	free(prog->external_function_names = realloc(prog->external_function_names, sizeof(char*) * (prog->external_function_count + 1)));
+	free(prog->opcodes);
 	free(prog);
 }
 

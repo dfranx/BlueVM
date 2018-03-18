@@ -12,3 +12,12 @@ bv_object_info* bv_object_info_read(byte** mem, byte* orig_mem)
 
 	return ret;
 }
+void bv_object_info_delete(bv_object_info* info)
+{
+	free(info->name);
+	bv_name_list_delete(&info->props);
+	bv_function_delete_array(info->methods, info->method_info->count);
+	bv_function_pool_delete(info->method_info);
+
+	free(info);
+}

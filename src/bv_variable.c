@@ -137,7 +137,7 @@ bv_variable bv_variable_create_object(bv_object_info* var)
 {
 	bv_variable ret;
 	ret.type = bv_type_object;
-	((bv_object*)ret.value) = bv_object_create(var);
+	ret.value = bv_object_create(var);
 	return ret;
 }
 bv_variable bv_variable_create_null_object()

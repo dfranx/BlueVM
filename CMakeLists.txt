@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.9)
 
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_BUILD_TYPE Debug)
+
 project(BlueVM)
 
-include_directories(${PROJECT_SOURCE_DIR}/inc)
+include_directories(inc)
 
 add_executable(BlueVM 
 	main.c

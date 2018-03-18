@@ -11,7 +11,7 @@
 - [x] call C functions
 - [x] pass C variables
 - [x] goto
-- [ ] remove all memory leaks (related to new object structures)
+- [x] remove all memory leaks (related to new object structures)
 - [x] have a seperate function for executing each opcode (for example: bv_execute_add)
 - [x] objects
 - [ ] import other bv_programs into current one (call functions from another file)
@@ -26,6 +26,7 @@
 - [ ] #2 better casting (set object value to array variable, etc... => bv_variable_set(var1, var2))
 - [ ] #2 fix bv_stack_pop in opcode calls (remove bv_variable_copy(bv_stack_top()) or put bv_stack_pop on proper lines)
 - [ ] #2 better var copying (for example, copying bv_array will copy pointer address not data)
+- [ ] + external bv_object & external bv_object methods
 - [ ] + make const and static last 2 bits in bv_type ===> 0bCSXXXXXX C-> const, S-> static, X-> any
 - [ ] + remove types from argument list
 - [ ] + cast when using malloc

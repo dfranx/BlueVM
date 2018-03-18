@@ -15,6 +15,7 @@ void bv_stack_delete(bv_stack* stack)
 		bv_variable_deinitialize(&stack->data[i]);
 	free(stack->data);
 	stack->length = 0;
+	stack->capacity = 0;
 }
 
 

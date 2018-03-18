@@ -18,5 +18,6 @@ typedef struct bv_object_info {
 } bv_object_info;
 
 bv_object_info* bv_object_info_read(byte** mem, byte* orig_mem);
+void bv_object_info_delete(bv_object_info* info);
 
 #endif

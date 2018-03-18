@@ -23,5 +23,9 @@ bv_object_info* bv_object_pool_get(bv_object_pool* pool, string name)
 
 void bv_object_pool_delete(bv_object_pool* pool)
 {
-	// TODO!!!!
+	for (u16 i = 0; i < pool->count; i++)
+		bv_object_info_delete(pool->info[i]);
+
+	free(pool->info);
+	free(pool);
 }

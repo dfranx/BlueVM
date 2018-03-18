@@ -45,7 +45,7 @@ bv_variable my_print(int count, bv_variable* args)
 
 int main()
 {
-	char* mem = read_file("E:/agen/test.bv");
+	char* mem = read_file("/mnt/e/aGen/test.bv");
 
 	bv_program* prog = bv_program_create(mem);
 
@@ -65,8 +65,6 @@ int main()
 	bv_program_delete(prog);
 
 	free(mem);
-
-	getchar();
 
 	return 0;
 }
