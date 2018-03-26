@@ -6,6 +6,7 @@
 typedef struct bv_array bv_array;
 typedef struct bv_object bv_object;
 typedef struct bv_object_info bv_object_info;
+typedef struct bv_program bv_program;
 
 typedef struct bv_variable {
 	bv_type type;
@@ -51,5 +52,23 @@ void bv_variable_set_object(bv_variable* var, bv_object* val);
 void bv_variable_deinitialize(bv_variable* var);
 bv_variable bv_variable_copy(bv_variable var);
 bv_variable bv_variable_read(byte** mem, bv_type type);
+
+// operators, casting and setting value
+u8 bv_variable_op_equal(bv_program* prog, bv_variable left, bv_variable right);
+u8 bv_variable_op_not_equal(bv_program* prog, bv_variable left, bv_variable right);
+u8 bv_variable_op_greater_than(bv_program* prog, bv_variable left, bv_variable right);
+u8 bv_variable_op_greater_equal(bv_program* prog, bv_variable left, bv_variable right);
+u8 bv_variable_op_less_than(bv_program* prog, bv_variable left, bv_variable right);
+u8 bv_variable_op_less_equal(bv_program* prog, bv_variable left, bv_variable right);
+bv_variable bv_variable_op_add(bv_program* prog, bv_variable left, bv_variable right);
+bv_variable bv_variable_op_subtract(bv_program* prog, bv_variable left, bv_variable right);
+bv_variable bv_variable_op_divide(bv_program* prog, bv_variable left, bv_variable right);
+bv_variable bv_variable_op_multiply(bv_program* prog, bv_variable left, bv_variable right);
+bv_variable bv_variable_op_increment(bv_program* prog, bv_variable left);
+bv_variable bv_variable_op_decrement(bv_program* prog, bv_variable left);
+bv_variable bv_variable_op_negate(bv_program* prog, bv_variable left);
+bv_variable bv_variable_op_modulo(bv_program* prog, bv_variable left, bv_variable right);
+u8 bv_variable_op_not(bv_program* prog, bv_variable left);
+bv_variable bv_variable_cast(bv_program* prog, bv_type new_type, bv_variable right);
 
 #endif

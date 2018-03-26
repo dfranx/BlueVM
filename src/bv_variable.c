@@ -2,8 +2,10 @@
 #include <BlueVM/bv_array.h>
 #include <BlueVM/bv_object.h>
 #include <BlueVM/bv_object_info.h>
+#include <BlueVM/bv_program.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 s32 bv_variable_get_int(bv_variable var)
 {
@@ -284,4 +286,657 @@ bv_variable bv_variable_read(byte** mem, bv_type type)
 	}
 
 	return bv_variable_create_int(0);
+}
+
+
+// operators, casting and setting value
+u8 bv_variable_op_equal(bv_program* prog, bv_variable left, bv_variable right)
+{
+	u8 out = 0;
+
+	if (left.type == bv_type_object || right.type == bv_type_object) {
+		if (left.type == bv_type_object) {
+			bv_object* obj = bv_variable_get_object(left);
+			bv_function* func = bv_object_get_method(obj, "==");
+			if (func == 0)
+				return 0;
+			else {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, right);
+
+				out = bv_variable_get_uchar(bv_program_call(prog, func, &args, obj));
+
+				bv_stack_delete(&args);
+			}
+
+			return out;
+		}
+		else if (right.type == bv_type_object) {
+			bv_object* obj = bv_variable_get_object(right);
+			bv_function* func = bv_object_get_method(obj, "==");
+			if (func == 0)
+				return 0;
+			else {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, left);
+
+				out = bv_variable_get_uchar(bv_program_call(prog, func, &args, obj));
+
+				bv_stack_delete(&args);
+			}
+
+			return out;
+		}
+	}
+	else if (left.type == bv_type_array || right.type == bv_type_array) {
+		if (left.type == bv_type_array && right.type == bv_type_array) {
+			bv_array a1 = bv_variable_get_array(left);
+			bv_array a2 = bv_variable_get_array(right);
+
+			if (a2.dim != a1.dim)
+				return 0;
+			else {
+				for (int i = 0; i < a2.dim; i++) {
+					if (a1.length[i] != a2.length[i])
+						return 0;
+				}
+				
+				int rng = bv_array_get_range(a2);
+
+				for (int i = 0; i < rng; i++)
+					if (bv_variable_op_equal(prog, a1.data[rng], a2.data[rng]) == 0)
+						return 0;
+			}
+			out = 1;
+		}
+	}
+	else if (left.type == bv_type_float || right.type == bv_type_float) {
+		float x = 0, y = 0;
+
+		if (left.type == bv_type_float)
+			x = bv_variable_get_float(left);
+		else if (left.type == bv_type_string)
+			return 0;
+		else x = bv_variable_get_int(left);
+
+		if (right.type == bv_type_float)
+			y = bv_variable_get_float(right);
+		else if (right.type == bv_type_string)
+			return 0;
+		else y = bv_variable_get_int(right);
+
+		out = (x == y);
+	}
+	else if (left.type == bv_type_string || right.type == bv_type_string) {
+		if (left.type == bv_type_string && right.type == bv_type_string)
+			out = (strcmp(bv_variable_get_string(left), bv_variable_get_string(right)) == 0);
+	}
+	else out = (bv_variable_get_uint(left) == bv_variable_get_uint(right));
+
+	return out;
+}
+u8 bv_variable_op_not_equal(bv_program* prog, bv_variable left, bv_variable right)
+{
+	return !bv_variable_op_equal(prog, left, right);
+}
+u8 bv_variable_op_greater_than(bv_program* prog, bv_variable left, bv_variable right)
+{
+	u8 out = 0;
+
+	if (left.type == bv_type_object || right.type == bv_type_object) {
+		if (left.type == bv_type_object) {
+			bv_object* obj = bv_variable_get_object(left);
+			bv_function* func = bv_object_get_method(obj, ">");
+			if (func == 0)
+				return 0;
+			else {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, right);
+
+				out = bv_variable_get_uchar(bv_program_call(prog, func, &args, obj));
+
+				bv_stack_delete(&args);
+			}
+
+			return out;
+		}
+		else if (right.type == bv_type_object) {
+			bv_object* obj = bv_variable_get_object(right);
+			bv_function* func = bv_object_get_method(obj, ">");
+			if (func == 0)
+				return 0;
+			else {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, left);
+
+				out = !bv_variable_get_uchar(bv_program_call(prog, func, &args, obj));
+
+				bv_stack_delete(&args);
+			}
+
+			return out;
+		}
+	}
+	else if (left.type == bv_type_array || right.type == bv_type_array) {
+		if (left.type == bv_type_array && right.type == bv_type_array) {
+			bv_array a1 = bv_variable_get_array(left);
+			bv_array a2 = bv_variable_get_array(right);
+
+			if (a2.dim != a1.dim)
+				return a1.dim > a2.dim;
+			else {
+				for (int i = 0; i < a2.dim; i++) {
+					if (a1.length[i] != a2.length[i])
+						return a1.dim > a2.dim;
+				}
+			}
+		}
+	}
+	else if (left.type == bv_type_float || right.type == bv_type_float) {
+		float x = 0, y = 0;
+
+		if (left.type == bv_type_float)
+			x = bv_variable_get_float(left);
+		else if (left.type == bv_type_string)
+			return 0;
+		else x = bv_variable_get_int(left);
+
+		if (right.type == bv_type_float)
+			y = bv_variable_get_float(right);
+		else if (right.type == bv_type_string)
+			return 0;
+		else y = bv_variable_get_int(right);
+
+		out = (x > y);
+	}
+	else if (left.type == bv_type_string || right.type == bv_type_string) {
+		if (left.type == bv_type_string && right.type == bv_type_string)
+			out = strlen(bv_variable_get_string(left)) > strlen(bv_variable_get_string(right));
+	}
+	else out = (bv_variable_get_uint(left) > bv_variable_get_uint(right));
+
+	return out;
+}
+u8 bv_variable_op_greater_equal(bv_program* prog, bv_variable left, bv_variable right)
+{
+	return bv_variable_op_greater_than(prog, left, right) || bv_variable_op_equal(prog, left, right);
+}
+u8 bv_variable_op_less_than(bv_program* prog, bv_variable left, bv_variable right)
+{
+	return !bv_variable_op_greater_equal(prog, left, right);
+}
+u8 bv_variable_op_less_equal(bv_program* prog, bv_variable left, bv_variable right)
+{
+	return !bv_variable_op_greater_than(prog, left, right);
+}
+bv_variable bv_variable_op_add(bv_program* prog, bv_variable left, bv_variable right)
+{
+	bv_variable out = bv_variable_create_null_object();
+
+	if (left.type == bv_type_object || right.type == bv_type_object) {
+		if (left.type == bv_type_object) {
+			bv_object* obj = bv_variable_get_object(left);
+			bv_function* func = bv_object_get_method(obj, "+");
+			if (func != 0) {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, right);
+
+				out = bv_program_call(prog, func, &args, obj);
+
+				bv_stack_delete(&args);
+			}
+
+			return out;
+		}
+		else if (right.type == bv_type_object) {
+			bv_object* obj = bv_variable_get_object(right);
+			bv_function* func = bv_object_get_method(obj, "+");
+			if (func != 0) {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, left);
+
+				out = bv_program_call(prog, func, &args, obj);
+
+				bv_stack_delete(&args);
+			}
+
+			return out;
+		}
+	}
+	else if (left.type == bv_type_array || right.type == bv_type_array) {
+		if (left.type == bv_type_array && right.type == bv_type_array) {
+			bv_array a1 = bv_variable_get_array(left);
+			bv_array a2 = bv_variable_get_array(right);
+
+			// TODO
+			// out = bv_array_merge(a1, a2);
+		}
+	}
+	else if (left.type == bv_type_float || right.type == bv_type_float) {
+		float x = 0, y = 0;
+
+		if (left.type == bv_type_float)
+			x = bv_variable_get_float(left);
+		else if (left.type == bv_type_string)
+			return out;
+		else x = bv_variable_get_int(left);
+
+		if (right.type == bv_type_float)
+			y = bv_variable_get_float(right);
+		else if (right.type == bv_type_string)
+			return out;
+		else y = bv_variable_get_int(right);
+
+		out = bv_variable_create_float(x + y);
+	}
+	else if (left.type == bv_type_string || right.type == bv_type_string) {
+		if (left.type == bv_type_string && right.type == bv_type_string)
+			out = bv_variable_create_string(strcat(bv_variable_get_string(left), bv_variable_get_string(right)));
+	}
+	else out = bv_variable_create(bv_type_get(left.type, right.type), bv_variable_get_uint(left) + bv_variable_get_uint(right));
+
+	return out;
+}
+bv_variable bv_variable_op_subtract(bv_program* prog, bv_variable left, bv_variable right)
+{
+	bv_variable out = bv_variable_create_null_object();
+
+	if (left.type == bv_type_object || right.type == bv_type_object) {
+		if (left.type == bv_type_object) {
+			bv_object* obj = bv_variable_get_object(left);
+			bv_function* func = bv_object_get_method(obj, "-");
+			if (func != 0) {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, right);
+
+				out = bv_program_call(prog, func, &args, obj);
+
+				bv_stack_delete(&args);
+			}
+
+			return out;
+		}
+		else if (right.type == bv_type_object) {
+			bv_object* obj = bv_variable_get_object(right);
+			bv_function* func = bv_object_get_method(obj, "-");
+			if (func != 0) {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, left);
+
+				out = bv_program_call(prog, func, &args, obj);
+
+				bv_stack_delete(&args);
+			}
+
+			return out;
+		}
+	}
+	else if (left.type == bv_type_array || right.type == bv_type_array) {
+		// ...
+	}
+	else if (left.type == bv_type_float || right.type == bv_type_float) {
+		float x = 0, y = 0;
+
+		if (left.type == bv_type_float)
+			x = bv_variable_get_float(left);
+		else if (left.type == bv_type_string)
+			return out;
+		else x = bv_variable_get_int(left);
+
+		if (right.type == bv_type_float)
+			y = bv_variable_get_float(right);
+		else if (right.type == bv_type_string)
+			return out;
+		else y = bv_variable_get_int(right);
+
+		out = bv_variable_create_float(x - y);
+	}
+	else if (left.type == bv_type_string || right.type == bv_type_string) {
+		// ..
+	}
+	else out = bv_variable_create(bv_type_get(left.type, right.type), bv_variable_get_uint(left) - bv_variable_get_uint(right));
+
+	return out;
+}
+bv_variable bv_variable_op_divide(bv_program* prog, bv_variable left, bv_variable right)
+{
+	bv_variable out = bv_variable_create_null_object();
+
+	if (left.type == bv_type_object || right.type == bv_type_object) {
+		if (left.type == bv_type_object) {
+			bv_object* obj = bv_variable_get_object(left);
+			bv_function* func = bv_object_get_method(obj, "/");
+			if (func != 0) {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, right);
+
+				out = bv_program_call(prog, func, &args, obj);
+
+				bv_stack_delete(&args);
+			}
+
+			return out;
+		}
+		else if (right.type == bv_type_object) {
+			bv_object* obj = bv_variable_get_object(right);
+			bv_function* func = bv_object_get_method(obj, "/");
+			if (func != 0) {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, left);
+
+				out = bv_program_call(prog, func, &args, obj);
+
+				bv_stack_delete(&args);
+			}
+
+			return out;
+		}
+	}
+	else if (left.type == bv_type_array || right.type == bv_type_array) {
+		// ...
+	}
+	else if (left.type == bv_type_float || right.type == bv_type_float) {
+		float x = 0, y = 0;
+
+		if (left.type == bv_type_float)
+			x = bv_variable_get_float(left);
+		else if (left.type == bv_type_string)
+			return out;
+		else x = bv_variable_get_int(left);
+
+		if (right.type == bv_type_float)
+			y = bv_variable_get_float(right);
+		else if (right.type == bv_type_string)
+			return out;
+		else y = bv_variable_get_int(right);
+
+		out = bv_variable_create_float(x / y);
+	}
+	else if (left.type == bv_type_string || right.type == bv_type_string) {
+		// ..
+	}
+	else out = bv_variable_create(bv_type_get(left.type, right.type), bv_variable_get_uint(left) / bv_variable_get_uint(right));
+
+	return out;
+}
+bv_variable bv_variable_op_multiply(bv_program* prog, bv_variable left, bv_variable right)
+{
+	bv_variable out = bv_variable_create_null_object();
+
+	if (left.type == bv_type_object || right.type == bv_type_object) {
+		if (left.type == bv_type_object) {
+			bv_object* obj = bv_variable_get_object(left);
+			bv_function* func = bv_object_get_method(obj, "*");
+			if (func != 0) {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, right);
+
+				out = bv_program_call(prog, func, &args, obj);
+
+				bv_stack_delete(&args);
+			}
+
+			return out;
+		}
+		else if (right.type == bv_type_object) {
+			bv_object* obj = bv_variable_get_object(right);
+			bv_function* func = bv_object_get_method(obj, "*");
+			if (func != 0) {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, left);
+
+				out = bv_program_call(prog, func, &args, obj);
+
+				bv_stack_delete(&args);
+			}
+
+			return out;
+		}
+	}
+	else if (left.type == bv_type_array || right.type == bv_type_array) {
+		// ...
+	}
+	else if (left.type == bv_type_float || right.type == bv_type_float) {
+		float x = 0, y = 0;
+
+		if (left.type == bv_type_float)
+			x = bv_variable_get_float(left);
+		else if (left.type == bv_type_string)
+			return out;
+		else x = bv_variable_get_int(left);
+
+		if (right.type == bv_type_float)
+			y = bv_variable_get_float(right);
+		else if (right.type == bv_type_string)
+			return out;
+		else y = bv_variable_get_int(right);
+
+		out = bv_variable_create_float(x * y);
+	}
+	else if (left.type == bv_type_string || right.type == bv_type_string) {
+		// ..
+	}
+	else out = bv_variable_create(bv_type_get(left.type, right.type), bv_variable_get_uint(left) * bv_variable_get_uint(right));
+
+	return out;
+}
+bv_variable bv_variable_op_increment(bv_program* prog, bv_variable left)
+{
+	bv_variable out = bv_variable_create_null_object();
+
+	if (left.type == bv_type_object) {
+		bv_object* obj = bv_variable_get_object(left);
+		bv_function* func = bv_object_get_method(obj, "++");
+		if (func != 0)
+			out = bv_program_call(prog, func, NULL, obj);
+	}
+	else if (left.type == bv_type_array) {
+		// ...
+	}
+	else if (left.type == bv_type_float)
+		out = bv_variable_create_float(bv_variable_get_float(left)+1);
+	else if (left.type == bv_type_string) {
+		// ..
+	}
+	else out = bv_variable_create(left.type, bv_variable_get_uint(left) + 1);
+
+	return out;
+}
+bv_variable bv_variable_op_decrement(bv_program* prog, bv_variable left)
+{
+	bv_variable out = bv_variable_create_null_object();
+
+	if (left.type == bv_type_object) {
+		bv_object* obj = bv_variable_get_object(left);
+		bv_function* func = bv_object_get_method(obj, "--");
+		if (func != 0)
+			out = bv_program_call(prog, func, NULL, obj);
+	}
+	else if (left.type == bv_type_array) {
+		// ...
+	}
+	else if (left.type == bv_type_float)
+		out = bv_variable_create_float(bv_variable_get_float(left) - 1);
+	else if (left.type == bv_type_string) {
+		// ..
+	}
+	else out = bv_variable_create(left.type, bv_variable_get_uint(left) - 1);
+
+	return out;
+}
+bv_variable bv_variable_op_negate(bv_program* prog, bv_variable left)
+{
+	bv_variable out = bv_variable_create_null_object();
+
+	if (left.type == bv_type_object) {
+		bv_object* obj = bv_variable_get_object(left);
+		bv_function* func = bv_object_get_method(obj, "-");
+		if (func != 0)
+			out = bv_program_call(prog, func, NULL, obj);
+	}
+	else if (left.type == bv_type_array) {
+		// ...
+	}
+	else if (left.type == bv_type_float)
+		out = bv_variable_create_float(-bv_variable_get_float(left));
+	else if (left.type == bv_type_string) {
+		// ..
+	}
+	else out = bv_variable_create(left.type, -bv_variable_get_uint(left));
+
+	return out;
+}
+bv_variable bv_variable_op_modulo(bv_program* prog, bv_variable left, bv_variable right)
+{
+	bv_variable out = bv_variable_create_null_object();
+
+	if (left.type == bv_type_object || right.type == bv_type_object) {
+		if (left.type == bv_type_object) {
+			bv_object* obj = bv_variable_get_object(left);
+			bv_function* func = bv_object_get_method(obj, "%");
+			if (func != 0) {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, right);
+
+				out = bv_program_call(prog, func, &args, obj);
+
+				bv_stack_delete(&args);
+			}
+
+			return out;
+		}
+		else if (right.type == bv_type_object) {
+			bv_object* obj = bv_variable_get_object(right);
+			bv_function* func = bv_object_get_method(obj, "%");
+			if (func != 0) {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, left);
+
+				out = bv_program_call(prog, func, &args, obj);
+
+				bv_stack_delete(&args);
+			}
+
+			return out;
+		}
+	}
+	else if (left.type == bv_type_array || right.type == bv_type_array) {
+		// ...
+	}
+	else if (left.type == bv_type_float || right.type == bv_type_float) {
+		float x = 0, y = 0;
+
+		if (left.type == bv_type_float)
+			x = bv_variable_get_float(left);
+		else if (left.type == bv_type_string)
+			return out;
+		else x = bv_variable_get_int(left);
+
+		if (right.type == bv_type_float)
+			y = bv_variable_get_float(right);
+		else if (right.type == bv_type_string)
+			return out;
+		else y = bv_variable_get_int(right);
+
+		out = bv_variable_create_float((u32)x % (u32)y);
+	}
+	else if (left.type == bv_type_string || right.type == bv_type_string) {
+		// ..
+	}
+	else out = bv_variable_create(bv_type_get(left.type, right.type), bv_variable_get_uint(left) % bv_variable_get_uint(right));
+
+	return out;
+}
+u8 bv_variable_op_not(bv_program* prog, bv_variable left)
+{
+	u8 out = 0;
+
+	if (left.type == bv_type_object) {
+		bv_object* obj = bv_variable_get_object(left);
+		bv_function* func = bv_object_get_method(obj, "!");
+		if (func != 0)
+			out = bv_variable_get_uchar(bv_program_call(prog, func, NULL, obj));
+	}
+	else if (left.type == bv_type_array) {
+		// ...
+	}
+	else if (left.type == bv_type_float) {
+		out = !bv_variable_get_float(left);
+	}
+	else if (left.type == bv_type_string) {
+		// ..
+	}
+	else out = !bv_variable_get_uint(left);
+
+	return out;
+}
+bv_variable bv_variable_cast(bv_program* prog, bv_type new_type, bv_variable right)
+{
+	bv_type old_type = right.type;
+
+	bv_variable ret; 
+	ret.type = new_type;
+
+	if (new_type == old_type)
+		return bv_variable_copy(right);
+	else if (new_type == bv_type_string) {
+		if (old_type == bv_type_int || old_type == bv_type_short)
+			ret = bv_variable_create_string(itoa(bv_variable_get_int(right), 0, 10));
+		else if (old_type == bv_type_uint || old_type == bv_type_ushort) // todo utoa
+			ret = bv_variable_create_string(itoa(bv_variable_get_uint(right), 0, 10));
+		else if (old_type == bv_type_char || old_type == bv_type_uchar) {
+			string m = malloc(sizeof(char) * 2);
+			m[0] = right.value;
+			m[1] = 0;
+
+			ret = bv_variable_create_string(m);
+
+			free(m);
+		} else if (old_type == bv_type_float) {
+			float value = bv_variable_get_float(right);
+
+			int len = snprintf(NULL, 0, "%f", value);
+			string result = (char *)malloc(len + 1);
+			snprintf(result, len + 1, "%f", value);
+
+			ret = bv_variable_create_string(result);
+
+			free(result);
+		}
+		else if (old_type == bv_type_object)
+			ret = bv_variable_create_string("[Object]");
+		else if (old_type == bv_type_array)
+			ret = bv_variable_create_string("[Array]");
+	}
+	else if (new_type == bv_type_float) {
+		if (old_type == bv_type_int || old_type == bv_type_short || old_type == bv_type_char)
+			ret = bv_variable_create_float(bv_variable_get_int(right));
+		else if (old_type == bv_type_uint || old_type == bv_type_ushort || old_type == bv_type_uchar) // todo utoa
+			ret = bv_variable_create_float(bv_variable_get_uint(right));
+		else if (old_type == bv_type_object)
+			ret = bv_variable_create_float(0);
+		else if (old_type == bv_type_array)
+			ret = bv_variable_create_float(0);
+	}
+	else if (bv_type_is_integer(new_type)) {
+		if (old_type == bv_type_float) {
+			float value = bv_variable_get_float(right);
+
+			ret = bv_variable_create(new_type, (int)value);
+		}
+		else if (old_type == bv_type_object)
+			ret = bv_variable_create(new_type, 0);
+		else if (old_type == bv_type_array)
+			ret = bv_variable_create(new_type, 0);
+	}
+	else if (new_type == bv_type_object)
+		ret = bv_variable_create_null_object();
+	else if (new_type == bv_type_array)
+		ret = bv_variable_create_array(bv_array_create(0, 0));
+	else {
+		// do nothing
+	}
+
+
+	return ret;
 }

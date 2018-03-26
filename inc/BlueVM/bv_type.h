@@ -22,5 +22,6 @@ typedef enum __bv_type {
 bv_type bv_type_read(byte** mem);
 
 byte bv_type_is_integer(bv_type type);
+bv_type bv_type_get(bv_type t1, bv_type t2); // 1.2f + 2 => returns float
 
 #endif

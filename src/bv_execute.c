@@ -35,43 +35,13 @@ void bv_execute_add(bv_state* state) {
 
 	bv_variable var1 = bv_stack_penultimate(state->stack);
 	bv_variable var2 = bv_stack_top(state->stack);
+	
+	bv_variable res = bv_variable_op_add(state->prog, var1, var2);
 
-	if (var1.type == bv_type_float || var2.type == bv_type_float) {
-		float sum = 0;
+	bv_stack_pop(state->stack);
+	bv_stack_pop(state->stack);
 
-		if (var1.type == bv_type_float)
-			sum += bv_variable_get_float(var1);
-		else sum += bv_variable_get_int(var1);
-		if (var2.type == bv_type_float)
-			sum += bv_variable_get_float(var2);
-		else sum += bv_variable_get_int(var2);
-
-		bv_stack_pop(state->stack);
-		bv_stack_pop(state->stack);
-
-		bv_stack_push(state->stack, bv_variable_create_float(sum));
-	}
-	else if (var1.type == bv_type_string && var2.type == bv_type_string) {
-		string result = malloc(strlen(var1.value) + strlen(var2.value) + 1);
-		strcpy(result, var1.value);
-		strcpy(result + strlen(var1.value), var2.value);
-		result[strlen(var1.value) + strlen(var2.value)] = 0;
-
-		bv_stack_pop(state->stack);
-		bv_stack_pop(state->stack);
-
-		bv_stack_push(state->stack, bv_variable_create_string(result));
-		free(result);
-	}
-	else {
-		u32 sum = bv_variable_get_int(var1) + bv_variable_get_int(var2);
-		bv_type type = var1.type;
-
-		bv_stack_pop(state->stack);
-		bv_stack_pop(state->stack);
-
-		bv_stack_push(state->stack, bv_variable_create(type, sum));
-	}
+	bv_stack_push(state->stack, res);
 }
 void bv_execute_subtract(bv_state* state) {
 	if (state->stack->length < 2) // dont do anything if there is not enough arguments in stack
@@ -80,30 +50,12 @@ void bv_execute_subtract(bv_state* state) {
 	bv_variable var1 = bv_stack_penultimate(state->stack);
 	bv_variable var2 = bv_stack_top(state->stack);
 
-	if (var1.type == bv_type_float || var2.type == bv_type_float) {
-		float sum = 0;
+	bv_variable res = bv_variable_op_subtract(state->prog, var1, var2);
 
-		if (var1.type == bv_type_float)
-			sum = bv_variable_get_float(var1);
-		else sum = bv_variable_get_int(var1);
-		if (var2.type == bv_type_float)
-			sum -= bv_variable_get_float(var2);
-		else sum -= bv_variable_get_int(var2);
+	bv_stack_pop(state->stack);
+	bv_stack_pop(state->stack);
 
-		bv_stack_pop(state->stack);
-		bv_stack_pop(state->stack);
-
-		bv_stack_push(state->stack, bv_variable_create_float(sum));
-	}
-	else {
-		u32 sum = bv_variable_get_int(var1) - bv_variable_get_int(var2);
-		bv_type type = var1.type;
-
-		bv_stack_pop(state->stack);
-		bv_stack_pop(state->stack);
-
-		bv_stack_push(state->stack, bv_variable_create(type, sum));
-	}
+	bv_stack_push(state->stack, res);
 }
 void bv_execute_multiply(bv_state* state) {
 	if (state->stack->length < 2) // dont do anything if there is not enough arguments in stack
@@ -112,30 +64,12 @@ void bv_execute_multiply(bv_state* state) {
 	bv_variable var1 = bv_stack_penultimate(state->stack);
 	bv_variable var2 = bv_stack_top(state->stack);
 
-	if (var1.type == bv_type_float || var2.type == bv_type_float) {
-		float sum = 0;
+	bv_variable res = bv_variable_op_multiply(state->prog, var1, var2);
 
-		if (var1.type == bv_type_float)
-			sum = bv_variable_get_float(var1);
-		else sum = bv_variable_get_int(var1);
-		if (var2.type == bv_type_float)
-			sum *= bv_variable_get_float(var2);
-		else sum *= bv_variable_get_int(var2);
+	bv_stack_pop(state->stack);
+	bv_stack_pop(state->stack);
 
-		bv_stack_pop(state->stack);
-		bv_stack_pop(state->stack);
-
-		bv_stack_push(state->stack, bv_variable_create_float(sum));
-	}
-	else {
-		u32 sum = bv_variable_get_int(var1) * bv_variable_get_int(var2);
-		bv_type type = var1.type;
-
-		bv_stack_pop(state->stack);
-		bv_stack_pop(state->stack);
-
-		bv_stack_push(state->stack, bv_variable_create(type, sum));
-	}
+	bv_stack_push(state->stack, res);
 }
 void bv_execute_divide(bv_state* state) {
 	if (state->stack->length < 2) // dont do anything if there is not enough arguments in stack
@@ -144,87 +78,39 @@ void bv_execute_divide(bv_state* state) {
 	bv_variable var1 = bv_stack_penultimate(state->stack);
 	bv_variable var2 = bv_stack_top(state->stack);
 
-	if (var1.type == bv_type_float || var2.type == bv_type_float) {
-		float sum = 0;
+	bv_variable res = bv_variable_op_divide(state->prog, var1, var2);
 
-		if (var1.type == bv_type_float)
-			sum = bv_variable_get_float(var1);
-		else sum = bv_variable_get_int(var1);
-		if (var2.type == bv_type_float)
-			sum /= bv_variable_get_float(var2); // [TODO] check if == 0
-		else sum /= bv_variable_get_int(var2);
+	bv_stack_pop(state->stack);
+	bv_stack_pop(state->stack);
 
-		bv_stack_pop(state->stack);
-		bv_stack_pop(state->stack);
-
-		bv_stack_push(state->stack, bv_variable_create_float(sum));
-	}
-	else {
-		u32 sum = bv_variable_get_int(var1) / bv_variable_get_int(var2);
-		bv_type type = var1.type;
-
-		bv_stack_pop(state->stack);
-		bv_stack_pop(state->stack);
-
-		bv_stack_push(state->stack, bv_variable_create(type, sum));
-	}
+	bv_stack_push(state->stack, res);
 }
 void bv_execute_increment(bv_state* state) {
 	bv_variable var = bv_stack_top(state->stack);
 
-	if (var.type == bv_type_float) {
-		float val = bv_variable_get_float(var) + 1;
+	bv_variable res = bv_variable_op_increment(state->prog, var);
 
-		bv_stack_pop(state->stack);
+	bv_stack_pop(state->stack);
 
-		bv_stack_push(state->stack, bv_variable_create_float(val));
-	}
-	else {
-		u32 val = bv_variable_get_int(var) + 1;
-		bv_type type = var.type;
-
-		bv_stack_pop(state->stack);
-
-		bv_stack_push(state->stack, bv_variable_create(type, val));
-	}
+	bv_stack_push(state->stack, res);
 }
 void bv_execute_decrement(bv_state* state) {
 	bv_variable var = bv_stack_top(state->stack);
 
-	if (var.type == bv_type_float) {
-		float val = bv_variable_get_float(var) - 1;
+	bv_variable res = bv_variable_op_decrement(state->prog, var);
 
-		bv_stack_pop(state->stack);
+	bv_stack_pop(state->stack);
 
-		bv_stack_push(state->stack, bv_variable_create_float(val));
-	}
-	else {
-		u32 val = bv_variable_get_int(var) - 1;
-		bv_type type = var.type;
-
-		bv_stack_pop(state->stack);
-
-		bv_stack_push(state->stack, bv_variable_create(type, val));
-	}
+	bv_stack_push(state->stack, res);
 }
 void bv_execute_negate(bv_state* state) {
 	bv_variable var = bv_stack_top(state->stack);
 
-	if (var.type == bv_type_float) {
-		float val = -bv_variable_get_float(var);
+	bv_variable res = bv_variable_op_negate(state->prog, var);
 
-		bv_stack_pop(state->stack);
+	bv_stack_pop(state->stack);
 
-		bv_stack_push(state->stack, bv_variable_create_float(val));
-	}
-	else {
-		u32 val = -bv_variable_get_int(var);
-		bv_type type = var.type;
-
-		bv_stack_pop(state->stack);
-
-		bv_stack_push(state->stack, bv_variable_create(type, val));
-	}
+	bv_stack_push(state->stack, res);
 }
 void bv_execute_modulo(bv_state* state) {
 	if (state->stack->length < 2) // dont do anything if there is not enough arguments in stack
@@ -232,23 +118,13 @@ void bv_execute_modulo(bv_state* state) {
 
 	bv_variable var1 = bv_stack_penultimate(state->stack);
 	bv_variable var2 = bv_stack_top(state->stack);
-	bv_type type = var1.type;
-	s32 val1 = 0, val2 = 1;
 
-	if (type == bv_type_float)
-		val1 = bv_variable_get_float(var1);
-	else
-		val1 = bv_variable_get_int(var1);
-
-	if (var2.type == bv_type_float)
-		val2 = bv_variable_get_float(var2);
-	else
-		val2 = bv_variable_get_int(var2);
+	bv_variable res = bv_variable_op_modulo(state->prog, var1, var2);
 
 	bv_stack_pop(state->stack);
 	bv_stack_pop(state->stack);
 
-	bv_stack_push(state->stack, bv_variable_create_uint(val1 % val2));
+	bv_stack_push(state->stack, res);
 }
 void bv_execute_bit_or(bv_state* state) {
 	if (state->stack->length < 2) // dont do anything if there is not enough arguments in stack
@@ -341,31 +217,13 @@ void bv_execute_equal(bv_state* state) {
 
 	bv_variable var1 = bv_stack_penultimate(state->stack);
 	bv_variable var2 = bv_stack_top(state->stack);
-	u8 out = 0;
 
-	if (var1.type == bv_type_float || var2.type == bv_type_float) {
-		float x = 0, y = 0;
-
-		if (var1.type == bv_type_float)
-			x = bv_variable_get_float(var1);
-		else
-			x = bv_variable_get_int(var1);
-		if (var2.type == bv_type_float)
-			y = bv_variable_get_float(var2);
-		else
-			y = bv_variable_get_int(var2);
-
-		out = (x == y);
-	}
-	else if (var1.type == bv_type_string && var2.type == bv_type_string)
-		out = strcmp(var1.value, var2.value) == 0;
-	else
-		out = bv_variable_get_uint(var1) == bv_variable_get_uint(var2);
+	u8 res = bv_variable_op_equal(state->prog, var1, var2);
 
 	bv_stack_pop(state->stack);
 	bv_stack_pop(state->stack);
 
-	bv_stack_push(state->stack, bv_variable_create_uchar(out));
+	bv_stack_push(state->stack, bv_variable_create_uchar(res));
 }
 void bv_execute_not_equal(bv_state* state) {
 	if (state->stack->length < 2) // dont do anything if there is not enough arguments in stack
@@ -373,39 +231,22 @@ void bv_execute_not_equal(bv_state* state) {
 
 	bv_variable var1 = bv_stack_penultimate(state->stack);
 	bv_variable var2 = bv_stack_top(state->stack);
-	u8 out = 0;
 
-	if (var1.type == bv_type_float || var2.type == bv_type_float) {
-		float x = 0, y = 0;
-
-		if (var1.type == bv_type_float)
-			x = bv_variable_get_float(var1);
-		else
-			x = bv_variable_get_int(var1);
-		if (var2.type == bv_type_float)
-			y = bv_variable_get_float(var2);
-		else
-			y = bv_variable_get_int(var2);
-
-		out = (x != y);
-	}
-	else if (var1.type == bv_type_string && var2.type == bv_type_string)
-		out = strcmp(var1.value, var2.value) != 0;
-	else
-		out = bv_variable_get_uint(var1) != bv_variable_get_uint(var2);
+	u8 res = bv_variable_op_not_equal(state->prog, var1, var2);
 
 	bv_stack_pop(state->stack);
 	bv_stack_pop(state->stack);
 
-	bv_stack_push(state->stack, bv_variable_create_uchar(out));
+	bv_stack_push(state->stack, bv_variable_create_uchar(res));
 }
 void bv_execute_not(bv_state* state) {
 	bv_variable var = bv_stack_top(state->stack);
-	u8 out = !bv_variable_get_uchar(var);
+
+	u8 res = bv_variable_op_not(state->prog, var);
 
 	bv_stack_pop(state->stack);
 
-	bv_stack_push(state->stack, bv_variable_create_uchar(out));
+	bv_stack_push(state->stack, bv_variable_create_uchar(res));
 }
 void bv_execute_greater(bv_state* state) {
 	if (state->stack->length < 2) // dont do anything if there is not enough arguments in stack
@@ -413,29 +254,13 @@ void bv_execute_greater(bv_state* state) {
 
 	bv_variable var1 = bv_stack_penultimate(state->stack);
 	bv_variable var2 = bv_stack_top(state->stack);
-	u8 out = 0;
 
-	if (var1.type == bv_type_float || var2.type == bv_type_float) {
-		float x = 0, y = 0;
-
-		if (var1.type == bv_type_float)
-			x = bv_variable_get_float(var1);
-		else
-			x = bv_variable_get_int(var1);
-		if (var2.type == bv_type_float)
-			y = bv_variable_get_float(var2);
-		else
-			y = bv_variable_get_int(var2);
-
-		out = (x > y);
-	}
-	else
-		out = bv_variable_get_uint(var1) > bv_variable_get_uint(var2);
+	u8 res = bv_variable_op_greater_than(state->prog, var1, var2);
 
 	bv_stack_pop(state->stack);
 	bv_stack_pop(state->stack);
 
-	bv_stack_push(state->stack, bv_variable_create_uchar(out));
+	bv_stack_push(state->stack, bv_variable_create_uchar(res));
 }
 void bv_execute_less(bv_state* state) {
 	if (state->stack->length < 2) // dont do anything if there is not enough arguments in stack
@@ -443,29 +268,13 @@ void bv_execute_less(bv_state* state) {
 
 	bv_variable var1 = bv_stack_penultimate(state->stack);
 	bv_variable var2 = bv_stack_top(state->stack);
-	u8 out = 0;
-
-	if (var1.type == bv_type_float || var2.type == bv_type_float) {
-		float x = 0, y = 0;
-
-		if (var1.type == bv_type_float)
-			x = bv_variable_get_float(var1);
-		else
-			x = bv_variable_get_int(var1);
-		if (var2.type == bv_type_float)
-			y = bv_variable_get_float(var2);
-		else
-			y = bv_variable_get_int(var2);
-
-		out = (x < y);
-	}
-	else
-		out = bv_variable_get_uint(var1) < bv_variable_get_uint(var2);
+	
+	u8 res = bv_variable_op_less_than(state->prog, var1, var2);
 
 	bv_stack_pop(state->stack);
 	bv_stack_pop(state->stack);
 
-	bv_stack_push(state->stack, bv_variable_create_uchar(out));
+	bv_stack_push(state->stack, bv_variable_create_uchar(res));
 }
 void bv_execute_greater_equal(bv_state* state) {
 	if (state->stack->length < 2) // dont do anything if there is not enough arguments in stack
@@ -473,29 +282,13 @@ void bv_execute_greater_equal(bv_state* state) {
 
 	bv_variable var1 = bv_stack_penultimate(state->stack);
 	bv_variable var2 = bv_stack_top(state->stack);
-	u8 out = 0;
 
-	if (var1.type == bv_type_float || var2.type == bv_type_float) {
-		float x = 0, y = 0;
-
-		if (var1.type == bv_type_float)
-			x = bv_variable_get_float(var1);
-		else
-			x = bv_variable_get_int(var1);
-		if (var2.type == bv_type_float)
-			y = bv_variable_get_float(var2);
-		else
-			y = bv_variable_get_int(var2);
-
-		out = (x >= y);
-	}
-	else
-		out = bv_variable_get_uint(var1) >= bv_variable_get_uint(var2);
+	u8 res = bv_variable_op_greater_equal(state->prog, var1, var2);
 
 	bv_stack_pop(state->stack);
 	bv_stack_pop(state->stack);
 
-	bv_stack_push(state->stack, bv_variable_create_uchar(out));
+	bv_stack_push(state->stack, bv_variable_create_uchar(res));
 }
 void bv_execute_less_equal(bv_state* state) {
 	if (state->stack->length < 2) // dont do anything if there is not enough arguments in stack
@@ -503,55 +296,23 @@ void bv_execute_less_equal(bv_state* state) {
 
 	bv_variable var1 = bv_stack_penultimate(state->stack);
 	bv_variable var2 = bv_stack_top(state->stack);
-	u8 out = 0;
 
-	if (var1.type == bv_type_float || var2.type == bv_type_float) {
-		float x = 0, y = 0;
-
-		if (var1.type == bv_type_float)
-			x = bv_variable_get_float(var1);
-		else
-			x = bv_variable_get_int(var1);
-		if (var2.type == bv_type_float)
-			y = bv_variable_get_float(var2);
-		else
-			y = bv_variable_get_int(var2);
-
-		out = (x <= y);
-	}
-	else
-		out = bv_variable_get_uint(var1) <= bv_variable_get_uint(var2);
+	u8 res = bv_variable_op_less_equal(state->prog, var1, var2);
 
 	bv_stack_pop(state->stack);
 	bv_stack_pop(state->stack);
 
-	bv_stack_push(state->stack, bv_variable_create_uchar(out));
+	bv_stack_push(state->stack, bv_variable_create_uchar(res));
 }
 void bv_execute_nop(bv_state* state){}
 void bv_execute_convert(bv_state* state) {
 	bv_variable var = bv_stack_top(state->stack);
 	bv_type new_type = bv_type_read(state->code);
-	bv_type old_type = var.type;
 
-	var.type = new_type;
-
-	if (old_type == bv_type_string || new_type == bv_type_string || old_type == new_type) {}// convert doesnt support strings
-	else if (old_type == bv_type_float) {
-		u32 value = (u32)bv_variable_get_float(var);
-		bv_variable_deinitialize(&var);
-		var = bv_variable_create(new_type, value);
-	}
-	else {
-		u32 value = bv_variable_get_uint(var);
-
-		if (new_type == bv_type_float)
-			var = bv_variable_create_float(value);
-		else
-			var = bv_variable_create(new_type, value);
-	}
+	bv_variable res = bv_variable_cast(state->prog, new_type, var);
 
 	bv_stack_pop(state->stack);
-	bv_stack_push(state->stack, var);
+	bv_stack_push(state->stack, res);
 }
 void bv_execute_duplicate(bv_state* state) {
 	bv_variable var = bv_variable_copy(bv_stack_top(state->stack));
@@ -598,8 +359,7 @@ void bv_execute_set_local(bv_state* state) {
 
 	if (index == state->locals->length) { // 'declare' a new variable
 		bv_stack_push(state->locals, var);
-	}
-	else {
+	} else {
 		bv_variable* pLocal = &state->locals->data[index];
 
 		bv_type my_type = pLocal->type;
