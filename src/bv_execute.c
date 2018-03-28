@@ -5,7 +5,9 @@
 #include <BlueVM/bv_program.h>
 #include <stdlib.h>
 
-void bv_execute_unknown(bv_state* state) { }
+void bv_execute_unknown(bv_state* state) { 
+	printf("OpUnknown!\n");
+}
 void bv_execute_func_start(bv_state* state) { }
 void bv_execute_return(bv_state* state) {
 	state->should_exit = 1;
@@ -333,85 +335,19 @@ void bv_execute_get_local(bv_state* state) {
 		bv_stack_push(state->stack, bv_variable_create_int(0)); // push a 0 to the stack
 	else {
 		bv_variable* pLocal = &state->locals->data[index];
-		if (pLocal->type == bv_type_array) {
-			bv_array arr = bv_variable_get_array(*pLocal);
-
-			int* lens = malloc(sizeof(int) * arr.dim);
-			int i = arr.dim;
-			while (i != 0) {
-				lens[arr.dim - i] = bv_variable_get_int(bv_stack_top(state->stack));
-				bv_stack_pop(state->stack);
-				i--;
-			}
-
-			bv_stack_push(state->stack, bv_array_get(arr, lens));
-
-			free(lens);
-		}
-		else
-			bv_stack_push(state->stack, bv_variable_copy(*pLocal)); // make a copy (no pointers :()
+		bv_stack_push(state->stack, bv_variable_copy(*pLocal)); // make a copy (no pointers :()
 	}
 }
 void bv_execute_set_local(bv_state* state) {
 	u16 index = u16_read(state->code);
 	bv_variable var = bv_variable_copy(bv_stack_top(state->stack));
 	bv_stack_pop(state->stack);
-
+	
 	if (index == state->locals->length) { // 'declare' a new variable
 		bv_stack_push(state->locals, var);
 	} else {
 		bv_variable* pLocal = &state->locals->data[index];
-
-		bv_type my_type = pLocal->type;
-		if (my_type == bv_type_array) {
-			bv_array arr = bv_variable_get_array(*pLocal);
-
-			int* lens = malloc(sizeof(int) * arr.dim);
-			int i = arr.dim;
-			while (i != 0) {
-				lens[arr.dim - i] = bv_variable_get_int(bv_stack_top(state->stack));
-				bv_stack_pop(state->stack);
-				i--;
-			}
-
-			bv_variable_deinitialize(&arr.data[bv_array_get_index(arr, lens)]);
-			bv_array_set(arr, lens, var);
-
-			free(lens);
-		}
-		else {
-			bv_type st_type = var.type;
-
-			if (st_type == bv_type_string && my_type != bv_type_string)
-				return; // cant assign string to an int/float
-
-			if (my_type == bv_type_string) {
-				if (st_type != bv_type_string) // cant assign int/float to a string
-					return;
-
-				*pLocal = bv_variable_copy(var);
-			}
-			else if (my_type == bv_type_float) {
-				if (st_type == bv_type_float) {
-					*pLocal = bv_variable_copy(var);
-				}
-				else {
-					if (st_type == bv_type_uint || st_type == bv_type_ushort || st_type == bv_type_uchar)
-						*pLocal = bv_variable_create_float(bv_variable_get_uint(var));
-					else
-						*pLocal = bv_variable_create_float(bv_variable_get_int(var));
-
-					pLocal->type = my_type; // return the old type
-				}
-			}
-			else {
-				if (st_type == bv_type_float) {
-					u32 newVal = bv_variable_get_float(var);
-					*pLocal = bv_variable_create(my_type, newVal);
-				}
-				else pLocal->value = var.value;
-			}
-		}
+		*pLocal = bv_variable_copy(var);
 	}
 }
 void bv_execute_get_global(bv_state* state) {
@@ -430,38 +366,7 @@ void bv_execute_set_global(bv_state* state) {
 
 	bv_variable* pLocal = &state->prog->globals.data[index];
 
-	bv_type my_type = pLocal->type;
-	bv_type st_type = var.type;
-
-	if (st_type == bv_type_string && my_type != bv_type_string)
-		return; // cant assign string to an int/float
-
-	if (my_type == bv_type_string) {
-		if (st_type != bv_type_string) // cant assign int/float to a string
-			return;
-
-		*pLocal = bv_variable_copy(var);
-	}
-	else if (my_type == bv_type_float) {
-		if (st_type == bv_type_float) {
-			*pLocal = bv_variable_copy(var);
-		}
-		else {
-			if (st_type == bv_type_uint || st_type == bv_type_ushort || st_type == bv_type_uchar)
-				*pLocal = bv_variable_create_float(bv_variable_get_uint(var));
-			else
-				*pLocal = bv_variable_create_float(bv_variable_get_int(var));
-
-			pLocal->type = my_type; // return the old type
-		}
-	}
-	else {
-		if (st_type == bv_type_float) {
-			u32 newVal = bv_variable_get_float(var);
-			*pLocal = bv_variable_create(my_type, newVal);
-		}
-		else pLocal->value = var.value;
-	}
+	*pLocal = bv_variable_copy(var);
 }
 void bv_execute_new_array(bv_state* state) {
 	int dim = u8_read(state->code);
@@ -477,7 +382,54 @@ void bv_execute_new_array(bv_state* state) {
 		i--;
 	}
 
-	bv_stack_push(state->locals, bv_variable_create_array(bv_array_create(dim, lens)));
+	bv_array ret_arr = bv_array_create(dim, lens);
+	int cnt = bv_array_get_range(ret_arr);
+	for (int i = 0; i < cnt; i++)
+		ret_arr.data[i] = bv_variable_create_void();
+	
+	bv_stack_push(state->stack, bv_variable_create_array(ret_arr));
+	free(lens);
+}
+void bv_execute_get_array_el(bv_state* state) {
+	bv_variable var = bv_variable_copy(bv_stack_top(state->stack));
+	bv_stack_pop(state->stack);
+
+	bv_array arr = bv_variable_get_array(var);
+
+	int* lens = malloc(sizeof(int) * arr.dim);
+	int i = arr.dim;
+	while (i != 0) {
+		lens[arr.dim - i] = bv_variable_get_int(bv_stack_top(state->stack));
+		bv_stack_pop(state->stack);
+		i--;
+	}
+
+	bv_stack_push(state->stack, bv_array_get(arr, lens));
+
+	free(lens);
+}
+void bv_execute_set_array_el(bv_state* state) {
+	bv_variable value = bv_variable_copy(bv_stack_top(state->stack));
+	bv_stack_pop(state->stack);
+
+	bv_variable arr_holder = bv_variable_copy(bv_stack_top(state->stack));
+	bv_stack_pop(state->stack);
+
+	bv_array arr = bv_variable_get_array(arr_holder);
+
+	int* lens = malloc(sizeof(int) * arr.dim);
+	int i = arr.dim;
+	while (i != 0) {
+		lens[arr.dim - i] = bv_variable_get_int(bv_stack_top(state->stack));
+		bv_stack_pop(state->stack);
+		i--;
+	}
+
+	bv_array_set(arr, lens, value);
+	bv_variable_set_array(&arr_holder, arr);
+
+	bv_stack_push(state->stack, arr_holder);
+
 	free(lens);
 }
 void bv_execute_call(bv_state* state) {

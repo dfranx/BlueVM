@@ -131,7 +131,7 @@ bv_variable bv_variable_create_array(bv_array var)
 {
 	bv_variable ret;
 	ret.type = bv_type_array;
-	ret.value = malloc(sizeof(bv_array));
+	ret.value = malloc(bv_array_get_size(var));
 	*((bv_array*)ret.value) = var;
 	return ret;
 }
@@ -244,8 +244,14 @@ bv_variable bv_variable_copy(bv_variable var)
 		memcpy(ret.value, var.value, len);
 		((string)ret.value)[len] = 0;
 	} else if (var.type == bv_type_array) {
-		ret.value = malloc(sizeof(bv_array) + bv_array_get_size(bv_variable_get_array(var)));
-		memcpy(ret.value, var.value, sizeof(bv_array) + bv_array_get_size(bv_variable_get_array(var)));
+		bv_array from = bv_variable_get_array(var);
+		bv_array cpy = bv_array_create(from.dim, from.length);
+
+		int cnt = bv_array_get_range(from);
+		for (int i = 0; i < cnt; i++)
+			cpy.data[i] = bv_variable_copy(from.data[i]);
+
+		ret = bv_variable_create_array(cpy);
 	}
 	else if (var.type == bv_type_object) {
 		if (var.value == 0)

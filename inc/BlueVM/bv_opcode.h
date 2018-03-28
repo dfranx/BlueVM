@@ -45,6 +45,8 @@ typedef enum __bv_opcode {
 	bv_opcode_get_global,			// get_global [index]
 	bv_opcode_set_global,			// set_global [index] {value} -> {}
 	bv_opcode_new_array,			// new_array [dim] { size0, ..., sizeN } -> { }
+	bv_opcode_set_array_el,			// set_array_el { array, value, ind0, ..., indN } -> { array_with_changed_value }
+	bv_opcode_get_array_el,			// get_array_el { array, ind0, ..., indN } -> { gotten_value }
 	bv_opcode_call,					// call [name] {arg1, arg2 ... argN} -> {}
 	bv_opcode_call_return,			// call_return [name] {arg1, arg2, ... argN} -> {return_value}
 	bv_opcode_is_type_of,			// is_type [type] {value} -> {false/true}
