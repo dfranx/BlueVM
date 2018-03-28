@@ -347,7 +347,7 @@ void bv_execute_set_local(bv_state* state) {
 		bv_stack_push(state->locals, var);
 	} else {
 		bv_variable* pLocal = &state->locals->data[index];
-		*pLocal = bv_variable_copy(var);
+		*pLocal = var;
 	}
 }
 void bv_execute_get_global(bv_state* state) {
@@ -406,6 +406,7 @@ void bv_execute_get_array_el(bv_state* state) {
 
 	bv_stack_push(state->stack, bv_array_get(arr, lens));
 
+	bv_variable_deinitialize(&var);
 	free(lens);
 }
 void bv_execute_set_array_el(bv_state* state) {

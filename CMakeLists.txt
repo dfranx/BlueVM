@@ -1,13 +1,10 @@
 cmake_minimum_required(VERSION 3.9)
 
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_BUILD_TYPE Debug)
-
 project(BlueVM)
 
 include_directories(inc)
 
-add_executable(BlueVM 
+add_executable(BlueVM.out 
 	main.c
 	src/bv_array.c
 	src/bv_block.c

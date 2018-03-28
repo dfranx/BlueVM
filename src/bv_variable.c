@@ -7,6 +7,22 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+
+//////////////////////////// TODO!!! ///////////////////////////////
+///////////// REMOVE THIS LATER! REMOVE THIS LATER /////////////////
+////////////////////////////////////////////////////////////////////
+char* itoa(int val, int base) {
+	static char buf[32] = { 0 };
+	int i = 30;
+
+	for (; val && i; --i, val /= base)
+		buf[i] = "0123456789abcdef"[val % base];
+
+	return &buf[i + 1];
+}
+
+
+
 s32 bv_variable_get_int(bv_variable var)
 {
 	return (s32)var.value;
@@ -131,7 +147,7 @@ bv_variable bv_variable_create_array(bv_array var)
 {
 	bv_variable ret;
 	ret.type = bv_type_array;
-	ret.value = malloc(bv_array_get_size(var));
+	ret.value = malloc(sizeof(bv_array));
 	*((bv_array*)ret.value) = var;
 	return ret;
 }
@@ -225,9 +241,9 @@ void bv_variable_deinitialize(bv_variable * var)
 	// this is sort of deconstructor
 	if (var->type == bv_type_float || var->type == bv_type_string)
 		free(var->value);
-	else if (var->type == bv_type_array)
+	else if (var->type == bv_type_array) {
 		bv_array_deinitialize(var->value);
-	else if (var->type == bv_type_object)
+	} else if (var->type == bv_type_object)
 		bv_object_deinitialize(var->value);
 }
 bv_variable bv_variable_copy(bv_variable var)
@@ -887,9 +903,9 @@ bv_variable bv_variable_cast(bv_program* prog, bv_type new_type, bv_variable rig
 		return bv_variable_copy(right);
 	else if (new_type == bv_type_string) {
 		if (old_type == bv_type_int || old_type == bv_type_short)
-			ret = bv_variable_create_string(itoa(bv_variable_get_int(right), 0, 10));
+			ret = bv_variable_create_string(itoa(bv_variable_get_int(right), 10));
 		else if (old_type == bv_type_uint || old_type == bv_type_ushort) // todo utoa
-			ret = bv_variable_create_string(itoa(bv_variable_get_uint(right), 0, 10));
+			ret = bv_variable_create_string(itoa(bv_variable_get_uint(right), 10));
 		else if (old_type == bv_type_char || old_type == bv_type_uchar) {
 			string m = malloc(sizeof(char) * 2);
 			m[0] = right.value;

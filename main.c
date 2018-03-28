@@ -45,12 +45,21 @@ bv_variable my_print(int count, bv_variable* args)
 
 int main()
 {
+#ifdef WIN32
 	char* mem = read_file("E:/aGen/test.bv");
+#else
+	char* mem = read_file("/mnt/e/aGen/test.bv");
+#endif
+
+	if (mem == 0) {
+		printf("Failed to load file!\n");
+		return 0;
+	}
 
 	bv_program* prog = bv_program_create(mem);
 
 	bv_program_add_function(prog, "print", my_print);
-	bv_program_set_global(prog, "a", bv_variable_create_int(25));
+	bv_program_set_global(prog, "a", bv_variable_create_int(14));
 
 	bv_function* func_main = bv_program_get_function(prog, "main");
 	if (func_main == NULL)
@@ -65,8 +74,10 @@ int main()
 	bv_program_delete(prog);
 
 	free(mem);
-	
+
+#ifdef WIN32
 	getchar();
+#endif
 
 	return 0;
 }

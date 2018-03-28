@@ -5,6 +5,7 @@ CMakeFiles
 cmake_install.cmake
 CMakeSettings.json
 Makefile
+BlueVM.out
 .vs/
 *.docx
 *.bv.bak
