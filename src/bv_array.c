@@ -48,7 +48,9 @@ bv_variable bv_array_get(bv_array arr, int* atInd)
 
 void bv_array_set(bv_array arr, int * atInd, bv_variable val)
 {
-	arr.data[bv_array_get_index(arr, atInd)] = bv_variable_copy(val);
+	int index = bv_array_get_index(arr, atInd);
+	bv_variable_deinitialize(&arr.data[index]);
+	arr.data[index] = bv_variable_copy(val);
 }
 
 void bv_array_deinitialize(bv_array* arr)

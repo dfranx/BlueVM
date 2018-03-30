@@ -4,7 +4,7 @@ project(BlueVM)
 
 include_directories(inc)
 
-add_executable(BlueVM.out 
+add_executable(BlueVM
 	main.c
 	src/bv_array.c
 	src/bv_block.c

@@ -39,7 +39,7 @@ void bv_execute_get_local(bv_state* state);
 void bv_execute_set_local(bv_state* state);
 void bv_execute_get_global(bv_state* state);
 void bv_execute_set_global(bv_state* state);
-void bv_execute_new_array(bv_state* state);
+void bv_execute_push_array(bv_state* state);
 void bv_execute_set_array_el(bv_state* state);
 void bv_execute_get_array_el(bv_state* state);
 void bv_execute_call(bv_state* state);

@@ -29,7 +29,7 @@ void bv_object_set_property(bv_object* obj, const string name, bv_variable val)
 
 	for (u16 i = 0; i < props->name_count; i++)
 		if (strcmp(props->names[i], name) == 0) {
-			obj->prop[i] = bv_variable_copy(val);
+			obj->prop[i] = val;
 			return;
 		}
 }

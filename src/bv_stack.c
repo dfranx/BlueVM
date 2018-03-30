@@ -32,6 +32,10 @@ bv_variable bv_stack_top(bv_stack* stack)
 }
 void bv_stack_pop(bv_stack* stack)
 {
+	stack->length--;
+}
+void bv_stack_pop_free(bv_stack* stack)
+{
 	bv_variable_deinitialize(&stack->data[stack->length - 1]);
 
 	stack->length--;

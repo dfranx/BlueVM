@@ -59,7 +59,7 @@ int main()
 	bv_program* prog = bv_program_create(mem);
 
 	bv_program_add_function(prog, "print", my_print);
-	bv_program_set_global(prog, "a", bv_variable_create_int(14));
+	bv_program_set_global(prog, "a", bv_variable_create_int(25));
 
 	bv_function* func_main = bv_program_get_function(prog, "main");
 	if (func_main == NULL)

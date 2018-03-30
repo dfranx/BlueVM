@@ -69,7 +69,7 @@ void bv_program_build_opcode_table(bv_program* prog)
 	prog->opcodes[bv_opcode_set_local] = bv_execute_set_local;
 	prog->opcodes[bv_opcode_get_global] = bv_execute_get_global;
 	prog->opcodes[bv_opcode_set_global] = bv_execute_set_global;
-	prog->opcodes[bv_opcode_new_array] = bv_execute_new_array;
+	prog->opcodes[bv_opcode_push_array] = bv_execute_push_array;
 	prog->opcodes[bv_opcode_set_array_el] = bv_execute_set_array_el;
 	prog->opcodes[bv_opcode_get_array_el] = bv_execute_get_array_el;
 	prog->opcodes[bv_opcode_call] = bv_execute_call;
