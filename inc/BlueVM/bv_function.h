@@ -13,7 +13,6 @@ typedef struct bv_function
 {
 	bv_type return_type;
 	u8 args;
-	bv_type* arg_type;
 	u32 code_length;
 	byte* code;
 } bv_function;

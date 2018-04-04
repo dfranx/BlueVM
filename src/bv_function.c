@@ -12,10 +12,6 @@ bv_function* bv_function_create(byte* mem)
 	func->return_type = bv_type_read(&mem);
 	func->args = u8_read(&mem);
 
-	func->arg_type = malloc(sizeof(bv_type) * func->args);
-	for (u8 i = 0; i < func->args; i++)
-		func->arg_type[i] = bv_type_read(&mem);
-
 	func->code_length = u32_read(&mem);
 	func->code = mem;
 
@@ -24,7 +20,6 @@ bv_function* bv_function_create(byte* mem)
 
 void bv_function_delete(bv_function * func)
 {
-	free(func->arg_type);
 	free(func);
 }
 

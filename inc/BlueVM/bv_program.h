@@ -31,7 +31,10 @@ void bv_program_delete(bv_program* program);
 u16 bv_program_get_function_count(bv_program* prog);
 bv_function* bv_program_get_function(bv_program* prog, const char* str);
 bv_external_function bv_program_get_ext_function(bv_program* prog, const char* str);
-void bv_program_add_function(bv_program* prog, const char* name, bv_external_function* ext_func);
+void bv_program_add_function(bv_program* prog, const char* name, bv_external_function ext_func);
+
+void bv_program_add_object_info(bv_program* prog, bv_object_info* obj);
+bv_object_info* bv_program_get_object_info(bv_program* prog, const string name);
 
 u16 bv_program_get_global_count(bv_program* prog);
 bv_variable bv_program_get_global(bv_program* prog, string name);

@@ -1,5 +1,7 @@
 #include <BlueVM/bv_object.h>
 #include <BlueVM/bv_variable.h>
+#include <BlueVM/bv_stack.h>
+#include <BlueVM/bv_program.h>
 
 bv_object* bv_object_create(bv_object_info* info)
 {
@@ -42,6 +44,25 @@ bv_function* bv_object_get_method(bv_object* obj, const string name)
 			return obj->type->methods[i];
 
 	return 0;
+}
+bv_external_method bv_object_get_ext_method(bv_object* obj, const string name)
+{
+	bv_object_info* info = obj->type;
+	for (u16 i = 0; i < info->ext_method_count; i++)
+		if (strcmp(info->ext_method_names[i], name) == 0)
+			return obj->type->ext_methods[i];
+
+	return 0;
+}
+bv_variable bv_object_call_method(bv_object* obj, const string name, bv_program* prog, bv_stack* args)
+{
+	bv_function* func = bv_object_get_method(obj, name);
+
+	if (func != 0)
+		return bv_program_call(prog, func, args, obj);
+
+	bv_external_method ext_func = bv_object_get_ext_method(obj, name);
+	return (*ext_func)(obj, args->length, args->data);
 }
 
 void bv_object_deinitialize(bv_object* val)

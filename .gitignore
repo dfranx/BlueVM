@@ -2,6 +2,7 @@ linux.sh
 linux_build
 CMakeCache.txt
 CMakeFiles
+bin
 cmake_install.cmake
 CMakeSettings.json
 Makefile

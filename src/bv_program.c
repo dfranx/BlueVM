@@ -124,7 +124,7 @@ bv_external_function bv_program_get_ext_function(bv_program * prog, const char *
 	
 	return NULL;
 }
-void bv_program_add_function(bv_program * prog, const char * name, bv_external_function* ext_func)
+void bv_program_add_function(bv_program * prog, const char * name, bv_external_function ext_func)
 {
 	prog->external_functions = realloc(prog->external_functions, sizeof(bv_external_function) * (prog->external_function_count + 1));
 	prog->external_function_names = realloc(prog->external_function_names, sizeof(char*) * (prog->external_function_count + 1));
@@ -133,6 +133,25 @@ void bv_program_add_function(bv_program * prog, const char * name, bv_external_f
 	prog->external_function_names[prog->external_function_count] = name;
 
 	prog->external_function_count++;
+}
+
+void bv_program_add_object_info(bv_program* prog, bv_object_info* obj)
+{
+	bv_object_pool* pool = prog->block->objects;
+	pool->count++;
+
+	pool->info = realloc(pool->info, pool->count * sizeof(bv_object_info));
+	pool->info[pool->count - 1] = obj;
+}
+bv_object_info* bv_program_get_object_info(bv_program* prog, const string name)
+{
+	bv_object_pool* pool = prog->block->objects;
+
+	for (u16 i = 0; i < pool->count; i++)
+		if (strcmp(name, pool->info[i]->name) == 0)
+			return pool->info[i];
+
+	return 0;
 }
 
 u16 bv_program_get_global_count(bv_program * prog)

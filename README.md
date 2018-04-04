@@ -1,8 +1,5 @@
 ## todo
 - [ ] fix all warnings
-- [ ] #2 external bv_object & external bv_object methods
-- [ ] #2 pack external_* in seperate struct
-- [ ] #2 remove types from argument list
 - [ ] #2 cast when using malloc
 - [ ] #2 remove some appereances of char* and int
 - [ ] #2 object cast overload
@@ -25,3 +22,4 @@ more speed:
 - [ ] (last) test bv_opcode_swap
 - [ ] (last) dont push object to stack after bv_opcode_call_method
 - [ ] (last) bv_opcode_set (operator =) changes the value of variable without changing its type (calls operator= for objects)
+- [ ] (last) remove ids from bv_name_list

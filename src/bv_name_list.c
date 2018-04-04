@@ -1,4 +1,6 @@
 #include <BlueVM/bv_name_list.h>
+#include <stdlib.h>
+#include <string.h>
 
 bv_name_list bv_name_list_create(byte** mem)
 {
@@ -15,6 +17,15 @@ bv_name_list bv_name_list_create(byte** mem)
 
 	return ret;
 }
+bv_name_list bv_name_list_create_empty()
+{
+	bv_name_list ret;
+	ret.name_count = 0;
+	ret.names = malloc(ret.name_count * sizeof(string));
+	ret.name_ids = 0;
+
+	return ret;
+}
 
 u16 bv_name_list_get_id(bv_name_list nlist, string name)
 {
@@ -22,6 +33,22 @@ u16 bv_name_list_get_id(bv_name_list nlist, string name)
 		if (strcmp(nlist.names[i], name) == 0)
 			return nlist.name_ids[i];
 	return 0;
+}
+
+void bv_name_list_add(bv_name_list* nlist, const string name)
+{
+	nlist->name_count++;
+	nlist->names = realloc(nlist->names, nlist->name_count * sizeof(string));
+
+	size_t name_len = strlen(name);
+	string name_ptr = nlist->names[nlist->name_count - 1];
+	
+	name_ptr = malloc((name_len+1) * sizeof(char));
+	memcpy(name_ptr, name, name_len);
+
+	name_ptr[name_len - 1] = 0;
+
+	nlist->names[nlist->name_count - 1] = name_ptr;
 }
 
 void bv_name_list_delete(bv_name_list * nlist)

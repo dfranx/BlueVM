@@ -43,6 +43,22 @@ bv_variable my_print(int count, bv_variable* args)
 	return bv_variable_create_void();
 }
 
+bv_variable Animal_status(bv_object* obj, int count, bv_variable* args)
+{
+	string name = bv_variable_get_string(*bv_object_get_property(obj, "name"));
+	string type = bv_variable_get_string(*bv_object_get_property(obj, "type"));
+	u16 health = bv_variable_get_ushort(*bv_object_get_property(obj, "health"));
+
+	printf("name=%s;type=%s;hp=%d;\n", name, type, health);
+}
+bv_variable Vehicle_status(bv_object* obj, int count, bv_variable* args)
+{
+	string owner = bv_variable_get_string(*bv_object_get_property(obj, "owner"));
+	string type = bv_variable_get_string(*bv_object_get_property(obj, "type"));
+
+	printf("type=%s;owner=%s;\n", type, owner);
+}
+
 int main()
 {
 #ifdef WIN32
@@ -58,8 +74,22 @@ int main()
 
 	bv_program* prog = bv_program_create(mem);
 
+	// external object
+	bv_object_info* Animal = bv_object_info_create("Animal");
+	bv_object_info_add_property(Animal, "health");
+	bv_object_info_add_property(Animal, "name");
+	bv_object_info_add_property(Animal, "type");
+	bv_object_info_add_ext_method(Animal, "status", Animal_status);
+
+	bv_program_add_object_info(prog, Animal);
+	
+	
+	// 'internal' object with external method
+	bv_object_info* Vehicle = bv_program_get_object_info(prog, "Vehicle");
+	bv_object_info_add_ext_method(Vehicle, "status", Vehicle_status);
+
 	bv_program_add_function(prog, "print", my_print);
-	bv_program_set_global(prog, "a", bv_variable_create_int(25));
+	bv_program_set_global(prog, "a", bv_variable_create_int(15));
 
 	bv_function* func_main = bv_program_get_function(prog, "main");
 	if (func_main == NULL)

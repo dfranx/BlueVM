@@ -345,6 +345,9 @@ void bv_execute_set_local(bv_state* state) {
 		bv_stack_push(state->locals, var);
 	} else {
 		bv_variable* pLocal = &state->locals->data[index];
+		
+		bv_variable_deinitialize(pLocal); // first deinitialize old value
+
 		*pLocal = var;
 	}
 }
@@ -363,6 +366,8 @@ void bv_execute_set_global(bv_state* state) {
 	bv_stack_pop(state->stack);
 
 	bv_variable* pLocal = &state->prog->globals.data[index];
+
+	bv_variable_deinitialize(pLocal);
 
 	*pLocal = var;
 }
@@ -526,10 +531,10 @@ void bv_execute_new_object(bv_state* state) {
 
 	bv_function* constructor = bv_object_get_method(obj, info->name); // get constructor
 
-	if (constructor != 0) {
+	if (constructor != 0) 
 		bv_program_call(state->prog, constructor, &func_args, obj); // call constructor
-		bv_stack_push(state->stack, var);
-	}
+
+	bv_stack_push(state->stack, var);
 
 	bv_stack_delete(&func_args);
 }
@@ -588,7 +593,6 @@ void bv_execute_call_method(bv_state* state) {
 
 	bv_object* obj = bv_variable_get_object(var);
 
-	bv_function* func = bv_object_get_method(obj, name);
 	bv_stack func_args = bv_stack_create();
 
 	if (state->stack->length < argc)
@@ -599,11 +603,7 @@ void bv_execute_call_method(bv_state* state) {
 		bv_stack_pop(state->stack);
 	}
 
-	if (func != NULL)
-		bv_program_call(state->prog, func, &func_args, obj);
-	else {
-		// [TODO] external functions for objects
-	}
+	bv_object_call_method(obj, name, state->prog, &func_args);
 
 	bv_stack_push(state->stack, var); // [TODO] pointers plzz :(
 
@@ -616,7 +616,6 @@ void bv_execute_call_my_method(bv_state* state) {
 
 	bv_object* obj = state->obj;
 
-	bv_function* func = bv_object_get_method(obj, name);
 	bv_stack func_args = bv_stack_create();
 
 	if (state->stack->length < argc)
@@ -627,12 +626,7 @@ void bv_execute_call_my_method(bv_state* state) {
 		bv_stack_pop(state->stack);
 	}
 
-	if (func != NULL) {
-		bv_program_call(state->prog, func, &func_args, obj);
-	}
-	else {
-		// [TODO] external functions for objects
-	}
+	bv_object_call_method(obj, name, state->prog, &func_args);
 
 	bv_stack_delete(&func_args);
 	free(name);
@@ -657,13 +651,7 @@ void bv_execute_call_ret_method(bv_state* state) {
 		bv_stack_pop(state->stack);
 	}
 
-	if (func != NULL) {
-		bv_stack_push(state->stack, bv_program_call(state->prog, func, &func_args, obj));
-	}
-	else {
-		// [TODO] external functions for objects
-	}
-	
+	bv_stack_push(state->stack, bv_object_call_method(obj, name, state->prog, &func_args));
 	bv_stack_push(state->stack, var); // [TODO] pointers plzz :(
 
 	bv_stack_delete(&func_args);
@@ -686,12 +674,7 @@ void bv_execute_call_ret_my_method(bv_state* state) {
 		bv_stack_pop(state->stack);
 	}
 
-	if (func != NULL) {
-		bv_stack_push(state->stack, bv_program_call(state->prog, func, &func_args, obj));
-	}
-	else {
-		// [TODO] external functions for objects
-	}
+	bv_stack_push(state->stack, bv_object_call_method(obj, name, state->prog, &func_args));
 
 	bv_stack_delete(&func_args);
 	free(name);
