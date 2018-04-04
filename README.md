@@ -1,9 +1,4 @@
 ## todo
-- [ ] fix all warnings
-- [ ] #2 cast when using malloc
-- [ ] #2 remove some appereances of char* and int
-- [ ] #2 object cast overload
-
 speed:
 - [ ] #2 implement string look up table
 
@@ -23,3 +18,4 @@ more speed:
 - [ ] (last) dont push object to stack after bv_opcode_call_method
 - [ ] (last) bv_opcode_set (operator =) changes the value of variable without changing its type (calls operator= for objects)
 - [ ] (last) remove ids from bv_name_list
+- [ ] (last) do all TODOs and remove itoa func

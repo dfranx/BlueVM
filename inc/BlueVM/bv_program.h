@@ -16,9 +16,9 @@ typedef struct bv_program {
 
 	bv_execute* opcodes;
 
-	int external_function_count; // todo: change to u16
+	u16 external_function_count; // todo: change to u16
 	bv_external_function* external_functions;
-	const char** external_function_names;
+	string* external_function_names;
 
 	bv_stack globals;
 	bv_name_list global_names;
@@ -29,9 +29,9 @@ void bv_program_build_opcode_table(bv_program* prog);
 void bv_program_delete(bv_program* program);
 
 u16 bv_program_get_function_count(bv_program* prog);
-bv_function* bv_program_get_function(bv_program* prog, const char* str);
-bv_external_function bv_program_get_ext_function(bv_program* prog, const char* str);
-void bv_program_add_function(bv_program* prog, const char* name, bv_external_function ext_func);
+bv_function* bv_program_get_function(bv_program* prog, const string str);
+bv_external_function bv_program_get_ext_function(bv_program* prog, const string str);
+void bv_program_add_function(bv_program* prog, string name, bv_external_function ext_func);
 
 void bv_program_add_object_info(bv_program* prog, bv_object_info* obj);
 bv_object_info* bv_program_get_object_info(bv_program* prog, const string name);

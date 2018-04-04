@@ -8,7 +8,7 @@
 typedef struct bv_function_pool bv_function_pool;
 typedef struct bv_variable bv_variable;
 
-typedef bv_variable(*bv_external_method)(bv_object*, int, bv_variable*);
+typedef bv_variable(*bv_external_method)(bv_object*, u8, bv_variable*);
 
 typedef struct bv_object_info {
 	string name;	// class type/object name (eg "Vehicle", "Animal", etc...)
@@ -18,9 +18,9 @@ typedef struct bv_object_info {
 	bv_function_pool* method_info;
 	bv_function** methods;	// method data
 
-	int ext_method_count; // todo: change to u16
+	u16 ext_method_count; // todo: change to u16
 	bv_external_method* ext_methods;
-	const char** ext_method_names;
+	string* ext_method_names;
 } bv_object_info;
 
 bv_object_info* bv_object_info_create(const string name);

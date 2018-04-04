@@ -4,12 +4,12 @@
 
 bv_function_pool* bv_function_pool_create(byte** mem)
 {
-	bv_function_pool* pool = malloc(sizeof(bv_function_pool));
+	bv_function_pool* pool = (bv_function_pool*)malloc(sizeof(bv_function_pool));
 
 	pool->count = u16_read(mem);
 
-	pool->names = malloc(sizeof(string)*pool->count);
-	pool->address = malloc(sizeof(u32)*pool->count);
+	pool->names = (string*)malloc(sizeof(string)*pool->count);
+	pool->address = (u32*)malloc(sizeof(u32)*pool->count);
 
 	for (u16 i = 0; i < pool->count; i++) {
 		pool->names[i] = string_read(mem);

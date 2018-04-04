@@ -7,8 +7,8 @@ bv_name_list bv_name_list_create(byte** mem)
 	bv_name_list ret;
 	ret.name_count = u16_read(mem);
 
-	ret.names = malloc(sizeof(string)*ret.name_count);
-	ret.name_ids = malloc(sizeof(u16)*ret.name_count);
+	ret.names = (string*)malloc(sizeof(string)*ret.name_count);
+	ret.name_ids = (u16*)malloc(sizeof(u16)*ret.name_count);
 
 	for (u16 i = 0; i < ret.name_count; i++) {
 		ret.name_ids[i] = u16_read(mem);
@@ -21,7 +21,7 @@ bv_name_list bv_name_list_create_empty()
 {
 	bv_name_list ret;
 	ret.name_count = 0;
-	ret.names = malloc(ret.name_count * sizeof(string));
+	ret.names = (string*)malloc(ret.name_count * sizeof(string));
 	ret.name_ids = 0;
 
 	return ret;
@@ -43,7 +43,7 @@ void bv_name_list_add(bv_name_list* nlist, const string name)
 	size_t name_len = strlen(name);
 	string name_ptr = nlist->names[nlist->name_count - 1];
 	
-	name_ptr = malloc((name_len+1) * sizeof(char));
+	name_ptr = (string)malloc((name_len+1) * sizeof(char));
 	memcpy(name_ptr, name, name_len);
 
 	name_ptr[name_len - 1] = 0;

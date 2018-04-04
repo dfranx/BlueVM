@@ -8,7 +8,7 @@
 
 bv_program* bv_program_create(byte* mem)
 {
-	bv_program* ret = malloc(sizeof(bv_program));
+	bv_program* ret = (bv_program*)malloc(sizeof(bv_program));
 
 	byte* original_mem = mem;
 
@@ -25,7 +25,7 @@ bv_program* bv_program_create(byte* mem)
 	ret->external_function_count = 0;
 
 	ret->globals.length = ret->global_names.name_count;
-	ret->globals.data = malloc(sizeof(bv_variable) * ret->globals.length);
+	ret->globals.data = (bv_variable*)malloc(sizeof(bv_variable) * ret->globals.length);
 	for (u16 i = 0; i < ret->globals.length; i++)
 		ret->globals.data[i] = bv_variable_create_void();
 
@@ -33,7 +33,7 @@ bv_program* bv_program_create(byte* mem)
 }
 void bv_program_build_opcode_table(bv_program* prog)
 {
-	prog->opcodes = malloc(sizeof(bv_execute) * bv_opcode_COUNT);
+	prog->opcodes = (bv_execute*)malloc(sizeof(bv_execute) * bv_opcode_COUNT);
 
 	prog->opcodes[bv_opcode_unknown] = bv_execute_unknown;
 	prog->opcodes[bv_opcode_func_start] = bv_execute_func_start;
@@ -95,7 +95,7 @@ void bv_program_delete(bv_program * prog)
 	bv_name_list_delete(&prog->global_names);
 
 	free(prog->external_functions);
-	free(prog->external_function_names = realloc(prog->external_function_names, sizeof(char*) * (prog->external_function_count + 1)));
+	free(prog->external_function_names = realloc(prog->external_function_names, sizeof(string) * (prog->external_function_count + 1)));
 	free(prog->opcodes);
 	free(prog);
 }
@@ -104,7 +104,7 @@ u16 bv_program_get_function_count(bv_program * prog)
 {
 	return prog->block->functions->count;
 }
-bv_function* bv_program_get_function(bv_program* prog, const char* str)
+bv_function* bv_program_get_function(bv_program* prog, const string str)
 {
 	u16 func_count = bv_program_get_function_count(prog);
 	u16 ext_func_count = prog->external_function_count;
@@ -115,7 +115,7 @@ bv_function* bv_program_get_function(bv_program* prog, const char* str)
 	
 	return 0;
 }
-bv_external_function bv_program_get_ext_function(bv_program * prog, const char * str)
+bv_external_function bv_program_get_ext_function(bv_program * prog, const string str)
 {
 	u16 ext_func_count = prog->external_function_count;
 	for (u16 i = 0; i < ext_func_count; i++)
@@ -124,10 +124,10 @@ bv_external_function bv_program_get_ext_function(bv_program * prog, const char *
 	
 	return NULL;
 }
-void bv_program_add_function(bv_program * prog, const char * name, bv_external_function ext_func)
+void bv_program_add_function(bv_program * prog, string name, bv_external_function ext_func)
 {
 	prog->external_functions = realloc(prog->external_functions, sizeof(bv_external_function) * (prog->external_function_count + 1));
-	prog->external_function_names = realloc(prog->external_function_names, sizeof(char*) * (prog->external_function_count + 1));
+	prog->external_function_names = realloc(prog->external_function_names, sizeof(string) * (prog->external_function_count + 1));
 	
 	prog->external_functions[prog->external_function_count] = ext_func;
 	prog->external_function_names[prog->external_function_count] = name;
@@ -176,7 +176,7 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args,
 
 	if (args != NULL && args->length == func->args) {
 		// push arguments to local variables
-		for (int i = 0; i < args->length; i++)
+		for (u16 i = 0; i < args->length; i++)
 			bv_stack_push(&locals, args->data[i]);
 	}
 
@@ -191,7 +191,7 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args,
 	state.stack = &stack;
 	state.this_func = func;
 
-	while (((*state.code) - func->code) < func->code_length && !state.should_exit) {
+	while (((u32)((*state.code) - func->code) < func->code_length) && !state.should_exit) {
 		bv_opcode op = bv_opcode_read(state.code);
 		(*prog->opcodes[op])(&state);
 	}

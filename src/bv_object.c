@@ -2,11 +2,13 @@
 #include <BlueVM/bv_variable.h>
 #include <BlueVM/bv_stack.h>
 #include <BlueVM/bv_program.h>
+#include <stdlib.h>
+#include <string.h>
 
 bv_object* bv_object_create(bv_object_info* info)
 {
-	bv_object* ret = malloc(sizeof(bv_object));
-	ret->prop = malloc(sizeof(bv_variable) * info->props.name_count);
+	bv_object* ret = (bv_object*)malloc(sizeof(bv_object));
+	ret->prop = (bv_variable*)malloc(sizeof(bv_variable) * info->props.name_count);
 	ret->type = info;
 
 	for (u16 i = 0; i < info->props.name_count; i++)

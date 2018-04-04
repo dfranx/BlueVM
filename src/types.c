@@ -24,7 +24,7 @@ s16 s16_read(byte** mem)
 
 u32 u32_read(byte** mem)
 {
-	return u8_read(mem) | u8_read(mem) << 8 | u8_read(mem) << 16 | u8_read(mem) << 24;
+	return u8_read(mem) | (u8_read(mem) << 8) | (u8_read(mem) << 16) | (u8_read(mem) << 24);
 }
 
 s32 s32_read(byte** mem)
@@ -51,7 +51,7 @@ string string_read(byte** mem)
 
 	size++;
 
-	string ret = malloc(size * sizeof(char));
+	string ret = (string)malloc(size * sizeof(char));
 	memcpy(ret, *mem, size);
 
 	ret[size-1] = 0;

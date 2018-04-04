@@ -5,13 +5,15 @@
 #include <BlueVM/bv_program.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
+#include <stdint.h>
+#include <stdio.h>	// todo: remove snprintf
+
 
 
 //////////////////////////// TODO!!! ///////////////////////////////
 ///////////// REMOVE THIS LATER! REMOVE THIS LATER /////////////////
 ////////////////////////////////////////////////////////////////////
-char* itoa(int val, int base) {
+string itoa(int val, int base) {
 	static char buf[32] = { 0 };
 	int i = 30;
 
@@ -25,27 +27,27 @@ char* itoa(int val, int base) {
 
 s32 bv_variable_get_int(bv_variable var)
 {
-	return (s32)var.value;
+	return (intptr_t)var.value;
 }
 u32 bv_variable_get_uint(bv_variable var)
 {
-	return (u32)var.value;
+	return (intptr_t)var.value;
 }
 s16 bv_variable_get_short(bv_variable var)
 {
-	return (s16)var.value;
+	return (intptr_t)var.value;
 }
 u16 bv_variable_get_ushort(bv_variable var)
 {
-	return (u16)var.value;
+	return (intptr_t)var.value;
 }
 s8 bv_variable_get_char(bv_variable var)
 {
-	return (s8)var.value;
+	return (intptr_t)var.value;
 }
 u8 bv_variable_get_uchar(bv_variable var)
 {
-	return (u8)var.value;
+	return (intptr_t)var.value;
 }
 float bv_variable_get_float(bv_variable var)
 {
@@ -85,7 +87,7 @@ bv_variable bv_variable_create_int(s32 var)
 {
 	bv_variable ret;
 	ret.type = bv_type_int;
-	ret.value = var;
+	ret.value = (void*)var;
 	return ret;
 }
 bv_variable bv_variable_create_uint(u32 var)
@@ -263,8 +265,8 @@ bv_variable bv_variable_copy(bv_variable var)
 		bv_array from = bv_variable_get_array(var);
 		bv_array cpy = bv_array_create(from.dim, from.length);
 
-		int cnt = bv_array_get_range(from);
-		for (int i = 0; i < cnt; i++)
+		u32 cnt = bv_array_get_range(from);
+		for (u32 i = 0; i < cnt; i++)
 			cpy.data[i] = bv_variable_copy(from.data[i]);
 
 		ret = bv_variable_create_array(cpy);
@@ -358,14 +360,14 @@ u8 bv_variable_op_equal(bv_program* prog, bv_variable left, bv_variable right)
 			if (a2.dim != a1.dim)
 				return 0;
 			else {
-				for (int i = 0; i < a2.dim; i++) {
+				for (u32 i = 0; i < a2.dim; i++) {
 					if (a1.length[i] != a2.length[i])
 						return 0;
 				}
 				
-				int rng = bv_array_get_range(a2);
+				u32 rng = bv_array_get_range(a2);
 
-				for (int i = 0; i < rng; i++)
+				for (u32 i = 0; i < rng; i++)
 					if (bv_variable_op_equal(prog, a1.data[rng], a2.data[rng]) == 0)
 						return 0;
 			}
@@ -447,7 +449,7 @@ u8 bv_variable_op_greater_than(bv_program* prog, bv_variable left, bv_variable r
 			if (a2.dim != a1.dim)
 				return a1.dim > a2.dim;
 			else {
-				for (int i = 0; i < a2.dim; i++) {
+				for (u8 i = 0; i < a2.dim; i++) {
 					if (a1.length[i] != a2.length[i])
 						return a1.dim > a2.dim;
 				}
@@ -907,7 +909,7 @@ bv_variable bv_variable_cast(bv_program* prog, bv_type new_type, bv_variable rig
 		else if (old_type == bv_type_uint || old_type == bv_type_ushort) // todo utoa
 			ret = bv_variable_create_string(itoa(bv_variable_get_uint(right), 10));
 		else if (old_type == bv_type_char || old_type == bv_type_uchar) {
-			string m = malloc(sizeof(char) * 2);
+			string m = (string)malloc(sizeof(char) * 2);
 			m[0] = right.value;
 			m[1] = 0;
 
@@ -918,7 +920,7 @@ bv_variable bv_variable_cast(bv_program* prog, bv_type new_type, bv_variable rig
 			float value = bv_variable_get_float(right);
 
 			int len = snprintf(NULL, 0, "%f", value);
-			string result = (char *)malloc(len + 1);
+			string result = (string)malloc(len + 1);
 			snprintf(result, len + 1, "%f", value);
 
 			ret = bv_variable_create_string(result);

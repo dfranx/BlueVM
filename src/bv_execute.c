@@ -5,9 +5,7 @@
 #include <BlueVM/bv_program.h>
 #include <stdlib.h>
 
-void bv_execute_unknown(bv_state* state) { 
-	printf("OpUnknown!\n");
-}
+void bv_execute_unknown(bv_state* state) { }
 void bv_execute_func_start(bv_state* state) { }
 void bv_execute_return(bv_state* state) {
 	state->should_exit = 1;
@@ -372,13 +370,13 @@ void bv_execute_set_global(bv_state* state) {
 	*pLocal = var;
 }
 void bv_execute_push_array(bv_state* state) {
-	int dim = u8_read(state->code);
+	u8 dim = u8_read(state->code);
 
 	if (state->stack->length < dim)
 		return;
 
-	int* lens = malloc(sizeof(int) * dim);
-	int i = dim;
+	u16* lens = (u16*)malloc(sizeof(u16) * dim);
+	u8 i = dim;
 	while (i != 0) {
 		lens[dim - i] = bv_variable_get_int(bv_stack_top(state->stack));
 		bv_stack_pop_free(state->stack);
@@ -386,9 +384,9 @@ void bv_execute_push_array(bv_state* state) {
 	}
 
 	bv_array ret_arr = bv_array_create(dim, lens);
-	int cnt = bv_array_get_range(ret_arr);
-	for (int i = 0; i < cnt; i++)
-		ret_arr.data[i] = bv_variable_create_void();
+	u32 cnt = bv_array_get_range(ret_arr);
+	for (u32 j = 0; j < cnt; j++)
+		ret_arr.data[j] = bv_variable_create_void();
 	
 	bv_stack_push(state->stack, bv_variable_create_array(ret_arr));
 	free(lens);
@@ -399,8 +397,8 @@ void bv_execute_get_array_el(bv_state* state) {
 
 	bv_array arr = bv_variable_get_array(var);
 
-	int* lens = malloc(sizeof(int) * arr.dim);
-	int i = arr.dim;
+	u16* lens = (u16*)malloc(sizeof(u16) * arr.dim);
+	u8 i = arr.dim;
 	while (i != 0) {
 		lens[arr.dim - i] = bv_variable_get_int(bv_stack_top(state->stack));
 		bv_stack_pop_free(state->stack);
@@ -421,8 +419,9 @@ void bv_execute_set_array_el(bv_state* state) {
 
 	bv_array arr = bv_variable_get_array(arr_holder);
 
-	int* lens = malloc(sizeof(int) * arr.dim);
-	int i = arr.dim;
+	u16* lens = (u16*)malloc(sizeof(u16) * arr.dim);
+	u8 i = arr.dim;
+
 	while (i != 0) {
 		lens[arr.dim - i] = bv_variable_get_int(bv_stack_top(state->stack));
 		bv_stack_pop_free(state->stack);
@@ -446,14 +445,13 @@ void bv_execute_call(bv_state* state) {
 	if (state->stack->length < argc)
 		return; // [TODO] error, not enough arguments
 
-	for (int i = 0; i < argc; i++) {
+	for (u8 i = 0; i < argc; i++) {
 		bv_stack_push(&func_args, bv_stack_top(state->stack));
 		bv_stack_pop(state->stack);
 	}
 
-	if (func != NULL) {
+	if (func != NULL)
 		bv_program_call(state->prog, func, &func_args, 0);
-	}
 	else {
 		bv_external_function ext_func = bv_program_get_ext_function(state->prog, name);
 		(*ext_func)(argc, func_args.data);
@@ -472,7 +470,7 @@ void bv_execute_call_return(bv_state* state) {
 	if (state->stack->length < argc)
 		return; // [TODO] error, not enough arguments
 
-	for (int i = 0; i < argc; i++) {
+	for (u8 i = 0; i < argc; i++) {
 		bv_stack_push(&func_args, bv_stack_top(state->stack));
 		bv_stack_pop(state->stack);
 	}
@@ -524,7 +522,7 @@ void bv_execute_new_object(bv_state* state) {
 
 	bv_stack func_args = bv_stack_create();
 	if (state->stack->length >= argc)
-		for (int i = 0; i < argc; i++) {
+		for (u8 i = 0; i < argc; i++) {
 			bv_stack_push(&func_args, bv_stack_top(state->stack));
 			bv_stack_pop(state->stack);
 		}
@@ -598,7 +596,7 @@ void bv_execute_call_method(bv_state* state) {
 	if (state->stack->length < argc)
 		return; // [TODO] error, not enough arguments
 
-	for (int i = 0; i < argc; i++) {
+	for (u8 i = 0; i < argc; i++) {
 		bv_stack_push(&func_args, bv_stack_top(state->stack));
 		bv_stack_pop(state->stack);
 	}
@@ -621,7 +619,7 @@ void bv_execute_call_my_method(bv_state* state) {
 	if (state->stack->length < argc)
 		return; // [TODO] error, not enough arguments
 
-	for (int i = 0; i < argc; i++) {
+	for (u8 i = 0; i < argc; i++) {
 		bv_stack_push(&func_args, bv_stack_top(state->stack));
 		bv_stack_pop(state->stack);
 	}
@@ -669,7 +667,7 @@ void bv_execute_call_ret_my_method(bv_state* state) {
 	if (state->stack->length < argc)
 		return; // [TODO] error, not enough arguments
 
-	for (int i = 0; i < argc; i++) {
+	for (u8 i = 0; i < argc; i++) {
 		bv_stack_push(&func_args, bv_stack_top(state->stack));
 		bv_stack_pop(state->stack);
 	}
