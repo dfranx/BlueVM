@@ -33,7 +33,7 @@ bv_variable my_print(u8 count, bv_variable* args)
 		if (args[i].type == bv_type_string) {
 			string s = bv_variable_get_string(args[i]);
 			printf("%s", s);
-		} else if (args[i].type == bv_type_int) {
+		} else if (bv_type_is_integer(args[i].type)) {
 			int n = bv_variable_get_int(args[i]);
 			printf("%d", n);
 		}
@@ -76,6 +76,7 @@ int main()
 
 	bv_program* prog = bv_program_create(mem);
 
+
 	// external object
 	bv_object_info* Animal = bv_object_info_create("Animal");
 	bv_object_info_add_property(Animal, "health");
@@ -84,8 +85,8 @@ int main()
 	bv_object_info_add_ext_method(Animal, "status", Animal_status);
 
 	bv_program_add_object_info(prog, Animal);
-	
-	
+
+
 	// 'internal' object with external method
 	bv_object_info* Vehicle = bv_program_get_object_info(prog, "Vehicle");
 	bv_object_info_add_ext_method(Vehicle, "status", Vehicle_status);

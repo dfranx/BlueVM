@@ -69,6 +69,9 @@ bv_variable bv_object_call_method(bv_object* obj, const string name, bv_program*
 
 void bv_object_deinitialize(bv_object* val)
 {
+	if (val == NULL) // dont delete null objects
+		return;
+
 	for (u16 i = 0; i < val->type->props.name_count; i++)
 		bv_variable_deinitialize(&val->prop[i]);
 

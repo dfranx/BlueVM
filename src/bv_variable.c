@@ -321,9 +321,13 @@ u8 bv_variable_op_equal(bv_program* prog, bv_variable left, bv_variable right)
 	if (left.type == bv_type_object || right.type == bv_type_object) {
 		if (left.type == bv_type_object) {
 			bv_object* obj = bv_variable_get_object(left);
+
+			if (obj == 0)
+				return left.value == right.value; // are we check if the object is null?
+
 			bv_function* func = bv_object_get_method(obj, "==");
 			if (func == 0)
-				return 0;
+				return left.value == right.value; // just check pointers if operator== does not exist
 			else {
 				bv_stack args = bv_stack_create();
 				bv_stack_push(&args, right);
@@ -337,9 +341,14 @@ u8 bv_variable_op_equal(bv_program* prog, bv_variable left, bv_variable right)
 		}
 		else if (right.type == bv_type_object) {
 			bv_object* obj = bv_variable_get_object(right);
+
+			if (obj == 0)
+				return left.value == right.value; // are we check if the object is null?
+
 			bv_function* func = bv_object_get_method(obj, "==");
+
 			if (func == 0)
-				return 0;
+				return left.value == right.value; // just check pointers if operator== does not exist
 			else {
 				bv_stack args = bv_stack_create();
 				bv_stack_push(&args, left);

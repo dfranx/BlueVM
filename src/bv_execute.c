@@ -211,6 +211,36 @@ void bv_execute_bit_rshift(bv_state* state) {
 
 	bv_stack_push(state->stack, bv_variable_create(type, res));
 }
+void bv_execute_bool_or(bv_state * state)
+{
+	if (state->stack->length < 2) // dont do anything if there is not enough arguments in stack
+		return;
+
+	bv_variable var1 = bv_stack_penultimate(state->stack);
+	bv_variable var2 = bv_stack_top(state->stack);
+
+	u8 res = bv_variable_get_uchar(var1) || bv_variable_get_uchar(var2);
+
+	bv_stack_pop_free(state->stack);
+	bv_stack_pop_free(state->stack);
+
+	bv_stack_push(state->stack, bv_variable_create_uchar(res));
+}
+void bv_execute_bool_and(bv_state * state)
+{
+	if (state->stack->length < 2) // dont do anything if there is not enough arguments in stack
+		return;
+
+	bv_variable var1 = bv_stack_penultimate(state->stack);
+	bv_variable var2 = bv_stack_top(state->stack);
+
+	u8 res = bv_variable_get_uchar(var1) && bv_variable_get_uchar(var2);
+
+	bv_stack_pop_free(state->stack);
+	bv_stack_pop_free(state->stack);
+
+	bv_stack_push(state->stack, bv_variable_create_uchar(res));
+}
 void bv_execute_equal(bv_state* state) {
 	if (state->stack->length < 2) // dont do anything if there is not enough arguments in stack
 		return;
@@ -411,10 +441,10 @@ void bv_execute_get_array_el(bv_state* state) {
 	free(lens);
 }
 void bv_execute_set_array_el(bv_state* state) {
-	bv_variable value = bv_stack_top(state->stack);
+	bv_variable arr_holder = bv_stack_top(state->stack);
 	bv_stack_pop(state->stack);
 
-	bv_variable arr_holder = bv_stack_top(state->stack);
+	bv_variable value = bv_stack_top(state->stack);
 	bv_stack_pop(state->stack);
 
 	bv_array arr = bv_variable_get_array(arr_holder);
@@ -498,7 +528,14 @@ void bv_execute_is_type_of(bv_state* state) {
 }
 void bv_execute_if(bv_state* state) {
 	u32 addr = u32_read(state->code);
-
+	/*
+	Invalid read of size 8
+		==283==    at 0x405E8D: bv_stack_top (in /mnt/e/BlueVM/BlueVM)
+		==283==    by 0x40457A: bv_execute_if (in /mnt/e/BlueVM/BlueVM)
+		==283==    by 0x405CB1: bv_program_call (in /mnt/e/BlueVM/BlueVM)
+		==283==    by 0x400E29: main (in /mnt/e/BlueVM/BlueVM)
+		==283==  Address 0xfffffffffffffff8 is not stack'd, malloc'd or (recently) free'd
+	*/
 	bv_variable var = bv_stack_top(state->stack);
 	bv_stack_pop(state->stack);
 
@@ -515,6 +552,12 @@ void bv_execute_goto(bv_state* state) {
 void bv_execute_new_object(bv_state* state) {
 	u16 id = u16_read(state->code);
 	u8 argc = u8_read(state->code);
+
+	if (id == 0) {
+		bv_stack_push(state->stack, bv_variable_create_null_object());
+		return;
+	}
+	id--;
 
 	bv_object_info* info = state->prog->block->objects->info[id];
 	bv_variable var = bv_variable_create_object(info);
@@ -676,4 +719,10 @@ void bv_execute_call_ret_my_method(bv_state* state) {
 
 	bv_stack_delete(&func_args);
 	free(name);
+}
+void bv_execute_scope_start(bv_state * state)
+{
+}
+void bv_execute_scope_end(bv_state * state)
+{
 }

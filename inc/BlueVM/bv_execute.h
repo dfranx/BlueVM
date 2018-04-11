@@ -24,6 +24,8 @@ void bv_execute_bit_not(bv_state* state);
 void bv_execute_bit_xor(bv_state* state);
 void bv_execute_bit_lshift(bv_state* state);
 void bv_execute_bit_rshift(bv_state* state);
+void bv_execute_bool_or(bv_state* state);
+void bv_execute_bool_and(bv_state* state);
 void bv_execute_equal(bv_state* state);
 void bv_execute_not_equal(bv_state* state);
 void bv_execute_not(bv_state* state);
@@ -56,5 +58,7 @@ void bv_execute_call_method(bv_state* state);
 void bv_execute_call_my_method(bv_state* state);
 void bv_execute_call_ret_method(bv_state* state);
 void bv_execute_call_ret_my_method(bv_state* state);
+void bv_execute_scope_start(bv_state* state);
+void bv_execute_scope_end(bv_state* state);
 
 #endif // __BLUEVM_EXECUTE_H__

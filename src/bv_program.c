@@ -55,10 +55,13 @@ void bv_program_build_opcode_table(bv_program* prog)
 	prog->opcodes[bv_opcode_bit_xor] = bv_execute_bit_xor;
 	prog->opcodes[bv_opcode_bit_lshift] = bv_execute_bit_lshift;
 	prog->opcodes[bv_opcode_bit_rshift] = bv_execute_bit_rshift;
+	prog->opcodes[bv_opcode_bool_or] = bv_execute_bool_or;
+	prog->opcodes[bv_opcode_bool_and] = bv_execute_bool_and;
 	prog->opcodes[bv_opcode_equal] = bv_execute_equal;
 	prog->opcodes[bv_opcode_not_equal] = bv_execute_not_equal;
 	prog->opcodes[bv_opcode_not] = bv_execute_not;
 	prog->opcodes[bv_opcode_greater] = bv_execute_greater;
+	prog->opcodes[bv_opcode_less] = bv_execute_less;
 	prog->opcodes[bv_opcode_greater_equal] = bv_execute_greater_equal;
 	prog->opcodes[bv_opcode_less_equal] = bv_execute_less_equal;
 	prog->opcodes[bv_opcode_nop] = bv_execute_nop;
@@ -86,6 +89,8 @@ void bv_program_build_opcode_table(bv_program* prog)
 	prog->opcodes[bv_opcode_call_my_method] = bv_execute_call_my_method;
 	prog->opcodes[bv_opcode_call_ret_method] = bv_execute_call_ret_method;
 	prog->opcodes[bv_opcode_call_ret_my_method] = bv_execute_call_ret_my_method;
+	prog->opcodes[bv_opcode_scope_start] = bv_execute_scope_start;
+	prog->opcodes[bv_opcode_scope_end] = bv_execute_scope_end;
 }
 void bv_program_delete(bv_program * prog)
 {

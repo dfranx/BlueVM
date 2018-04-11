@@ -29,6 +29,8 @@ typedef enum __bv_opcode {
 	bv_opcode_bit_xor,				// bitwise xor {value1, value2} -> {value1 ^ value2}
 	bv_opcode_bit_lshift,			// bitwise lshift {value1, value2} -> {value1 << value2}
 	bv_opcode_bit_rshift,			// bitwise rshift {value1, value2} -> {value1 >> value2}
+	bv_opcode_bool_or,				// or {value1, value2} -> { value1 || value2 }
+	bv_opcode_bool_and,				// and {value1, value2} -> { value1 && value2 }
 	bv_opcode_equal,				// equal {value1, value2} -> {value1 == value2}
 	bv_opcode_not_equal,			// not_equal {value1, value2} -> {value1 != value2}
 	bv_opcode_not,					// not {value} -> {!value1}
@@ -61,6 +63,8 @@ typedef enum __bv_opcode {
 	bv_opcode_call_my_method,		// call_my_method [method_name] {} -> {}
 	bv_opcode_call_ret_method,		// call_method [method_name] {object} -> {return_value}
 	bv_opcode_call_ret_my_method,	// call_my_method [method_name] {} -> {return_value}
+	bv_opcode_scope_start,			// scope_start
+	bv_opcode_scope_end,			// scope_end
 	bv_opcode_COUNT					// this is not an actual opcode
 } __bv_opcode;
 

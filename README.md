@@ -18,4 +18,7 @@ more speed:
 - [ ] (last) dont push object to stack after bv_opcode_call_method
 - [ ] (last) bv_opcode_set (operator =) changes the value of variable without changing its type (calls operator= for objects)
 - [ ] (last) remove ids from bv_name_list
+- [ ] (last) add BoolOr || and BoolAnd &&
+- [ ] (last) add opcode scope_start { and scope_end } -> variable scopes
 - [ ] (last) do all TODOs and remove itoa func
+- [ ] (last)(?) remove return type from functions
