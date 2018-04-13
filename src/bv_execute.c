@@ -12,7 +12,10 @@ void bv_execute_return(bv_state* state) {
 }
 void bv_execute_push_stack(bv_state* state) {
 	bv_type type = bv_type_read(state->code);
-	bv_stack_push(state->stack, bv_variable_read(state->code, type));
+	if (type == bv_type_string)
+		bv_stack_push(state->stack, bv_variable_create_string(bv_string_table_get_string(state->prog->string_table, u32_read(state->code))));
+	else
+		bv_stack_push(state->stack, bv_variable_read(state->code, type));
 }
 void bv_execute_pop_stack(bv_state* state) {
 	bv_stack_pop_free(state->stack);
@@ -466,7 +469,7 @@ void bv_execute_set_array_el(bv_state* state) {
 	free(lens);
 }
 void bv_execute_call(bv_state* state) {
-	string name = string_read(state->code);
+	string name = bv_string_table_get_string(state->prog->string_table, u32_read(state->code));
 	u8 argc = u8_read(state->code);
 
 	bv_function* func = bv_program_get_function(state->prog, name);
@@ -488,10 +491,9 @@ void bv_execute_call(bv_state* state) {
 	}
 
 	bv_stack_delete(&func_args);
-	free(name);
 }
 void bv_execute_call_return(bv_state* state) {
-	string name = string_read(state->code);
+	string name = bv_string_table_get_string(state->prog->string_table, u32_read(state->code));
 	u8 argc = u8_read(state->code);
 
 	bv_function* func = bv_program_get_function(state->prog, name);
@@ -513,7 +515,6 @@ void bv_execute_call_return(bv_state* state) {
 	}
 
 	bv_stack_delete(&func_args);
-	free(name);
 }
 void bv_execute_is_type_of(bv_state* state) {
 	bv_type type = bv_type_read(state->code);
@@ -580,7 +581,7 @@ void bv_execute_new_object(bv_state* state) {
 	bv_stack_delete(&func_args);
 }
 void bv_execute_set_prop(bv_state* state) {
-	string name = string_read(state->code);
+	string name = bv_string_table_get_string(state->prog->string_table, u32_read(state->code));
 
 	bv_variable obj = bv_stack_top(state->stack);
 	bv_stack_pop(state->stack);
@@ -589,22 +590,18 @@ void bv_execute_set_prop(bv_state* state) {
 	bv_stack_pop(state->stack);
 
 	bv_stack_push(state->stack, obj);
-
-	free(name);
 }
 void bv_execute_set_my_prop(bv_state* state) {
-	string name = string_read(state->code);
+	string name = bv_string_table_get_string(state->prog->string_table, u32_read(state->code));
 
 	if (state->obj == 0)
 		return;
 
 	bv_object_set_property(state->obj, name, bv_stack_top(state->stack));
 	bv_stack_pop(state->stack);
-
-	free(name);
 }
 void bv_execute_get_prop(bv_state* state) {
-	string name = string_read(state->code);
+	string name = bv_string_table_get_string(state->prog->string_table, u32_read(state->code));
 
 	bv_variable obj = bv_stack_top(state->stack);
 	bv_object* top = bv_variable_get_object(obj);
@@ -613,20 +610,17 @@ void bv_execute_get_prop(bv_state* state) {
 	bv_stack_push(state->stack, bv_variable_copy(*bv_object_get_property(top, name)));
 
 	bv_variable_deinitialize(&obj);
-	free(name);
 }
 void bv_execute_get_my_prop(bv_state* state) {
-	string name = string_read(state->code);
+	string name = bv_string_table_get_string(state->prog->string_table, u32_read(state->code));
 
 	if (state->obj == 0)
 		return;
 
 	bv_stack_push(state->stack, bv_variable_copy(*bv_object_get_property(state->obj, name)));
-
-	free(name);
 }
 void bv_execute_call_method(bv_state* state) {
-	string name = string_read(state->code);
+	string name = bv_string_table_get_string(state->prog->string_table, u32_read(state->code));
 	u8 argc = u8_read(state->code);
 
 	bv_variable var = bv_stack_top(state->stack);
@@ -649,10 +643,9 @@ void bv_execute_call_method(bv_state* state) {
 	bv_stack_push(state->stack, var); // [TODO] pointers plzz :(
 
 	bv_stack_delete(&func_args);
-	free(name);
 }
 void bv_execute_call_my_method(bv_state* state) {
-	string name = string_read(state->code);
+	string name = bv_string_table_get_string(state->prog->string_table, u32_read(state->code));
 	u8 argc = u8_read(state->code);
 
 	bv_object* obj = state->obj;
@@ -670,10 +663,9 @@ void bv_execute_call_my_method(bv_state* state) {
 	bv_object_call_method(obj, name, state->prog, &func_args);
 
 	bv_stack_delete(&func_args);
-	free(name);
 }
 void bv_execute_call_ret_method(bv_state* state) {
-	string name = string_read(state->code);
+	string name = bv_string_table_get_string(state->prog->string_table, u32_read(state->code));
 	u8 argc = u8_read(state->code);
 
 	bv_variable var = bv_stack_top(state->stack);
@@ -696,10 +688,9 @@ void bv_execute_call_ret_method(bv_state* state) {
 	bv_stack_push(state->stack, var); // [TODO] pointers plzz :(
 
 	bv_stack_delete(&func_args);
-	free(name);
 }
 void bv_execute_call_ret_my_method(bv_state* state) {
-	string name = string_read(state->code);
+	string name = bv_string_table_get_string(state->prog->string_table, u32_read(state->code));
 	u8 argc = u8_read(state->code);
 
 	bv_object* obj = state->obj;
@@ -718,7 +709,6 @@ void bv_execute_call_ret_my_method(bv_state* state) {
 	bv_stack_push(state->stack, bv_object_call_method(obj, name, state->prog, &func_args));
 
 	bv_stack_delete(&func_args);
-	free(name);
 }
 void bv_execute_scope_start(bv_state * state)
 {

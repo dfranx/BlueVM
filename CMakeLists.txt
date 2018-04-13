@@ -11,6 +11,7 @@ add_executable(BlueVM
 	src/bv_constant_pool.c
 	src/bv_function.c
 	src/bv_function_pool.c
+	src/bv_string_table.c
 	src/bv_object_info.c
 	src/bv_object_pool.c
 	src/bv_object.c

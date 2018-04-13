@@ -7,10 +7,12 @@
 #include <BlueVM/bv_variable.h>
 #include <BlueVM/bv_stack.h>
 #include <BlueVM/bv_name_list.h>
+#include <BlueVM/bv_string_table.h>
 #include <BlueVM/bv_execute.h>
 
 typedef struct bv_program {
 	bv_header header;
+	bv_string_table* string_table;
 	bv_block* block;
 	bv_function** functions;
 
