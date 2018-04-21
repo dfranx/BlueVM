@@ -13,7 +13,7 @@
 //////////////////////////// TODO!!! ///////////////////////////////
 ///////////// REMOVE THIS LATER! REMOVE THIS LATER /////////////////
 ////////////////////////////////////////////////////////////////////
-string itoa(int val, int base) {
+string my_itoa(int val, int base) {
 	static char buf[32] = { 0 };
 	int i = 30;
 
@@ -815,7 +815,7 @@ bv_variable bv_variable_op_negate(bv_program* prog, bv_variable left)
 	else if (left.type == bv_type_string) {
 		// ..
 	}
-	else out = bv_variable_create(left.type, -bv_variable_get_uint(left));
+	else out = bv_variable_create(left.type, -bv_variable_get_int(left));
 
 	return out;
 }
@@ -914,9 +914,9 @@ bv_variable bv_variable_cast(bv_program* prog, bv_type new_type, bv_variable rig
 		return bv_variable_copy(right);
 	else if (new_type == bv_type_string) {
 		if (old_type == bv_type_int || old_type == bv_type_short)
-			ret = bv_variable_create_string(itoa(bv_variable_get_int(right), 10));
+			ret = bv_variable_create_string(my_itoa(bv_variable_get_int(right), 10));
 		else if (old_type == bv_type_uint || old_type == bv_type_ushort) // todo utoa
-			ret = bv_variable_create_string(itoa(bv_variable_get_uint(right), 10));
+			ret = bv_variable_create_string(my_itoa(bv_variable_get_uint(right), 10));
 		else if (old_type == bv_type_char || old_type == bv_type_uchar) {
 			string m = (string)malloc(sizeof(char) * 2);
 			m[0] = right.value;

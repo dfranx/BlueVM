@@ -1,6 +1,7 @@
 #include <BlueVM/bv_object.h>
 #include <BlueVM/bv_variable.h>
 #include <BlueVM/bv_stack.h>
+#include <BlueVM/bv_scope.h>
 #include <BlueVM/bv_program.h>
 #include <stdlib.h>
 #include <string.h>
@@ -56,15 +57,25 @@ bv_external_method bv_object_get_ext_method(bv_object* obj, const string name)
 
 	return 0;
 }
-bv_variable bv_object_call_method(bv_object* obj, const string name, bv_program* prog, bv_stack* args)
+void bv_object_call_method(bv_object* obj, const string name, bv_scope* scope, u8 argc)
 {
 	bv_function* func = bv_object_get_method(obj, name);
 
 	if (func != 0)
-		return bv_program_call(prog, func, args, obj);
+		bv_scope_push(scope, bv_scope_type_function, func->code, NULL, func, obj, argc);
+	else {
+		bv_stack func_args = bv_stack_create();
 
-	bv_external_method ext_func = bv_object_get_ext_method(obj, name);
-	return (*ext_func)(obj, args->length, args->data);
+		for (u8 i = 0; i < argc; i++) {
+			bv_stack_push(&func_args, bv_stack_top(&scope->stack));
+			bv_stack_pop(&scope->stack);
+		}
+
+		bv_external_method ext_func = bv_object_get_ext_method(obj, name);
+		return (*ext_func)(obj, argc, func_args.data);
+
+		bv_stack_delete(&func_args);
+	}
 }
 
 void bv_object_deinitialize(bv_object* val)

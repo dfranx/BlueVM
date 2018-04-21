@@ -3,6 +3,7 @@
 #include <BlueVM/bv_array.h>
 #include <BlueVM/bv_state.h>
 #include <BlueVM/bv_execute.h>
+#include <BlueVM/bv_scope.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -98,6 +99,7 @@ void bv_program_delete(bv_program * prog)
 	bv_function_delete_array(prog->functions, bv_program_get_function_count(prog));
 	bv_block_delete(prog->block);
 	bv_stack_delete(&prog->globals);
+	bv_string_table_delete(prog->string_table);
 	bv_name_list_delete(&prog->global_names);
 
 	free(prog->external_functions);
@@ -176,40 +178,40 @@ void bv_program_set_global(bv_program * prog, string name, bv_variable var)
 
 bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args, bv_object* parent)
 {
-	bv_stack stack = bv_stack_create();
-	bv_stack locals = bv_stack_create(); // local variable container
 	bv_variable rtrn;
+
+	bv_scope* scope = bv_scope_create();
+	bv_scope_push(scope, bv_scope_type_function, func->code, prog, func, parent, 0);
 
 	if (args != NULL && args->length == func->args) {
 		// push arguments to local variables
 		for (u16 i = 0; i < args->length; i++)
-			bv_stack_push(&locals, args->data[i]);
+			bv_stack_push(&scope->locals, args->data[i]);
 	}
 
-	byte* func_code = func->code;
+	// run while we still have some functions in our array
+	u32 cnt = 1;
+	u8 is_in = 1;
+	while (scope->count != 0) {
+		bv_state* state = bv_scope_get_state(scope);
+		cnt = scope->count;
 
-	bv_state state;
-	state.code = &func_code;
-	state.locals = &locals;
-	state.obj = parent;
-	state.prog = prog;
-	state.should_exit = 0;
-	state.stack = &stack;
-	state.this_func = func;
+		while ((is_in = (u32)(state->code - state->this_func->code) < state->this_func->code_length) && cnt == scope->count) {
+			bv_opcode op = bv_opcode_read(&state->code);
+			(*prog->opcodes[op])(scope);
+		}
 
-	while (((u32)((*state.code) - func->code) < func->code_length) && !state.should_exit) {
-		bv_opcode op = bv_opcode_read(state.code);
-		(*prog->opcodes[op])(&state);
+		if (!is_in && scope->count != 0 && cnt == scope->count)
+			bv_scope_pop(scope);
 	}
 
 	// get return value
-	if (stack.length > 0)
-		rtrn = bv_variable_copy(bv_stack_top(&stack)); // on return, make a copy of the return value
+	if (scope->stack.length > 0)
+		rtrn = bv_variable_copy(bv_stack_top(&scope->stack)); // on return, make a copy of the return value
 	else
 		rtrn = bv_variable_create_void();
 
-	bv_stack_delete(&stack);
-	bv_stack_delete(&locals);
+	bv_scope_delete(scope);
 
 	return rtrn;
 }

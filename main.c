@@ -66,7 +66,7 @@ bv_variable Vehicle_status(bv_object* obj, u8 count, bv_variable* args)
 
 int main()
 {
-#ifdef WIN32
+#if defined(_WIN32)
 	string mem = read_file("E:/aGen/test.bv");
 #else
 	string mem = read_file("/mnt/e/aGen/test.bv");
@@ -109,10 +109,6 @@ int main()
 	bv_program_delete(prog);
 
 	free(mem);
-
-#ifdef WIN32
-	getchar();
-#endif
 
 	return 0;
 }

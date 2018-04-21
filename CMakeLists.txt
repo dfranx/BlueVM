@@ -21,6 +21,7 @@ add_executable(BlueVM
 	src/bv_execute.c
 	src/bv_program.c
 	src/bv_stack.c
+	src/bv_scope.c
 	src/bv_type.c
 	src/bv_variable.c
 	src/types.c
