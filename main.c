@@ -2,30 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
-string read_file(char const* path)
-{
-	string buffer = 0;
-	long length = 0;
-	FILE * f = fopen(path, "rb");
-
-	if (f)
-	{
-		fseek(f, 0, SEEK_END);
-		length = ftell(f);
-		fseek(f, 0, SEEK_SET);
-		buffer = (string)malloc((length + 1) * sizeof(char));
-
-		if (buffer)
-		{
-			fread(buffer, sizeof(char), length, f);
-			buffer[length] = '\0';
-		}
-		fclose(f);
-	}
-
-	return buffer;
-}
+#include <string.h>
 
 bv_variable my_print(u8 count, bv_variable* args)
 {
@@ -67,10 +44,20 @@ bv_variable Vehicle_status(bv_object* obj, u8 count, bv_variable* args)
 int main()
 {
 #if defined(_WIN32)
-	string mem = read_file("E:/aGen/test.bv");
+	FILE *f = fopen("E:/aGen/test.bv", "rb");
 #else
-	string mem = read_file("/mnt/e/aGen/test.bv");
+	FILE *f = fopen("/mnt/e/aGen/test.bv", "rb");
 #endif
+
+	fseek(f, 0, SEEK_END);
+	long fsize = ftell(f);
+	fseek(f, 0, SEEK_SET);  //same as rewind(f);
+
+	char *mem = malloc((fsize + 1) * sizeof(char));
+	fread(mem, fsize, 1, f);
+	fclose(f);
+
+	mem[fsize] = 0;
 
 	if (mem == 0) {
 		printf("Failed to load file!\n");
@@ -95,6 +82,7 @@ int main()
 
 	bv_program_add_function(prog, "print", my_print);
 	bv_program_set_global(prog, "a", bv_variable_create_int(25));
+	// bv_program_add_global(prog, "globalAnimal", bv_variable_create_object(Animal));
 
 	bv_function* func_main = bv_program_get_function(prog, "main");
 	if (func_main == NULL)

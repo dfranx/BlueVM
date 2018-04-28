@@ -115,7 +115,6 @@ u16 bv_program_get_function_count(bv_program * prog)
 bv_function* bv_program_get_function(bv_program* prog, const string str)
 {
 	u16 func_count = bv_program_get_function_count(prog);
-	u16 ext_func_count = prog->external_function_count;
 
 	for (u16 i = 0; i < func_count; i++)
 		if (strcmp(prog->block->functions->names[i], str) == 0)

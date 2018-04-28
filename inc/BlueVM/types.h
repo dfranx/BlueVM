@@ -11,7 +11,7 @@ typedef unsigned int u32;
 typedef signed int s32;
 
 typedef char* string;
-typedef char byte;
+typedef unsigned char byte;
 
 u8 u8_read(byte** mem);
 s8 s8_read(byte** mem);

@@ -1,4 +1,5 @@
 #include <BlueVM/bv_string_table.h>
+#include <stdlib.h>
 
 bv_string_table* bv_string_table_create(byte** mem)
 {

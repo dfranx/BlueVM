@@ -72,7 +72,7 @@ void bv_object_call_method(bv_object* obj, const string name, bv_scope* scope, u
 		}
 
 		bv_external_method ext_func = bv_object_get_ext_method(obj, name);
-		return (*ext_func)(obj, argc, func_args.data);
+		(*ext_func)(obj, argc, func_args.data); //TODO: object method returning value
 
 		bv_stack_delete(&func_args);
 	}
