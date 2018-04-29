@@ -63,5 +63,11 @@ void bv_execute_scope_end(bv_scope* scope);
 void bv_execute_assign(bv_scope* scope);
 void bv_execute_get_local_pointer(bv_scope* scope);
 void bv_execute_get_global_pointer(bv_scope* scope);
+void bv_execute_get_prop_pointer(bv_scope* scope);
+void bv_execute_get_my_prop_pointer(bv_scope* scope);
+void bv_execute_get_global_by_name(bv_scope* scope);
+void bv_execute_get_global_by_name_ptr(bv_scope* scope);
+void bv_execute_set_global_by_name(bv_scope* scope);
+void bv_execute_empty_stack(bv_scope* scope);
 
 #endif // __BLUEVM_EXECUTE_H__

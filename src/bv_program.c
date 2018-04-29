@@ -96,6 +96,12 @@ void bv_program_build_opcode_table(bv_program* prog)
 	prog->opcodes[bv_opcode_assign] = bv_execute_assign;
 	prog->opcodes[bv_opcode_get_local_pointer] = bv_execute_get_local_pointer;
 	prog->opcodes[bv_opcode_get_global_pointer] = bv_execute_get_global_pointer;
+	prog->opcodes[bv_opcode_get_prop_pointer] = bv_execute_get_prop_pointer;
+	prog->opcodes[bv_opcode_get_my_prop_pointer] = bv_execute_get_my_prop_pointer;
+	prog->opcodes[bv_opcode_get_global_by_name] = bv_execute_get_global_by_name;
+	prog->opcodes[bv_opcode_get_global_by_name_ptr] = bv_execute_get_global_by_name_ptr;
+	prog->opcodes[bv_opcode_set_global_by_name] = bv_execute_set_global_by_name;
+	prog->opcodes[bv_opcode_empty_stack] = bv_execute_empty_stack;
 }
 void bv_program_delete(bv_program * prog)
 {
@@ -170,12 +176,22 @@ u16 bv_program_get_global_count(bv_program * prog)
 }
 bv_variable bv_program_get_global(bv_program* prog, string name)
 {
-	return prog->globals.data[bv_name_list_get_id(prog->global_names, name)];
+	u16 ind = bv_name_list_get_id(prog->global_names, name);
+
+	if (ind == prog->global_names.name_count)
+		return bv_variable_create_null_object();
+	else return prog->globals.data[ind];
+}
+bv_variable bv_program_add_global(bv_program * prog, string name)
+{
+	bv_stack_push(&prog->globals, bv_variable_create_null_object());
+	bv_name_list_add(&prog->global_names, name);
 }
 void bv_program_set_global(bv_program * prog, string name, bv_variable var)
 {
 	u16 ind = bv_name_list_get_id(prog->global_names, name);
-	prog->globals.data[ind] = var;
+	if (ind != prog->global_names.name_count)
+		prog->globals.data[ind] = var;
 }
 
 bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args, bv_object* parent)

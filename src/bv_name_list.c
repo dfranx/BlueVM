@@ -8,12 +8,9 @@ bv_name_list bv_name_list_create(byte** mem)
 	ret.name_count = u16_read(mem);
 
 	ret.names = (string*)malloc(sizeof(string)*ret.name_count);
-	ret.name_ids = (u16*)malloc(sizeof(u16)*ret.name_count);
 
-	for (u16 i = 0; i < ret.name_count; i++) {
-		ret.name_ids[i] = u16_read(mem);
+	for (u16 i = 0; i < ret.name_count; i++)
 		ret.names[i] = string_read(mem);
-	}
 
 	return ret;
 }
@@ -22,7 +19,6 @@ bv_name_list bv_name_list_create_empty()
 	bv_name_list ret;
 	ret.name_count = 0;
 	ret.names = (string*)malloc(ret.name_count * sizeof(string));
-	ret.name_ids = 0;
 
 	return ret;
 }
@@ -30,9 +26,9 @@ bv_name_list bv_name_list_create_empty()
 u16 bv_name_list_get_id(bv_name_list nlist, string name)
 {
 	for (u16 i = 0; i < nlist.name_count; i++)
-		if (strcmp(nlist.names[i], name) == 0)
-			return nlist.name_ids[i];
-	return 0;
+		if (strcmp(name, nlist.names[i]) == 0)
+			return i;
+	return nlist.name_count;
 }
 
 void bv_name_list_add(bv_name_list* nlist, const string name)
@@ -56,6 +52,5 @@ void bv_name_list_delete(bv_name_list * nlist)
 	for (u16 i = 0; i < nlist->name_count; i++)
 		free(nlist->names[i]);
 	free(nlist->names);
-	free(nlist->name_ids);
 	nlist->name_count = 0;
 }

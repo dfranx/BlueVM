@@ -404,7 +404,7 @@ void bv_execute_get_local(bv_scope* scope) {
 		bv_stack_push(&scope->stack, bv_variable_create_int(0)); // push a 0 to the stack
 	else {
 		bv_variable* pLocal = &scope->locals.data[index];
-		bv_stack_push(&scope->stack, bv_variable_copy(*pLocal)); // make a copy (no pointers :()
+		bv_stack_push(&scope->stack, bv_variable_copy(*pLocal));
 	}
 }
 void bv_execute_set_local(bv_scope* scope) {
@@ -432,7 +432,7 @@ void bv_execute_get_global(bv_scope* scope) {
 	if (index >= state->prog->globals.length)
 		bv_stack_push(&scope->stack, bv_variable_create_int(0)); // push a 0 to the stack
 	else
-		bv_stack_push(&scope->stack, bv_variable_copy(state->prog->globals.data[index])); // make a copy ( no pointers :( )
+		bv_stack_push(&scope->stack, bv_variable_copy(state->prog->globals.data[index]));
 }
 void bv_execute_set_global(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
@@ -647,10 +647,11 @@ void bv_execute_set_prop(bv_scope* scope) {
 	bv_variable obj = bv_stack_top(&scope->stack);
 	bv_stack_pop(&scope->stack);
 
+	if (obj.type == bv_type_pointer)
+		obj = *((bv_variable*)obj.value);
+
 	bv_object_set_property(bv_variable_get_object(obj), name, bv_stack_top(&scope->stack));
 	bv_stack_pop(&scope->stack);
-
-	bv_stack_push(&scope->stack, obj);
 }
 void bv_execute_set_my_prop(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
@@ -799,4 +800,77 @@ void bv_execute_get_global_pointer(bv_scope* scope)
 		bv_stack_push(&scope->stack, bv_variable_create_int(0)); // push a 0 to the stack (variable not found)
 	else
 		bv_stack_push(&scope->stack, bv_variable_create_pointer(&state->prog->globals.data[index]));
+}
+void bv_execute_get_prop_pointer(bv_scope * scope)
+{
+	bv_state* state = bv_scope_get_state(scope);
+
+	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+
+	bv_variable var = bv_stack_top(&scope->stack);
+	bv_object* obj = bv_variable_get_object(var);
+	bv_stack_pop(&scope->stack);
+
+	bv_stack_push(&scope->stack, bv_variable_create_pointer(bv_object_get_property(obj, name)));
+
+	bv_variable_deinitialize(&var);
+}
+void bv_execute_get_my_prop_pointer(bv_scope * scope)
+{
+	bv_state* state = bv_scope_get_state(scope);
+
+	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+
+	if (state->obj == 0)
+		return;
+
+	bv_stack_push(&scope->stack, bv_variable_create_pointer(bv_object_get_property(state->obj, name)));
+}
+void bv_execute_get_global_by_name(bv_scope* scope)
+{
+	bv_state* state = bv_scope_get_state(scope);
+
+	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+
+	u16 ind = bv_name_list_get_id(state->prog->global_names, name);
+
+	if (ind < state->prog->global_names.name_count)
+		bv_stack_push(&scope->stack, bv_variable_copy(state->prog->globals.data[ind]));
+}
+void bv_execute_get_global_by_name_ptr(bv_scope* scope)
+{
+	bv_state* state = bv_scope_get_state(scope);
+
+	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+
+	u16 ind = bv_name_list_get_id(state->prog->global_names, name);
+
+	if (ind < state->prog->global_names.name_count)
+		bv_stack_push(&scope->stack, bv_variable_create_pointer(&state->prog->globals.data[ind]));
+}
+void bv_execute_set_global_by_name(bv_scope* scope)
+{
+	bv_state* state = bv_scope_get_state(scope);
+
+	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+	u16 index = bv_name_list_get_id(state->prog->global_names, name);
+
+	if (index < state->prog->global_names.name_count) {
+		bv_variable var = bv_stack_top(&scope->stack);
+		bv_stack_pop(&scope->stack);
+
+		bv_variable* pLocal = &state->prog->globals.data[index];
+
+		bv_variable_deinitialize(pLocal);
+
+		*pLocal = var;
+	}
+}
+void bv_execute_empty_stack(bv_scope* scope)
+{
+	bv_stack* stack = &scope->stack;
+	u32 start = bv_scope_get_stack_start(scope);
+
+	for (u32 i = start; i < stack->length; i++)
+		bv_stack_pop_free(stack);
 }

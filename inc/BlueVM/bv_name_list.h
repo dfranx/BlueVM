@@ -3,7 +3,6 @@
 
 typedef struct bv_name_list {
 	u16 name_count; // number of global variables with names
-	u16* name_ids;	// tells us to which global variable this name points to
 	string* names;	// name for a global variable
 } bv_name_list;
 
