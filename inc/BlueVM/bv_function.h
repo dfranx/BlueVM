@@ -11,7 +11,6 @@ typedef bv_variable (*bv_external_function)(u8, bv_variable*);
 
 typedef struct bv_function
 {
-	bv_type return_type;
 	u8 args;
 	u32 code_length;
 	byte* code;

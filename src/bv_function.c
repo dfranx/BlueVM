@@ -9,7 +9,6 @@ bv_function* bv_function_create(byte* mem)
 
 	bv_function* func = (bv_function*)malloc(sizeof(bv_function));
 
-	func->return_type = bv_type_read(&mem);
 	func->args = u8_read(&mem);
 
 	func->code_length = u32_read(&mem);
