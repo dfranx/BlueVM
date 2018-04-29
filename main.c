@@ -64,6 +64,25 @@ void my_error_handler(u8 lvl, u16 id, const bv_string msg, s32 line, const bv_st
 
 	printf("\n");
 }
+void my_debugger(bv_scope* scope)
+{
+	bv_state* state = bv_scope_get_state(scope);
+
+	// NOTE: current_line and current_file don't have to be set but in this example we are assuming they are.
+	printf("\n\n[DEBUG] Breakpoint hit at L%d in %s\nCall stack:\n", state->prog->current_line, state->prog->current_file);
+
+	// NOTE: in this example we are only going to print out the call/function stack
+	for (u32 i = 0; i < scope->count; i++) {
+		bv_state* el = &scope->state[i];
+		bv_function_pool* fpool = el->prog->block->functions;
+		bv_function** funcs = el->prog->functions;
+
+		for (u32 j = 0; j < fpool->count; j++)
+			if (el->this_func == funcs[j])
+				printf("\t[%d]. %s\n", i, fpool->names[j]);
+	}
+	printf("\n\n");
+}
 
 int main()
 {
@@ -90,9 +109,10 @@ int main()
 
 	bv_program* prog = bv_program_create((byte*)mem);
 	
-	// set error handler
+	// set error and breakpoint handler
 	bv_program_set_error_handler(prog, my_error_handler);
-	
+	bv_program_set_breakpoint_handler(prog, my_debugger);
+
 	// external object
 	bv_object_info* Animal = bv_object_info_create("Animal");
 	bv_object_info_add_property(Animal, "health");

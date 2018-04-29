@@ -27,6 +27,8 @@ bv_program* bv_program_create(byte* mem)
 	ret->external_function_count = 0;
 	ret->current_file = NULL;
 	ret->current_line = -1;
+	ret->error = NULL;
+	ret->debugger = NULL;
 
 	ret->globals.length = ret->global_names.name_count;
 	ret->globals.data = (bv_variable*)malloc(sizeof(bv_variable) * ret->globals.length);
@@ -104,10 +106,17 @@ void bv_program_build_opcode_table(bv_program* prog)
 	prog->opcodes[bv_opcode_get_global_by_name_ptr] = bv_execute_get_global_by_name_ptr;
 	prog->opcodes[bv_opcode_set_global_by_name] = bv_execute_set_global_by_name;
 	prog->opcodes[bv_opcode_empty_stack] = bv_execute_empty_stack;
+	prog->opcodes[bv_opcode_debug_line_number] = bv_execute_debug_line_number;
+	prog->opcodes[bv_opcode_debug_file] = bv_execute_debug_file;
+	prog->opcodes[bv_opcode_debug_breakpoint] = bv_execute_debug_breakpoint;
 }
 void bv_program_set_error_handler(bv_program * prog, bv_error_handler errh)
 {
 	prog->error = errh;
+}
+void bv_program_set_breakpoint_handler(bv_program * prog, bv_breakpoint_handler dbgh)
+{
+	prog->debugger = dbgh;
 }
 void bv_program_error(bv_program * prog, u8 lvl, u16 id, const bv_string msg)
 {

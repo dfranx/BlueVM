@@ -10,6 +10,7 @@
 #include <BlueVM/bv_string_table.h>
 #include <BlueVM/bv_execute.h>
 #include <BlueVM/bv_error.h>
+#include <BlueVM/bv_debug.h>
 
 typedef struct bv_program {
 	bv_header header;
@@ -29,6 +30,7 @@ typedef struct bv_program {
 	bv_string current_file;
 	s32 current_line;
 	bv_error_handler error;
+	bv_breakpoint_handler debugger;
 } bv_program;
 
 bv_program* bv_program_create(byte* mem);
@@ -36,6 +38,7 @@ void bv_program_build_opcode_table(bv_program* prog);
 void bv_program_delete(bv_program* program);
 
 void bv_program_set_error_handler(bv_program* prog, bv_error_handler errh);
+void bv_program_set_breakpoint_handler(bv_program* prog, bv_breakpoint_handler dbgh);
 void bv_program_error(bv_program* prog, u8 lvl, u16 id, const bv_string msg);
 
 u16 bv_program_get_function_count(bv_program* prog);

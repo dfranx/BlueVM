@@ -69,5 +69,8 @@ void bv_execute_get_global_by_name(bv_scope* scope);
 void bv_execute_get_global_by_name_ptr(bv_scope* scope);
 void bv_execute_set_global_by_name(bv_scope* scope);
 void bv_execute_empty_stack(bv_scope* scope);
+void bv_execute_debug_line_number(bv_scope* scope);
+void bv_execute_debug_file(bv_scope* scope);
+void bv_execute_debug_breakpoint(bv_scope* scope);
 
 #endif // __BLUEVM_EXECUTE_H__

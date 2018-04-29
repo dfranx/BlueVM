@@ -942,3 +942,19 @@ void bv_execute_empty_stack(bv_scope* scope)
 	for (u32 i = start; i < stack->length; i++)
 		bv_stack_pop_free(stack);
 }
+void bv_execute_debug_line_number(bv_scope* scope)
+{
+	bv_state* state = bv_scope_get_state(scope);
+	state->prog->current_line = u32_read(&state->code);
+}
+void bv_execute_debug_file(bv_scope* scope)
+{
+	bv_state* state = bv_scope_get_state(scope);
+	state->prog->current_file = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+}
+void bv_execute_debug_breakpoint(bv_scope* scope)
+{
+	bv_state* state = bv_scope_get_state(scope);
+	if (state->prog->debugger != NULL)
+		state->prog->debugger(scope);
+}

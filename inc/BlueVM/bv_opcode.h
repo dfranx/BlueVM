@@ -74,6 +74,9 @@ typedef enum __bv_opcode {
 	bv_opcode_get_global_by_name_ptr,// get_global_by_name [name] {} -> { &glob[name] }
 	bv_opcode_set_global_by_name,	// get_global_by_name [name] {} -> { glob[name] }
 	bv_opcode_empty_stack,			// empty_stack {...} -> {}
+	bv_opcode_debug_line_number,	// debug_line_number [line_number]
+	bv_opcode_debug_file,			// debug_file [file_name]
+	bv_opcode_debug_breakpoint,		// debig_breakpoint
 	bv_opcode_COUNT					// this is not an actual opcode
 } __bv_opcode;
 

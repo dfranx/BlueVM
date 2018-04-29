@@ -10,6 +10,6 @@
 - [x] (last) fix external method returning value
 - [x] (last) fix it so that it can compile as C++
 - [x] (last) do all TODOs and remove itoa func
-- [ ] (last) opcodes for debugging (bv_opcode_debug_file, bv_opcode_debug_line_number, bv_opcode_breakpoint, bv_opcode_breakpoint_line)
-- [ ] (last) ^---> function pointers: bv_breakpoint_handler and bv_error_handler
+- [x] (last) opcodes for debugging (bv_opcode_debug_file, bv_opcode_debug_line_number, bv_opcode_breakpoint, bv_opcode_breakpoint_line)
+- [x] (last) ^---> function pointers: bv_breakpoint_handler and bv_error_handler
 - [ ] (last) bv_function_stepper
