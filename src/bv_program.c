@@ -93,6 +93,9 @@ void bv_program_build_opcode_table(bv_program* prog)
 	prog->opcodes[bv_opcode_call_ret_my_method] = bv_execute_call_ret_my_method;
 	prog->opcodes[bv_opcode_scope_start] = bv_execute_scope_start;
 	prog->opcodes[bv_opcode_scope_end] = bv_execute_scope_end;
+	prog->opcodes[bv_opcode_assign] = bv_execute_assign;
+	prog->opcodes[bv_opcode_get_local_pointer] = bv_execute_get_local_pointer;
+	prog->opcodes[bv_opcode_get_global_pointer] = bv_execute_get_global_pointer;
 }
 void bv_program_delete(bv_program * prog)
 {
@@ -191,12 +194,13 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args,
 	// run while we still have some functions in our array
 	u32 cnt = 1;
 	u8 is_in = 1;
+	bv_opcode op = 0;
 	while (scope->count != 0) {
 		bv_state* state = bv_scope_get_state(scope);
 		cnt = scope->count;
 
-		while ((is_in = (u32)(state->code - state->this_func->code) < state->this_func->code_length) && cnt == scope->count) {
-			bv_opcode op = bv_opcode_read(&state->code);
+		while (cnt == scope->count && (is_in = (u32)(state->code - state->this_func->code) < state->this_func->code_length)) {
+			op = bv_opcode_read(&state->code);
 			(*prog->opcodes[op])(scope);
 		}
 

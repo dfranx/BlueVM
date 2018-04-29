@@ -31,6 +31,11 @@ bv_variable Animal_status(bv_object* obj, u8 count, bv_variable* args)
 
 	return bv_variable_create_void();
 }
+bv_variable Vehicle_update(bv_object* obj, u8 count, bv_variable* args)
+{
+	bv_variable_set_string(bv_object_get_property(obj, "type"), "Jeep");
+	return bv_variable_create_void();
+}
 bv_variable Vehicle_status(bv_object* obj, u8 count, bv_variable* args)
 {
 	string owner = bv_variable_get_string(*bv_object_get_property(obj, "owner"));
@@ -77,6 +82,7 @@ int main()
 
 	// 'internal' object with external method
 	bv_object_info* Vehicle = bv_program_get_object_info(prog, "Vehicle");
+	bv_object_info_add_ext_method(Vehicle, "update", Vehicle_update);
 	bv_object_info_add_ext_method(Vehicle, "status", Vehicle_status);
 
 

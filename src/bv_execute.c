@@ -695,13 +695,15 @@ void bv_execute_call_method(bv_scope* scope) {
 	bv_variable var = bv_stack_top(&scope->stack);
 	bv_stack_pop(&scope->stack);
 
+	if (var.type == bv_type_pointer)
+		var = *((bv_variable*)var.value);
+
 	bv_object* obj = bv_variable_get_object(var);
 
 	if (scope->stack.length < argc)
 		return; // [TODO] error, not enough arguments
 
 	bv_object_call_method(obj, name, scope, argc);
-	bv_stack_push(&scope->stack, var); // [TODO] pointers plzz :(
 }
 void bv_execute_call_my_method(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
@@ -725,6 +727,9 @@ void bv_execute_call_ret_method(bv_scope* scope) {
 	bv_variable var = bv_stack_top(&scope->stack);
 	bv_stack_pop(&scope->stack);
 
+	if (var.type == bv_type_pointer)
+		var = *((bv_variable*)var.value);
+
 	bv_object* obj = bv_variable_get_object(var);
 
 	bv_function* func = bv_object_get_method(obj, name);
@@ -733,7 +738,6 @@ void bv_execute_call_ret_method(bv_scope* scope) {
 		return; // [TODO] error, not enough arguments
 
 	bv_object_call_method(obj, name, scope, argc);
-	bv_stack_push(&scope->stack, var); // [TODO] pointers plzz :(
 }
 void bv_execute_call_ret_my_method(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
@@ -758,4 +762,41 @@ void bv_execute_scope_start(bv_scope * scope)
 void bv_execute_scope_end(bv_scope * scope)
 {
 	bv_scope_pop(scope);
+}
+void bv_execute_assign(bv_scope* scope)
+{
+	if (scope->stack.length < 2) // dont do anything if there is not enough arguments on stack
+		return;
+
+	bv_state* state = bv_scope_get_state(scope);
+
+	bv_variable var = bv_stack_penultimate(&scope->stack);
+	bv_variable val = bv_stack_top(&scope->stack);
+
+	bv_variable_op_assign(state->prog, &var, val);
+
+	bv_stack_pop_free(&scope->stack);
+	bv_stack_pop_free(&scope->stack);
+}
+void bv_execute_get_local_pointer(bv_scope* scope)
+{
+	bv_state* state = bv_scope_get_state(scope);
+
+	u32 index = bv_scope_get_locals_start(scope) + u16_read(&state->code);
+
+	if (index >= scope->locals.length)
+		bv_stack_push(&scope->stack, bv_variable_create_int(0)); // push a 0 to the stack (variable not found)
+	else
+		bv_stack_push(&scope->stack, bv_variable_create_pointer(&scope->locals.data[index]));
+}
+void bv_execute_get_global_pointer(bv_scope* scope)
+{
+	bv_state* state = bv_scope_get_state(scope);
+
+	u16 index = u16_read(&state->code);
+
+	if (index >= state->prog->globals.length)
+		bv_stack_push(&scope->stack, bv_variable_create_int(0)); // push a 0 to the stack (variable not found)
+	else
+		bv_stack_push(&scope->stack, bv_variable_create_pointer(&state->prog->globals.data[index]));
 }

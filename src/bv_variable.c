@@ -63,7 +63,11 @@ bv_array bv_variable_get_array(bv_variable var)
 }
 bv_object* bv_variable_get_object(bv_variable var)
 {
-	return ((bv_object*)var.value);
+	return (bv_object*)var.value;
+}
+bv_variable* bv_variable_get_pointer(bv_variable var)
+{
+	return (bv_variable*)var.value;
 }
 
 
@@ -167,6 +171,13 @@ bv_variable bv_variable_create_null_object()
 	ret.value = 0;
 	return ret;
 }
+bv_variable bv_variable_create_pointer(bv_variable* var)
+{
+	bv_variable ret;
+	ret.type = bv_type_pointer;
+	ret.value = var;
+	return ret;
+}
 
 void bv_variable_set_int(bv_variable * var, s32 val)
 {
@@ -236,6 +247,11 @@ void bv_variable_set_object(bv_variable* var, bv_object* val)
 	if (var->type != bv_type_object)
 		return;
 	*((bv_object*)var->value) = *val;
+}
+void bv_variable_set_pointer(bv_variable* var, bv_variable* val)
+{
+	var->type = bv_type_pointer;
+	var->value = val;
 }
 
 void bv_variable_deinitialize(bv_variable * var)
@@ -318,7 +334,15 @@ u8 bv_variable_op_equal(bv_program* prog, bv_variable left, bv_variable right)
 {
 	u8 out = 0;
 
-	if (left.type == bv_type_object || right.type == bv_type_object) {
+	if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
+		if (left.type == bv_type_pointer && right.type == bv_type_pointer)
+			return bv_variable_op_equal(prog, *((bv_variable*)left.value), *((bv_variable*)right.value));
+		else if (left.type == bv_type_pointer)
+			return bv_variable_op_equal(prog, *((bv_variable*)left.value), right);
+		else
+			return bv_variable_op_equal(prog, left, *((bv_variable*)right.value));
+	}
+	else if (left.type == bv_type_object || right.type == bv_type_object) {
 		if (left.type == bv_type_object) {
 			bv_object* obj = bv_variable_get_object(left);
 
@@ -416,7 +440,15 @@ u8 bv_variable_op_greater_than(bv_program* prog, bv_variable left, bv_variable r
 {
 	u8 out = 0;
 
-	if (left.type == bv_type_object || right.type == bv_type_object) {
+	if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
+		if (left.type == bv_type_pointer && right.type == bv_type_pointer)
+			return bv_variable_op_greater_than(prog, *((bv_variable*)left.value), *((bv_variable*)right.value));
+		else if (left.type == bv_type_pointer)
+			return bv_variable_op_greater_than(prog, *((bv_variable*)left.value), right);
+		else
+			return bv_variable_op_greater_than(prog, left, *((bv_variable*)right.value));
+	}
+	else if (left.type == bv_type_object || right.type == bv_type_object) {
 		if (left.type == bv_type_object) {
 			bv_object* obj = bv_variable_get_object(left);
 			bv_function* func = bv_object_get_method(obj, ">");
@@ -502,11 +534,37 @@ u8 bv_variable_op_less_equal(bv_program* prog, bv_variable left, bv_variable rig
 {
 	return !bv_variable_op_greater_than(prog, left, right);
 }
+void bv_variable_op_assign(bv_program* prog, bv_variable* left, bv_variable right)
+{
+	if (left->type == bv_type_pointer)
+		bv_variable_op_assign(prog, ((bv_variable*)left->value), right);
+	else if (left->type == bv_type_object) {
+		bv_object* obj = bv_variable_get_object(*left);
+		bv_function* func = bv_object_get_method(obj, "=");
+		if (func != 0) {
+			bv_stack args = bv_stack_create();
+			bv_stack_push(&args, right);
+			
+			bv_program_call(prog, func, &args, obj);
+
+			bv_stack_delete(&args);
+		}
+	}
+	else *left = bv_variable_cast(prog, left->type, right);
+}
 bv_variable bv_variable_op_add(bv_program* prog, bv_variable left, bv_variable right)
 {
 	bv_variable out = bv_variable_create_null_object();
 
-	if (left.type == bv_type_object || right.type == bv_type_object) {
+	if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
+		if (left.type == bv_type_pointer && right.type == bv_type_pointer)
+			return bv_variable_op_add(prog, *((bv_variable*)left.value), *((bv_variable*)right.value));
+		else if (left.type == bv_type_pointer)
+			return bv_variable_op_add(prog, *((bv_variable*)left.value), right);
+		else
+			return bv_variable_op_add(prog, left, *((bv_variable*)right.value));
+	}
+	else if (left.type == bv_type_object || right.type == bv_type_object) {
 		if (left.type == bv_type_object) {
 			bv_object* obj = bv_variable_get_object(left);
 			bv_function* func = bv_object_get_method(obj, "+");
@@ -574,7 +632,16 @@ bv_variable bv_variable_op_subtract(bv_program* prog, bv_variable left, bv_varia
 {
 	bv_variable out = bv_variable_create_null_object();
 
-	if (left.type == bv_type_object || right.type == bv_type_object) {
+
+	if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
+		if (left.type == bv_type_pointer && right.type == bv_type_pointer)
+			return bv_variable_op_subtract(prog, *((bv_variable*)left.value), *((bv_variable*)right.value));
+		else if (left.type == bv_type_pointer)
+			return bv_variable_op_subtract(prog, *((bv_variable*)left.value), right);
+		else
+			return bv_variable_op_subtract(prog, left, *((bv_variable*)right.value));
+	}
+	else if (left.type == bv_type_object || right.type == bv_type_object) {
 		if (left.type == bv_type_object) {
 			bv_object* obj = bv_variable_get_object(left);
 			bv_function* func = bv_object_get_method(obj, "-");
@@ -635,7 +702,15 @@ bv_variable bv_variable_op_divide(bv_program* prog, bv_variable left, bv_variabl
 {
 	bv_variable out = bv_variable_create_null_object();
 
-	if (left.type == bv_type_object || right.type == bv_type_object) {
+	if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
+		if (left.type == bv_type_pointer && right.type == bv_type_pointer)
+			return bv_variable_op_divide(prog, *((bv_variable*)left.value), *((bv_variable*)right.value));
+		else if (left.type == bv_type_pointer)
+			return bv_variable_op_divide(prog, *((bv_variable*)left.value), right);
+		else
+			return bv_variable_op_divide(prog, left, *((bv_variable*)right.value));
+	}
+	else if (left.type == bv_type_object || right.type == bv_type_object) {
 		if (left.type == bv_type_object) {
 			bv_object* obj = bv_variable_get_object(left);
 			bv_function* func = bv_object_get_method(obj, "/");
@@ -696,7 +771,16 @@ bv_variable bv_variable_op_multiply(bv_program* prog, bv_variable left, bv_varia
 {
 	bv_variable out = bv_variable_create_null_object();
 
-	if (left.type == bv_type_object || right.type == bv_type_object) {
+
+	if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
+		if (left.type == bv_type_pointer && right.type == bv_type_pointer)
+			return bv_variable_op_multiply(prog, *((bv_variable*)left.value), *((bv_variable*)right.value));
+		else if (left.type == bv_type_pointer)
+			return bv_variable_op_multiply(prog, *((bv_variable*)left.value), right);
+		else
+			return bv_variable_op_multiply(prog, left, *((bv_variable*)right.value));
+	}
+	else if (left.type == bv_type_object || right.type == bv_type_object) {
 		if (left.type == bv_type_object) {
 			bv_object* obj = bv_variable_get_object(left);
 			bv_function* func = bv_object_get_method(obj, "*");
@@ -757,7 +841,9 @@ bv_variable bv_variable_op_increment(bv_program* prog, bv_variable left)
 {
 	bv_variable out = bv_variable_create_null_object();
 
-	if (left.type == bv_type_object) {
+	if (left.type == bv_type_pointer)
+		return bv_variable_op_increment(prog, *((bv_variable*)left.value));
+	else if (left.type == bv_type_object) {
 		bv_object* obj = bv_variable_get_object(left);
 		bv_function* func = bv_object_get_method(obj, "++");
 		if (func != 0)
@@ -779,7 +865,9 @@ bv_variable bv_variable_op_decrement(bv_program* prog, bv_variable left)
 {
 	bv_variable out = bv_variable_create_null_object();
 
-	if (left.type == bv_type_object) {
+	if (left.type == bv_type_pointer)
+		return bv_variable_op_decrement(prog, *((bv_variable*)left.value));
+	else if (left.type == bv_type_object) {
 		bv_object* obj = bv_variable_get_object(left);
 		bv_function* func = bv_object_get_method(obj, "--");
 		if (func != 0)
@@ -801,7 +889,9 @@ bv_variable bv_variable_op_negate(bv_program* prog, bv_variable left)
 {
 	bv_variable out = bv_variable_create_null_object();
 
-	if (left.type == bv_type_object) {
+	if (left.type == bv_type_pointer)
+		return bv_variable_op_negate(prog, *((bv_variable*)left.value));
+	else if (left.type == bv_type_object) {
 		bv_object* obj = bv_variable_get_object(left);
 		bv_function* func = bv_object_get_method(obj, "-");
 		if (func != 0)
@@ -823,7 +913,15 @@ bv_variable bv_variable_op_modulo(bv_program* prog, bv_variable left, bv_variabl
 {
 	bv_variable out = bv_variable_create_null_object();
 
-	if (left.type == bv_type_object || right.type == bv_type_object) {
+	if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
+		if (left.type == bv_type_pointer && right.type == bv_type_pointer)
+			return bv_variable_op_modulo(prog, *((bv_variable*)left.value), *((bv_variable*)right.value));
+		else if (left.type == bv_type_pointer)
+			return bv_variable_op_modulo(prog, *((bv_variable*)left.value), right);
+		else
+			return bv_variable_op_modulo(prog, left, *((bv_variable*)right.value));
+	}
+	else if (left.type == bv_type_object || right.type == bv_type_object) {
 		if (left.type == bv_type_object) {
 			bv_object* obj = bv_variable_get_object(left);
 			bv_function* func = bv_object_get_method(obj, "%");
@@ -884,7 +982,9 @@ u8 bv_variable_op_not(bv_program* prog, bv_variable left)
 {
 	u8 out = 0;
 
-	if (left.type == bv_type_object) {
+	if (left.type == bv_type_pointer)
+		return bv_variable_op_not(prog, *((bv_variable*)left.value));
+	else if (left.type == bv_type_object) {
 		bv_object* obj = bv_variable_get_object(left);
 		bv_function* func = bv_object_get_method(obj, "!");
 		if (func != 0)
@@ -912,6 +1012,10 @@ bv_variable bv_variable_cast(bv_program* prog, bv_type new_type, bv_variable rig
 
 	if (new_type == old_type)
 		return bv_variable_copy(right);
+	else if (old_type == bv_type_pointer)
+		return bv_variable_cast(prog, new_type, *((bv_variable*)right.value));
+	else if (new_type == bv_type_pointer)
+		return bv_variable_create_pointer(&right);
 	else if (new_type == bv_type_string) {
 		if (old_type == bv_type_int || old_type == bv_type_short)
 			ret = bv_variable_create_string(my_itoa(bv_variable_get_int(right), 10));

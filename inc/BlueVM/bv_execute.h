@@ -60,5 +60,8 @@ void bv_execute_call_ret_method(bv_scope* scope);
 void bv_execute_call_ret_my_method(bv_scope* scope);
 void bv_execute_scope_start(bv_scope* scope);
 void bv_execute_scope_end(bv_scope* scope);
+void bv_execute_assign(bv_scope* scope);
+void bv_execute_get_local_pointer(bv_scope* scope);
+void bv_execute_get_global_pointer(bv_scope* scope);
 
 #endif // __BLUEVM_EXECUTE_H__

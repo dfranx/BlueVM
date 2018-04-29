@@ -23,6 +23,7 @@ float bv_variable_get_float(bv_variable var);
 string bv_variable_get_string(bv_variable var);
 bv_array bv_variable_get_array(bv_variable var);
 bv_object* bv_variable_get_object(bv_variable var);
+bv_variable* bv_variable_get_pointer(bv_variable var);
 
 bv_variable bv_variable_create(bv_type type, void* value);
 bv_variable bv_variable_create_void();
@@ -37,6 +38,7 @@ bv_variable bv_variable_create_string(string var);
 bv_variable bv_variable_create_array(bv_array var);
 bv_variable bv_variable_create_object(bv_object_info* var);
 bv_variable bv_variable_create_null_object();
+bv_variable bv_variable_create_pointer(bv_variable* var);
 
 void bv_variable_set_int(bv_variable* var, s32 val);
 void bv_variable_set_uint(bv_variable* var, u32 val);
@@ -48,6 +50,7 @@ void bv_variable_set_float(bv_variable* var, float val);
 void bv_variable_set_string(bv_variable* var, string val);
 void bv_variable_set_array(bv_variable* var, bv_array val);
 void bv_variable_set_object(bv_variable* var, bv_object* val);
+void bv_variable_set_pointer(bv_variable* var, bv_variable* val);
 
 void bv_variable_deinitialize(bv_variable* var);
 bv_variable bv_variable_copy(bv_variable var);
@@ -60,6 +63,7 @@ u8 bv_variable_op_greater_than(bv_program* prog, bv_variable left, bv_variable r
 u8 bv_variable_op_greater_equal(bv_program* prog, bv_variable left, bv_variable right);
 u8 bv_variable_op_less_than(bv_program* prog, bv_variable left, bv_variable right);
 u8 bv_variable_op_less_equal(bv_program* prog, bv_variable left, bv_variable right);
+void bv_variable_op_assign(bv_program* prog, bv_variable* left, bv_variable right);
 bv_variable bv_variable_op_add(bv_program* prog, bv_variable left, bv_variable right);
 bv_variable bv_variable_op_subtract(bv_program* prog, bv_variable left, bv_variable right);
 bv_variable bv_variable_op_divide(bv_program* prog, bv_variable left, bv_variable right);

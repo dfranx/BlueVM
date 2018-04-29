@@ -65,6 +65,9 @@ typedef enum __bv_opcode {
 	bv_opcode_call_ret_my_method,	// call_my_method [method_name] {} -> {return_value}
 	bv_opcode_scope_start,			// scope_start
 	bv_opcode_scope_end,			// scope_end
+	bv_opcode_assign,				// assign {var, val} -> {var}
+	bv_opcode_get_local_pointer,	// get_local_pointer [index] {} -> {loc0_pointer}
+	bv_opcode_get_global_pointer,	// get_global_pointer [index] {} -> {glob0_pointer}
 	bv_opcode_COUNT					// this is not an actual opcode
 } __bv_opcode;
 

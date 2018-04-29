@@ -16,10 +16,11 @@ typedef enum __bv_type {
 	bv_type_float,	// float
 	bv_type_string,	// string
 	bv_type_array,	// bv_array
-	bv_type_object	// bv_object
+	bv_type_object,	// bv_object
+	bv_type_pointer,// C99 pointer to bv_variable
 } __bv_type;
 
-bv_type bv_type_read(byte** mem);
+#define bv_type_read u8_read
 
 byte bv_type_is_integer(bv_type type);
 bv_type bv_type_get(bv_type t1, bv_type t2); // 1.2f + 2 => returns float

@@ -43,6 +43,7 @@ void bv_stack_pop_free(bv_stack* stack)
 	if (stack->capacity - stack->length > STACK_RULE) {
 		stack->capacity = (((stack->length / STACK_RULE) + 1)*STACK_RULE);
 		stack->data = realloc(stack->data, stack->capacity * sizeof(bv_variable));
+		// [TODO] this realloc might cause bugs (reallocing while we have some variables above that we are using)
 	}
 }
 
