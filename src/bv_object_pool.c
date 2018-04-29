@@ -15,7 +15,7 @@ bv_object_pool* bv_object_pool_create(byte** mem, byte* orig_mem)
 	return ret;
 }
 
-bv_object_info* bv_object_pool_get(bv_object_pool* pool, string name)
+bv_object_info* bv_object_pool_get(bv_object_pool* pool, bv_string name)
 {
 	for (u16 i = 0; i < pool->count; i++)
 		if (strcmp(name, pool->info[i]->name) == 0)

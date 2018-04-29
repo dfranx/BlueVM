@@ -8,7 +8,7 @@ bv_function_pool* bv_function_pool_create(byte** mem)
 
 	pool->count = u16_read(mem);
 
-	pool->names = (string*)malloc(sizeof(string)*pool->count);
+	pool->names = (bv_string*)malloc(sizeof(bv_string)*pool->count);
 	pool->address = (u32*)malloc(sizeof(u32)*pool->count);
 
 	for (u16 i = 0; i < pool->count; i++) {
@@ -19,10 +19,10 @@ bv_function_pool* bv_function_pool_create(byte** mem)
 	return pool;
 }
 
-u32 bv_function_pool_get_address(bv_function_pool* pool, string str)
+u32 bv_function_pool_get_address(bv_function_pool* pool, bv_string str)
 {
 	for (u16 i = 0; i < pool->count; i++) {
-		string cur = pool->names[i];
+		bv_string cur = pool->names[i];
 		if (strcmp(str, cur) == 0)
 			return pool->address[i];
 	}

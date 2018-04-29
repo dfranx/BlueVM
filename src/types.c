@@ -44,7 +44,7 @@ float float_read(byte** mem)
 	return output;
 }
 
-string string_read(byte** mem)
+bv_string string_read(byte** mem)
 {
 	u16 size = 0;
 	while (1) {  // [TODO] add some limitation here
@@ -55,7 +55,7 @@ string string_read(byte** mem)
 
 	size++;
 
-	string ret = (string)malloc(size * sizeof(char));
+	bv_string ret = (bv_string)malloc(size * sizeof(char));
 	memcpy(ret, *mem, size);
 
 	*mem += size;

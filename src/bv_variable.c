@@ -13,7 +13,7 @@
 //////////////////////////// TODO!!! ///////////////////////////////
 ///////////// REMOVE THIS LATER! REMOVE THIS LATER /////////////////
 ////////////////////////////////////////////////////////////////////
-string my_itoa(int val, int base) {
+bv_string my_itoa(int val, int base) {
 	static char buf[32] = { 0 };
 	int i = 30;
 
@@ -53,9 +53,9 @@ float bv_variable_get_float(bv_variable var)
 {
 	return *((float*)var.value);
 }
-string bv_variable_get_string(bv_variable var)
+bv_string bv_variable_get_string(bv_variable var)
 {
-	return (string)var.value;
+	return (bv_string)var.value;
 }
 bv_array bv_variable_get_array(bv_variable var)
 {
@@ -98,35 +98,35 @@ bv_variable bv_variable_create_uint(u32 var)
 {
 	bv_variable ret;
 	ret.type = bv_type_uint;
-	ret.value = var;
+	ret.value = (void*)var;
 	return ret;
 }
 bv_variable bv_variable_create_short(s16 var)
 {
 	bv_variable ret;
 	ret.type = bv_type_short;
-	ret.value = var;
+	ret.value = (void*)var;
 	return ret;
 }
 bv_variable bv_variable_create_ushort(u16 var)
 {
 	bv_variable ret;
 	ret.type = bv_type_ushort;
-	ret.value = var;
+	ret.value = (void*)var;
 	return ret;
 }
 bv_variable bv_variable_create_char(s8 var)
 {
 	bv_variable ret;
 	ret.type = bv_type_char;
-	ret.value = var;
+	ret.value = (void*)var;
 	return ret;
 }
 bv_variable bv_variable_create_uchar(u8 var)
 {
 	bv_variable ret;
 	ret.type = bv_type_uchar;
-	ret.value = var;
+	ret.value = (void*)var;
 	return ret;
 }
 bv_variable bv_variable_create_float(float var)
@@ -137,7 +137,7 @@ bv_variable bv_variable_create_float(float var)
 	*((float*)ret.value) = var;
 	return ret;
 }
-bv_variable bv_variable_create_string(string var)
+bv_variable bv_variable_create_string(const bv_string var)
 {
 	bv_variable ret;
 	ret.type = bv_type_string;
@@ -145,7 +145,7 @@ bv_variable bv_variable_create_string(string var)
 	s32 len = strlen(var);
 	ret.value = malloc((len + 1) * sizeof(char));
 	memcpy(ret.value, var, len);
-	((string)ret.value)[len] = 0;
+	((bv_string)ret.value)[len] = 0;
 	
 	return ret;
 }
@@ -183,37 +183,37 @@ void bv_variable_set_int(bv_variable * var, s32 val)
 {
 	if (var->type != bv_type_int)
 		return;
-	var->value = (s32)val;
+	var->value = (void*)val;
 }
 void bv_variable_set_uint(bv_variable * var, u32 val)
 {
 	if (var->type != bv_type_uint)
 		return;
-	var->value = (u32)val;
+	var->value = (void*)val;
 }
 void bv_variable_set_short(bv_variable * var, s16 val)
 {
 	if (var->type != bv_type_short)
 		return;
-	var->value = (s16)val;
+	var->value = (void*)val;
 }
 void bv_variable_set_ushort(bv_variable * var, u16 val)
 {
 	if (var->type != bv_type_ushort)
 		return;
-	var->value = (u16)val;
+	var->value = (void*)val;
 }
 void bv_variable_set_char(bv_variable * var, s8 val)
 {
 	if (var->type != bv_type_char)
 		return;
-	var->value = (s8)val;
+	var->value = (void*)val;
 }
 void bv_variable_set_uchar(bv_variable * var, u8 val)
 {
 	if (var->type != bv_type_uchar)
 		return;
-	var->value = (u8)val;
+	var->value = (void*)val;
 }
 void bv_variable_set_float(bv_variable * var, float val)
 {
@@ -221,7 +221,7 @@ void bv_variable_set_float(bv_variable * var, float val)
 		return;
 	*((float*)var->value) = val;
 }
-void bv_variable_set_string(bv_variable * var, string val)
+void bv_variable_set_string(bv_variable * var, const bv_string val)
 {
 	if (var->type != bv_type_string)
 		return;
@@ -234,7 +234,7 @@ void bv_variable_set_string(bv_variable * var, string val)
 	var->value = malloc((len + 1) * sizeof(char));
 	memcpy(var->value, val, len);
 
-	((string)var->value)[len] = 0;
+	((bv_string)var->value)[len] = 0;
 }
 void bv_variable_set_array(bv_variable * var, bv_array val)
 {
@@ -260,9 +260,9 @@ void bv_variable_deinitialize(bv_variable * var)
 	if (var->type == bv_type_float || var->type == bv_type_string)
 		free(var->value);
 	else if (var->type == bv_type_array) {
-		bv_array_deinitialize(var->value);
+		bv_array_deinitialize((bv_array*)var->value);
 	} else if (var->type == bv_type_object)
-		bv_object_deinitialize(var->value);
+		bv_object_deinitialize((bv_object*)var->value);
 }
 bv_variable bv_variable_copy(bv_variable var)
 {
@@ -273,10 +273,10 @@ bv_variable bv_variable_copy(bv_variable var)
 		ret.value = malloc(sizeof(float));
 		memcpy(ret.value, var.value, sizeof(float));
 	} else if (var.type == bv_type_string) {
-		s32 len = strlen(var.value);
+		s32 len = strlen((bv_string)var.value);
 		ret.value = malloc((len + 1) * sizeof(char));
 		memcpy(ret.value, var.value, len);
-		((string)ret.value)[len] = 0;
+		((bv_string)ret.value)[len] = 0;
 	} else if (var.type == bv_type_array) {
 		bv_array from = bv_variable_get_array(var);
 		bv_array cpy = bv_array_create(from.dim, from.length);
@@ -624,7 +624,7 @@ bv_variable bv_variable_op_add(bv_program* prog, bv_variable left, bv_variable r
 		if (left.type == bv_type_string && right.type == bv_type_string)
 			out = bv_variable_create_string(strcat(bv_variable_get_string(left), bv_variable_get_string(right)));
 	}
-	else out = bv_variable_create(bv_type_get(left.type, right.type), bv_variable_get_uint(left) + bv_variable_get_uint(right));
+	else out = bv_variable_create(bv_type_get(left.type, right.type), (void*)(bv_variable_get_uint(left) + bv_variable_get_uint(right)));
 
 	return out;
 }
@@ -694,7 +694,7 @@ bv_variable bv_variable_op_subtract(bv_program* prog, bv_variable left, bv_varia
 	else if (left.type == bv_type_string || right.type == bv_type_string) {
 		// ..
 	}
-	else out = bv_variable_create(bv_type_get(left.type, right.type), bv_variable_get_uint(left) - bv_variable_get_uint(right));
+	else out = bv_variable_create(bv_type_get(left.type, right.type), (void*)(bv_variable_get_uint(left) - bv_variable_get_uint(right)));
 
 	return out;
 }
@@ -763,7 +763,7 @@ bv_variable bv_variable_op_divide(bv_program* prog, bv_variable left, bv_variabl
 	else if (left.type == bv_type_string || right.type == bv_type_string) {
 		// ..
 	}
-	else out = bv_variable_create(bv_type_get(left.type, right.type), bv_variable_get_uint(left) / bv_variable_get_uint(right));
+	else out = bv_variable_create(bv_type_get(left.type, right.type), (void*)(bv_variable_get_uint(left) / bv_variable_get_uint(right)));
 
 	return out;
 }
@@ -833,7 +833,7 @@ bv_variable bv_variable_op_multiply(bv_program* prog, bv_variable left, bv_varia
 	else if (left.type == bv_type_string || right.type == bv_type_string) {
 		// ..
 	}
-	else out = bv_variable_create(bv_type_get(left.type, right.type), bv_variable_get_uint(left) * bv_variable_get_uint(right));
+	else out = bv_variable_create(bv_type_get(left.type, right.type), (void*)(bv_variable_get_uint(left) * bv_variable_get_uint(right)));
 
 	return out;
 }
@@ -857,7 +857,7 @@ bv_variable bv_variable_op_increment(bv_program* prog, bv_variable left)
 	else if (left.type == bv_type_string) {
 		// ..
 	}
-	else out = bv_variable_create(left.type, bv_variable_get_uint(left) + 1);
+	else out = bv_variable_create(left.type, (void*)(bv_variable_get_uint(left) + 1));
 
 	return out;
 }
@@ -881,7 +881,7 @@ bv_variable bv_variable_op_decrement(bv_program* prog, bv_variable left)
 	else if (left.type == bv_type_string) {
 		// ..
 	}
-	else out = bv_variable_create(left.type, bv_variable_get_uint(left) - 1);
+	else out = bv_variable_create(left.type, (void*)(bv_variable_get_uint(left) - 1));
 
 	return out;
 }
@@ -905,7 +905,7 @@ bv_variable bv_variable_op_negate(bv_program* prog, bv_variable left)
 	else if (left.type == bv_type_string) {
 		// ..
 	}
-	else out = bv_variable_create(left.type, -bv_variable_get_int(left));
+	else out = bv_variable_create(left.type, (void*)(-bv_variable_get_int(left)));
 
 	return out;
 }
@@ -974,7 +974,7 @@ bv_variable bv_variable_op_modulo(bv_program* prog, bv_variable left, bv_variabl
 	else if (left.type == bv_type_string || right.type == bv_type_string) {
 		// ..
 	}
-	else out = bv_variable_create(bv_type_get(left.type, right.type), bv_variable_get_uint(left) % bv_variable_get_uint(right));
+	else out = bv_variable_create(bv_type_get(left.type, right.type), (void*)(bv_variable_get_uint(left) % bv_variable_get_uint(right)));
 
 	return out;
 }
@@ -1022,8 +1022,8 @@ bv_variable bv_variable_cast(bv_program* prog, bv_type new_type, bv_variable rig
 		else if (old_type == bv_type_uint || old_type == bv_type_ushort) // todo utoa
 			ret = bv_variable_create_string(my_itoa(bv_variable_get_uint(right), 10));
 		else if (old_type == bv_type_char || old_type == bv_type_uchar) {
-			string m = (string)malloc(sizeof(char) * 2);
-			m[0] = right.value;
+			bv_string m = (bv_string)malloc(sizeof(char) * 2);
+			m[0] = bv_variable_get_char(right);
 			m[1] = 0;
 
 			ret = bv_variable_create_string(m);
@@ -1033,7 +1033,7 @@ bv_variable bv_variable_cast(bv_program* prog, bv_type new_type, bv_variable rig
 			float value = bv_variable_get_float(right);
 
 			int len = snprintf(NULL, 0, "%f", value);
-			string result = (string)malloc(len + 1);
+			bv_string result = (bv_string)malloc(len + 1);
 			snprintf(result, len + 1, "%f", value);
 
 			ret = bv_variable_create_string(result);
@@ -1059,7 +1059,7 @@ bv_variable bv_variable_cast(bv_program* prog, bv_type new_type, bv_variable rig
 		if (old_type == bv_type_float) {
 			float value = bv_variable_get_float(right);
 
-			ret = bv_variable_create(new_type, (int)value);
+			ret = bv_variable_create(new_type, (void*)((int)value));
 		}
 		else if (old_type == bv_type_object)
 			ret = bv_variable_create(new_type, 0);

@@ -8,7 +8,7 @@ bv_variable my_print(u8 count, bv_variable* args)
 {
 	for (u8 i = 0; i < count; i++)
 		if (args[i].type == bv_type_string) {
-			string s = bv_variable_get_string(args[i]);
+			bv_string s = bv_variable_get_string(args[i]);
 			if (strcmp(s, "\\n") == 0)
 				printf("\n");
 			else
@@ -23,8 +23,8 @@ bv_variable my_print(u8 count, bv_variable* args)
 
 bv_variable Animal_status(bv_object* obj, u8 count, bv_variable* args)
 {
-	string name = bv_variable_get_string(*bv_object_get_property(obj, "name"));
-	string type = bv_variable_get_string(*bv_object_get_property(obj, "type"));
+	bv_string name = bv_variable_get_string(*bv_object_get_property(obj, "name"));
+	bv_string type = bv_variable_get_string(*bv_object_get_property(obj, "type"));
 	u16 health = bv_variable_get_ushort(*bv_object_get_property(obj, "health"));
 
 	printf("name=%s;type=%s;hp=%d;\n", name, type, health);
@@ -38,8 +38,8 @@ bv_variable Vehicle_update(bv_object* obj, u8 count, bv_variable* args)
 }
 bv_variable Vehicle_status(bv_object* obj, u8 count, bv_variable* args)
 {
-	string owner = bv_variable_get_string(*bv_object_get_property(obj, "owner"));
-	string type = bv_variable_get_string(*bv_object_get_property(obj, "type"));
+	bv_string owner = bv_variable_get_string(*bv_object_get_property(obj, "owner"));
+	bv_string type = bv_variable_get_string(*bv_object_get_property(obj, "type"));
 
 	printf("type=%s;owner=%s;\n", type, owner);
 
@@ -58,7 +58,7 @@ int main()
 	long fsize = ftell(f);
 	fseek(f, 0, SEEK_SET);  //same as rewind(f);
 
-	char *mem = malloc((fsize + 1) * sizeof(char));
+	char *mem = (char*)malloc((fsize + 1) * sizeof(char));
 	fread(mem, fsize, 1, f);
 	fclose(f);
 
@@ -69,7 +69,7 @@ int main()
 		return 0;
 	}
 
-	bv_program* prog = bv_program_create(mem);
+	bv_program* prog = bv_program_create((byte*)mem);
 	
 	// external object
 	bv_object_info* Animal = bv_object_info_create("Animal");

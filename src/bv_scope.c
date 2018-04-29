@@ -18,7 +18,7 @@ bv_scope* bv_scope_create()
 
 	return ret;
 }
-u32 bv_scope_push(bv_scope* scp, bv_scope_type type, byte* code, bv_program* prog, bv_function* func, bv_object* obj, u8 argc)
+void bv_scope_push(bv_scope* scp, bv_scope_type type, byte* code, bv_program* prog, bv_function* func, bv_object* obj, u8 argc)
 {
 	scp->count++;
 	u32 current = scp->count - 1;

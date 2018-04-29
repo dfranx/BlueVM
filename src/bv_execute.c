@@ -167,7 +167,7 @@ void bv_execute_bit_or(bv_scope* scope) {
 	bv_stack_pop_free(&scope->stack);
 	bv_stack_pop_free(&scope->stack);
 
-	bv_stack_push(&scope->stack, bv_variable_create(type, res));
+	bv_stack_push(&scope->stack, bv_variable_create(type, (void*)res));
 }
 void bv_execute_bit_and(bv_scope* scope) {
 	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
@@ -182,7 +182,7 @@ void bv_execute_bit_and(bv_scope* scope) {
 	bv_stack_pop_free(&scope->stack);
 	bv_stack_pop_free(&scope->stack);
 
-	bv_stack_push(&scope->stack, bv_variable_create(type, res));
+	bv_stack_push(&scope->stack, bv_variable_create(type, (void*)res));
 }
 void bv_execute_bit_not(bv_scope* scope) {
 	bv_variable var = bv_stack_top(&scope->stack);
@@ -192,7 +192,7 @@ void bv_execute_bit_not(bv_scope* scope) {
 
 	bv_stack_pop_free(&scope->stack);
 
-	bv_stack_push(&scope->stack, bv_variable_create(type, res));
+	bv_stack_push(&scope->stack, bv_variable_create(type, (void*)res));
 }
 void bv_execute_bit_xor(bv_scope* scope) {
 	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
@@ -207,7 +207,7 @@ void bv_execute_bit_xor(bv_scope* scope) {
 	bv_stack_pop_free(&scope->stack);
 	bv_stack_pop_free(&scope->stack);
 
-	bv_stack_push(&scope->stack, bv_variable_create(type, res));
+	bv_stack_push(&scope->stack, bv_variable_create(type, (void*)res));
 }
 void bv_execute_bit_lshift(bv_scope* scope) {
 	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
@@ -222,7 +222,7 @@ void bv_execute_bit_lshift(bv_scope* scope) {
 	bv_stack_pop_free(&scope->stack);
 	bv_stack_pop_free(&scope->stack);
 
-	bv_stack_push(&scope->stack, bv_variable_create(type, res));
+	bv_stack_push(&scope->stack, bv_variable_create(type, (void*)res));
 }
 void bv_execute_bit_rshift(bv_scope* scope) {
 	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
@@ -237,7 +237,7 @@ void bv_execute_bit_rshift(bv_scope* scope) {
 	bv_stack_pop_free(&scope->stack);
 	bv_stack_pop_free(&scope->stack);
 
-	bv_stack_push(&scope->stack, bv_variable_create(type, res));
+	bv_stack_push(&scope->stack, bv_variable_create(type, (void*)res));
 }
 void bv_execute_bool_or(bv_scope * scope) {
 	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
@@ -519,7 +519,7 @@ void bv_execute_set_array_el(bv_scope* scope) {
 void bv_execute_call(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
 
-	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 	u8 argc = u8_read(&state->code);
 
 	bv_function* func = bv_program_get_function(state->prog, name);
@@ -546,7 +546,7 @@ void bv_execute_call(bv_scope* scope) {
 void bv_execute_call_return(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
 
-	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 	u8 argc = u8_read(&state->code);
 
 	bv_function* func = bv_program_get_function(state->prog, name);
@@ -642,7 +642,7 @@ void bv_execute_new_object(bv_scope* scope) {
 void bv_execute_set_prop(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
 
-	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 
 	bv_variable obj = bv_stack_top(&scope->stack);
 	bv_stack_pop(&scope->stack);
@@ -656,7 +656,7 @@ void bv_execute_set_prop(bv_scope* scope) {
 void bv_execute_set_my_prop(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
 
-	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 
 	if (state->obj == 0)
 		return;
@@ -667,7 +667,7 @@ void bv_execute_set_my_prop(bv_scope* scope) {
 void bv_execute_get_prop(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
 
-	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 
 	bv_variable obj = bv_stack_top(&scope->stack);
 	bv_object* top = bv_variable_get_object(obj);
@@ -680,7 +680,7 @@ void bv_execute_get_prop(bv_scope* scope) {
 void bv_execute_get_my_prop(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
 
-	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 
 	if (state->obj == 0)
 		return;
@@ -690,7 +690,7 @@ void bv_execute_get_my_prop(bv_scope* scope) {
 void bv_execute_call_method(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
 
-	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 	u8 argc = u8_read(&state->code);
 
 	bv_variable var = bv_stack_top(&scope->stack);
@@ -709,7 +709,7 @@ void bv_execute_call_method(bv_scope* scope) {
 void bv_execute_call_my_method(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
 
-	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 	u8 argc = u8_read(&state->code);
 
 	bv_object* obj = state->obj;
@@ -722,7 +722,7 @@ void bv_execute_call_my_method(bv_scope* scope) {
 void bv_execute_call_ret_method(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
 
-	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 	u8 argc = u8_read(&state->code);
 
 	bv_variable var = bv_stack_top(&scope->stack);
@@ -738,12 +738,15 @@ void bv_execute_call_ret_method(bv_scope* scope) {
 	if (scope->stack.length < argc)
 		return; // [TODO] error, not enough arguments
 
-	bv_object_call_method(obj, name, scope, argc);
+	bv_variable ret = bv_object_call_method(obj, name, scope, argc);
+
+	if (ret.type != bv_type_void)
+		bv_stack_push(&scope->stack, ret);
 }
 void bv_execute_call_ret_my_method(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
 
-	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 	u8 argc = u8_read(&state->code);
 
 	bv_object* obj = state->obj;
@@ -753,7 +756,10 @@ void bv_execute_call_ret_my_method(bv_scope* scope) {
 	if (scope->stack.length < argc)
 		return; // [TODO] error, not enough arguments
 
-	bv_object_call_method(obj, name, scope, argc);
+	bv_variable ret = bv_object_call_method(obj, name, scope, argc);
+
+	if (ret.type != bv_type_void)
+		bv_stack_push(&scope->stack, ret);
 }
 void bv_execute_scope_start(bv_scope * scope)
 {
@@ -805,7 +811,7 @@ void bv_execute_get_prop_pointer(bv_scope * scope)
 {
 	bv_state* state = bv_scope_get_state(scope);
 
-	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 
 	bv_variable var = bv_stack_top(&scope->stack);
 	bv_object* obj = bv_variable_get_object(var);
@@ -819,7 +825,7 @@ void bv_execute_get_my_prop_pointer(bv_scope * scope)
 {
 	bv_state* state = bv_scope_get_state(scope);
 
-	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 
 	if (state->obj == 0)
 		return;
@@ -830,7 +836,7 @@ void bv_execute_get_global_by_name(bv_scope* scope)
 {
 	bv_state* state = bv_scope_get_state(scope);
 
-	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 
 	u16 ind = bv_name_list_get_id(state->prog->global_names, name);
 
@@ -841,7 +847,7 @@ void bv_execute_get_global_by_name_ptr(bv_scope* scope)
 {
 	bv_state* state = bv_scope_get_state(scope);
 
-	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 
 	u16 ind = bv_name_list_get_id(state->prog->global_names, name);
 
@@ -852,7 +858,7 @@ void bv_execute_set_global_by_name(bv_scope* scope)
 {
 	bv_state* state = bv_scope_get_state(scope);
 
-	string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
+	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 	u16 index = bv_name_list_get_id(state->prog->global_names, name);
 
 	if (index < state->prog->global_names.name_count) {

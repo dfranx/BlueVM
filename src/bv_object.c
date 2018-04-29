@@ -18,7 +18,7 @@ bv_object* bv_object_create(bv_object_info* info)
 	return ret;
 }
 
-bv_variable* bv_object_get_property(bv_object* obj, const string name)
+bv_variable* bv_object_get_property(bv_object* obj, const bv_string name)
 {
 	bv_name_list* props = &obj->type->props;
 
@@ -28,7 +28,7 @@ bv_variable* bv_object_get_property(bv_object* obj, const string name)
 
 	return 0;
 }
-void bv_object_set_property(bv_object* obj, const string name, bv_variable val)
+void bv_object_set_property(bv_object* obj, const char* name, bv_variable val)
 {
 	bv_name_list* props = &obj->type->props;
 
@@ -39,7 +39,7 @@ void bv_object_set_property(bv_object* obj, const string name, bv_variable val)
 		}
 }
 
-bv_function* bv_object_get_method(bv_object* obj, const string name)
+bv_function* bv_object_get_method(bv_object* obj, const char* name)
 {
 	bv_function_pool* info = obj->type->method_info;
 	for (u16 i = 0; i < info->count; i++)
@@ -48,7 +48,7 @@ bv_function* bv_object_get_method(bv_object* obj, const string name)
 
 	return 0;
 }
-bv_external_method bv_object_get_ext_method(bv_object* obj, const string name)
+bv_external_method bv_object_get_ext_method(bv_object* obj, const char* name)
 {
 	bv_object_info* info = obj->type;
 	for (u16 i = 0; i < info->ext_method_count; i++)
@@ -57,7 +57,7 @@ bv_external_method bv_object_get_ext_method(bv_object* obj, const string name)
 
 	return 0;
 }
-void bv_object_call_method(bv_object* obj, const string name, bv_scope* scope, u8 argc)
+bv_variable bv_object_call_method(bv_object* obj, const char* name, bv_scope* scope, u8 argc)
 {
 	bv_function* func = bv_object_get_method(obj, name);
 
@@ -72,10 +72,14 @@ void bv_object_call_method(bv_object* obj, const string name, bv_scope* scope, u
 		}
 
 		bv_external_method ext_func = bv_object_get_ext_method(obj, name);
-		(*ext_func)(obj, argc, func_args.data); //TODO: object method returning value
+		bv_variable var = (*ext_func)(obj, argc, func_args.data); //TODO: object method returning value
 
 		bv_stack_delete(&func_args);
+
+		return var;
 	}
+
+	return bv_variable_create_void();
 }
 
 void bv_object_deinitialize(bv_object* val)

@@ -1,6 +1,6 @@
 #include <BlueVM/bv_type.h>
 
-char bv_type_is_integer(bv_type type)
+byte bv_type_is_integer(bv_type type)
 {
 	if (type >= bv_type_int && type <= bv_type_uchar)
 		return 1;

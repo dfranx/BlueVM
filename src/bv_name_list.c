@@ -7,7 +7,7 @@ bv_name_list bv_name_list_create(byte** mem)
 	bv_name_list ret;
 	ret.name_count = u16_read(mem);
 
-	ret.names = (string*)malloc(sizeof(string)*ret.name_count);
+	ret.names = (bv_string*)malloc(sizeof(bv_string)*ret.name_count);
 
 	for (u16 i = 0; i < ret.name_count; i++)
 		ret.names[i] = string_read(mem);
@@ -18,12 +18,12 @@ bv_name_list bv_name_list_create_empty()
 {
 	bv_name_list ret;
 	ret.name_count = 0;
-	ret.names = (string*)malloc(ret.name_count * sizeof(string));
+	ret.names = (bv_string*)malloc(ret.name_count * sizeof(bv_string));
 
 	return ret;
 }
 
-u16 bv_name_list_get_id(bv_name_list nlist, string name)
+u16 bv_name_list_get_id(bv_name_list nlist, const bv_string name)
 {
 	for (u16 i = 0; i < nlist.name_count; i++)
 		if (strcmp(name, nlist.names[i]) == 0)
@@ -31,15 +31,15 @@ u16 bv_name_list_get_id(bv_name_list nlist, string name)
 	return nlist.name_count;
 }
 
-void bv_name_list_add(bv_name_list* nlist, const string name)
+void bv_name_list_add(bv_name_list* nlist, const bv_string name)
 {
 	nlist->name_count++;
-	nlist->names = realloc(nlist->names, nlist->name_count * sizeof(string));
+	nlist->names = (bv_string*)realloc(nlist->names, nlist->name_count * sizeof(bv_string));
 
 	size_t name_len = strlen(name);
-	string name_ptr = nlist->names[nlist->name_count - 1];
+	bv_string name_ptr = nlist->names[nlist->name_count - 1];
 	
-	name_ptr = (string)malloc((name_len+1) * sizeof(char));
+	name_ptr = (bv_string)malloc((name_len+1) * sizeof(char));
 	memcpy(name_ptr, name, name_len);
 
 	name_ptr[name_len - 1] = 0;

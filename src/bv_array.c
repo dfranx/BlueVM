@@ -7,7 +7,7 @@ bv_array bv_array_create(u8 dim, u16* cnt)
 {
 	bv_array ret;
 	ret.dim = dim;
-	ret.length = (int*)malloc(sizeof(u16) * dim);
+	ret.length = (u16*)malloc(sizeof(u16) * dim);
 	memcpy(ret.length, cnt, sizeof(u16)*dim);
 
 	ret.data = (bv_variable*)malloc(sizeof(bv_variable) * bv_array_get_range(ret));

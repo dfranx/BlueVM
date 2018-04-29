@@ -112,7 +112,7 @@ void bv_program_delete(bv_program * prog)
 	bv_name_list_delete(&prog->global_names);
 
 	free(prog->external_functions);
-	free(prog->external_function_names = realloc(prog->external_function_names, sizeof(string) * (prog->external_function_count + 1)));
+	free(prog->external_function_names = (bv_string*)realloc(prog->external_function_names, sizeof(bv_string) * (prog->external_function_count + 1)));
 	free(prog->opcodes);
 	free(prog);
 }
@@ -121,7 +121,7 @@ u16 bv_program_get_function_count(bv_program * prog)
 {
 	return prog->block->functions->count;
 }
-bv_function* bv_program_get_function(bv_program* prog, const string str)
+bv_function* bv_program_get_function(bv_program* prog, const bv_string str)
 {
 	u16 func_count = bv_program_get_function_count(prog);
 
@@ -131,7 +131,7 @@ bv_function* bv_program_get_function(bv_program* prog, const string str)
 	
 	return 0;
 }
-bv_external_function bv_program_get_ext_function(bv_program * prog, const string str)
+bv_external_function bv_program_get_ext_function(bv_program * prog, const bv_string str)
 {
 	u16 ext_func_count = prog->external_function_count;
 	for (u16 i = 0; i < ext_func_count; i++)
@@ -140,13 +140,13 @@ bv_external_function bv_program_get_ext_function(bv_program * prog, const string
 	
 	return NULL;
 }
-void bv_program_add_function(bv_program * prog, string name, bv_external_function ext_func)
+void bv_program_add_function(bv_program * prog, const bv_string name, bv_external_function ext_func)
 {
-	prog->external_functions = realloc(prog->external_functions, sizeof(bv_external_function) * (prog->external_function_count + 1));
-	prog->external_function_names = realloc(prog->external_function_names, sizeof(string) * (prog->external_function_count + 1));
+	prog->external_functions = (bv_external_function*)realloc(prog->external_functions, sizeof(bv_external_function) * (prog->external_function_count + 1));
+	prog->external_function_names = (bv_string*)realloc(prog->external_function_names, sizeof(bv_string) * (prog->external_function_count + 1));
 	
 	prog->external_functions[prog->external_function_count] = ext_func;
-	prog->external_function_names[prog->external_function_count] = name;
+	prog->external_function_names[prog->external_function_count] = (bv_string)name;
 
 	prog->external_function_count++;
 }
@@ -156,10 +156,10 @@ void bv_program_add_object_info(bv_program* prog, bv_object_info* obj)
 	bv_object_pool* pool = prog->block->objects;
 	pool->count++;
 
-	pool->info = realloc(pool->info, pool->count * sizeof(bv_object_info));
+	pool->info = (bv_object_info**)realloc(pool->info, pool->count * sizeof(bv_object_info));
 	pool->info[pool->count - 1] = obj;
 }
-bv_object_info* bv_program_get_object_info(bv_program* prog, const string name)
+bv_object_info* bv_program_get_object_info(bv_program* prog, const bv_string name)
 {
 	bv_object_pool* pool = prog->block->objects;
 
@@ -174,7 +174,7 @@ u16 bv_program_get_global_count(bv_program * prog)
 {
 	return prog->globals.length;
 }
-bv_variable bv_program_get_global(bv_program* prog, string name)
+bv_variable bv_program_get_global(bv_program* prog, bv_string name)
 {
 	u16 ind = bv_name_list_get_id(prog->global_names, name);
 
@@ -182,12 +182,12 @@ bv_variable bv_program_get_global(bv_program* prog, string name)
 		return bv_variable_create_null_object();
 	else return prog->globals.data[ind];
 }
-bv_variable bv_program_add_global(bv_program * prog, string name)
+void bv_program_add_global(bv_program * prog, bv_string name)
 {
 	bv_stack_push(&prog->globals, bv_variable_create_null_object());
 	bv_name_list_add(&prog->global_names, name);
 }
-void bv_program_set_global(bv_program * prog, string name, bv_variable var)
+void bv_program_set_global(bv_program * prog, const bv_string name, bv_variable var)
 {
 	u16 ind = bv_name_list_get_id(prog->global_names, name);
 	if (ind != prog->global_names.name_count)

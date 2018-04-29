@@ -1,12 +1,13 @@
 #include <BlueVM/bv_string_table.h>
 #include <stdlib.h>
+#include <string.h>
 
 bv_string_table* bv_string_table_create(byte** mem)
 {
 	bv_string_table* ret = (bv_string_table*)malloc(sizeof(bv_string_table));
 
 	ret->count = u32_read(mem);
-	ret->strings = (string*)malloc(ret->count * sizeof(string));
+	ret->strings = (bv_string*)malloc(ret->count * sizeof(bv_string));
 
 	for (u32 i = 0; i < ret->count; i++)
 		ret->strings[i] = string_read(mem);
@@ -14,7 +15,7 @@ bv_string_table* bv_string_table_create(byte** mem)
 	return ret;
 }
 
-u32 bv_string_table_get_id(bv_string_table* tbl, const string name)
+u32 bv_string_table_get_id(bv_string_table* tbl, const bv_string name)
 {
 	for (u32 i = 0; i < tbl->count; i++)
 		if (strcmp(name, tbl->strings[i]) == 0)
@@ -23,7 +24,7 @@ u32 bv_string_table_get_id(bv_string_table* tbl, const string name)
 	return 0xFFFFFFFF;
 }
 
-string bv_string_table_get_string(bv_string_table* tbl, u32 id)
+bv_string bv_string_table_get_string(bv_string_table* tbl, u32 id)
 {
 	return tbl->strings[id];
 }

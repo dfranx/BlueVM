@@ -20,7 +20,7 @@ typedef struct bv_program {
 
 	u16 external_function_count; // todo: change to u16
 	bv_external_function* external_functions;
-	string* external_function_names;
+	bv_string* external_function_names;
 
 	bv_stack globals;
 	bv_name_list global_names;
@@ -31,17 +31,17 @@ void bv_program_build_opcode_table(bv_program* prog);
 void bv_program_delete(bv_program* program);
 
 u16 bv_program_get_function_count(bv_program* prog);
-bv_function* bv_program_get_function(bv_program* prog, const string str);
-bv_external_function bv_program_get_ext_function(bv_program* prog, const string str);
-void bv_program_add_function(bv_program* prog, string name, bv_external_function ext_func);
+bv_function* bv_program_get_function(bv_program* prog, const bv_string str);
+bv_external_function bv_program_get_ext_function(bv_program* prog, const bv_string str);
+void bv_program_add_function(bv_program* prog, const bv_string name, bv_external_function ext_func);
 
 void bv_program_add_object_info(bv_program* prog, bv_object_info* obj);
-bv_object_info* bv_program_get_object_info(bv_program* prog, const string name);
+bv_object_info* bv_program_get_object_info(bv_program* prog, const bv_string name);
 
 u16 bv_program_get_global_count(bv_program* prog);
-bv_variable bv_program_get_global(bv_program* prog, string name);
-bv_variable bv_program_add_global(bv_program* prog, string name);
-void bv_program_set_global(bv_program* prog, string name, bv_variable var);
+bv_variable bv_program_get_global(bv_program* prog, bv_string name);
+void bv_program_add_global(bv_program* prog, bv_string name);
+void bv_program_set_global(bv_program* prog, const bv_string name, bv_variable var);
 
 bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args, bv_object* parent);
 
