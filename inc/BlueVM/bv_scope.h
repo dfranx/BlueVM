@@ -7,7 +7,7 @@
 #include <BlueVM/bv_function.h>
 #include <BlueVM/bv_scope_type.h>
 
-#define SCOPE_RULE 32
+#define SCOPE_RULE 8
 
 typedef struct bv_scope {
 	u32 capacity;

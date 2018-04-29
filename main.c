@@ -78,7 +78,7 @@ void my_debugger(bv_scope* scope)
 		bv_function** funcs = el->prog->functions;
 
 		for (u32 j = 0; j < fpool->count; j++)
-			if (el->this_func == funcs[j])
+			if (el->func == funcs[j])
 				printf("\t[%d]. %s\n", i, fpool->names[j]);
 	}
 	printf("\n\n");
@@ -142,6 +142,28 @@ int main()
 		printf("main() returned: %u\n", bv_variable_get_uint(ret));
 		bv_variable_deinitialize(&ret);
 	}
+
+	/* execute fib() two times async */
+	bv_stack args = bv_stack_create(); // create arguments
+	bv_stack_push(&args, bv_variable_create_int(25));
+
+	bv_function* func_fib = bv_program_get_function(prog, "fib");
+
+	bv_function_stepper* step1 = bv_function_stepper_create(prog, NULL, func_fib, &args);
+	bv_function_stepper* step2 = bv_function_stepper_create(prog, NULL, func_fib, &args);
+
+	clock_t t = clock();
+	while (!bv_function_stepper_is_done(step1) || !bv_function_stepper_is_done(step2)) {
+		if (!bv_function_stepper_is_done(step1))
+			bv_function_step(step1);
+		if (!bv_function_stepper_is_done(step2))
+			bv_function_step(step2);
+	}
+	printf("async time: %.3f\n", ((float)clock() - t) / CLOCKS_PER_SEC);
+
+	printf("#1 fib() returned: %u\n", bv_variable_get_uint(step1->result));
+	printf("#2 fib2() returned: %u\n", bv_variable_get_uint(step2->result));
+
 	bv_program_delete(prog);
 
 	free(mem);

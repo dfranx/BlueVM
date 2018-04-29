@@ -235,7 +235,7 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args,
 		bv_state* state = bv_scope_get_state(scope);
 		cnt = scope->count;
 
-		while (cnt == scope->count && (is_in = (u32)(state->code - state->this_func->code) < state->this_func->code_length)) {
+		while (cnt == scope->count && (is_in = (u32)(state->code - state->func->code) < state->func->code_length)) {
 			op = bv_opcode_read(&state->code);
 			(*prog->opcodes[op])(scope);
 		}

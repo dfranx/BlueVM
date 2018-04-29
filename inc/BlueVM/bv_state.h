@@ -10,7 +10,7 @@ typedef struct bv_program bv_program;
 typedef struct bv_state
 {
 	bv_program* prog;
-	bv_function* this_func;
+	bv_function* func;
 	byte* code;
 	bv_object* obj;
 } bv_state;

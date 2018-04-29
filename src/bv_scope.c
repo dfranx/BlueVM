@@ -52,7 +52,7 @@ void bv_scope_push(bv_scope* scp, bv_scope_type type, byte* code, bv_program* pr
 			state->prog = scp->state[current - 1].prog;	// fetch the previous program
 
 		// set current function
-		state->this_func = func;
+		state->func = func;
 		state->code = code;
 
 		// set current object
@@ -61,7 +61,7 @@ void bv_scope_push(bv_scope* scp, bv_scope_type type, byte* code, bv_program* pr
 	else if (type == bv_scope_type_normal) {
 		bv_state* parent_state = &scp->state[current - 1];
 		state->prog = parent_state->prog;
-		state->this_func = parent_state->this_func;
+		state->func = parent_state->func;
 		state->code = code;
 		state->obj = parent_state->obj;
 	}

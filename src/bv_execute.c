@@ -632,7 +632,7 @@ void bv_execute_if(bv_scope* scope) {
 
 	if (bv_type_is_integer(var.type))
 		if (bv_variable_get_int(var) == 0)
-			state->code = state->this_func->code + addr;
+			state->code = state->func->code + addr;
 
 	bv_stack_pop_free(&scope->stack);
 }
@@ -640,7 +640,7 @@ void bv_execute_goto(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
 
 	u32 addr = u32_read(&state->code);
-	state->code = state->this_func->code + addr;
+	state->code = state->func->code + addr;
 }
 void bv_execute_new_object(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
@@ -816,7 +816,7 @@ void bv_execute_call_ret_my_method(bv_scope* scope) {
 void bv_execute_scope_start(bv_scope * scope)
 {
 	bv_state* state = bv_scope_get_state(scope);
-	bv_scope_push(scope, bv_scope_type_normal, state->code, state->prog, state->this_func, state->obj, 0);
+	bv_scope_push(scope, bv_scope_type_normal, state->code, state->prog, state->func, state->obj, 0);
 }
 void bv_execute_scope_end(bv_scope * scope)
 {

@@ -3,10 +3,6 @@
 #include <BlueVM/types.h>
 #include <BlueVM/bv_scope.h>
 
-/*
-arguments:
-	1. arg -> current scope
-*/
 typedef void(*bv_breakpoint_handler)(bv_scope*);
 
 #endif
