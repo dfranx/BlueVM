@@ -5,7 +5,9 @@
 #include <BlueVM/bv_program.h>
 #include <stdlib.h>
 
-void bv_execute_unknown(bv_scope* scope) { }
+void bv_execute_unknown(bv_scope* scope) {
+	bv_program_error(bv_scope_get_state(scope)->prog, 1, 47, "Unknown operator called");
+}
 void bv_execute_func_start(bv_scope* scope) { }
 void bv_execute_return(bv_scope* scope) {
 	bv_variable ret_value = bv_variable_create_void();
@@ -46,8 +48,10 @@ void bv_execute_const_get(bv_scope* scope) {
 		}
 }
 void bv_execute_add(bv_scope* scope) {
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments on stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 48, "Not enough values on the stack for the operator +");
 		return;
+	}
 
 	bv_state* state = bv_scope_get_state(scope);
 
@@ -62,8 +66,10 @@ void bv_execute_add(bv_scope* scope) {
 	bv_stack_push(&scope->stack, res);
 }
 void bv_execute_subtract(bv_scope* scope) {
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 49, "Not enough values on the stack for the operator -");
 		return;
+	}
 
 	bv_state* state = bv_scope_get_state(scope);
 
@@ -78,8 +84,10 @@ void bv_execute_subtract(bv_scope* scope) {
 	bv_stack_push(&scope->stack, res);
 }
 void bv_execute_multiply(bv_scope* scope) {
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 50, "Not enough values on the stack for the operator *");
 		return;
+	}
 
 	bv_state* state = bv_scope_get_state(scope);
 
@@ -96,8 +104,10 @@ void bv_execute_multiply(bv_scope* scope) {
 void bv_execute_divide(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
 
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 51, "Not enough values on the stack for the operator /");
 		return;
+	}
 
 	bv_variable var1 = bv_stack_penultimate(&scope->stack);
 	bv_variable var2 = bv_stack_top(&scope->stack);
@@ -137,8 +147,10 @@ void bv_execute_negate(bv_scope* scope) {
 	bv_stack_push(&scope->stack, res);
 }
 void bv_execute_modulo(bv_scope* scope) {
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 52, "Not enough values on the stack for the operator %");
 		return;
+	}
 
 	bv_state* state = bv_scope_get_state(scope);
 
@@ -153,8 +165,10 @@ void bv_execute_modulo(bv_scope* scope) {
 	bv_stack_push(&scope->stack, res);
 }
 void bv_execute_bit_or(bv_scope* scope) {
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 53, "Not enough values on the stack for the operator |");
 		return;
+	}
 
 	bv_state* state = bv_scope_get_state(scope);
 
@@ -170,8 +184,10 @@ void bv_execute_bit_or(bv_scope* scope) {
 	bv_stack_push(&scope->stack, bv_variable_create(type, (void*)res));
 }
 void bv_execute_bit_and(bv_scope* scope) {
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 54, "Not enough values on the stack for the operator &");
 		return;
+	}
 
 	bv_variable var1 = bv_stack_penultimate(&scope->stack);
 	bv_variable var2 = bv_stack_top(&scope->stack);
@@ -195,8 +211,10 @@ void bv_execute_bit_not(bv_scope* scope) {
 	bv_stack_push(&scope->stack, bv_variable_create(type, (void*)res));
 }
 void bv_execute_bit_xor(bv_scope* scope) {
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 55, "Not enough values on the stack for the operator ^");
 		return;
+	}
 
 	bv_variable var1 = bv_stack_penultimate(&scope->stack);
 	bv_variable var2 = bv_stack_top(&scope->stack);
@@ -210,8 +228,10 @@ void bv_execute_bit_xor(bv_scope* scope) {
 	bv_stack_push(&scope->stack, bv_variable_create(type, (void*)res));
 }
 void bv_execute_bit_lshift(bv_scope* scope) {
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 56, "Not enough values on the stack for the operator <<");
 		return;
+	}
 
 	bv_variable var1 = bv_stack_penultimate(&scope->stack);
 	bv_variable var2 = bv_stack_top(&scope->stack);
@@ -225,8 +245,10 @@ void bv_execute_bit_lshift(bv_scope* scope) {
 	bv_stack_push(&scope->stack, bv_variable_create(type, (void*)res));
 }
 void bv_execute_bit_rshift(bv_scope* scope) {
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 57, "Not enough values on the stack for the operator >>");
 		return;
+	}
 
 	bv_variable var1 = bv_stack_penultimate(&scope->stack);
 	bv_variable var2 = bv_stack_top(&scope->stack);
@@ -240,8 +262,10 @@ void bv_execute_bit_rshift(bv_scope* scope) {
 	bv_stack_push(&scope->stack, bv_variable_create(type, (void*)res));
 }
 void bv_execute_bool_or(bv_scope * scope) {
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 58, "Not enough values on the stack for the operator ||");
 		return;
+	}
 
 	bv_variable var1 = bv_stack_penultimate(&scope->stack);
 	bv_variable var2 = bv_stack_top(&scope->stack);
@@ -254,8 +278,10 @@ void bv_execute_bool_or(bv_scope * scope) {
 	bv_stack_push(&scope->stack, bv_variable_create_uchar(res));
 }
 void bv_execute_bool_and(bv_scope * scope) {
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 59, "Not enough values on the stack for the operator &&");
 		return;
+	}
 
 	bv_variable var1 = bv_stack_penultimate(&scope->stack);
 	bv_variable var2 = bv_stack_top(&scope->stack);
@@ -268,8 +294,10 @@ void bv_execute_bool_and(bv_scope * scope) {
 	bv_stack_push(&scope->stack, bv_variable_create_uchar(res));
 }
 void bv_execute_equal(bv_scope* scope) {
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 60, "Not enough values on the stack for the operator ==");
 		return;
+	}
 
 	bv_state* state = bv_scope_get_state(scope);
 
@@ -284,8 +312,10 @@ void bv_execute_equal(bv_scope* scope) {
 	bv_stack_push(&scope->stack, bv_variable_create_uchar(res));
 }
 void bv_execute_not_equal(bv_scope* scope) {
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 61, "Not enough values on the stack for the operator !=");
 		return;
+	}
 
 	bv_state* state = bv_scope_get_state(scope);
 
@@ -309,8 +339,10 @@ void bv_execute_not(bv_scope* scope) {
 	bv_stack_push(&scope->stack, bv_variable_create_uchar(res));
 }
 void bv_execute_greater(bv_scope* scope) {
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 62, "Not enough values on the stack for the operator >");
 		return;
+	}
 
 	bv_state* state = bv_scope_get_state(scope);
 
@@ -325,8 +357,10 @@ void bv_execute_greater(bv_scope* scope) {
 	bv_stack_push(&scope->stack, bv_variable_create_uchar(res));
 }
 void bv_execute_less(bv_scope* scope) {
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 63, "Not enough values on the stack for the operator <");
 		return;
+	}
 		
 	bv_state* state = bv_scope_get_state(scope);
 
@@ -341,9 +375,10 @@ void bv_execute_less(bv_scope* scope) {
 	bv_stack_push(&scope->stack, bv_variable_create_uchar(res));
 }
 void bv_execute_greater_equal(bv_scope* scope) {
-	
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 64, "Not enough values on the stack for the operator >=");
 		return;
+	}
 
 	bv_state* state = bv_scope_get_state(scope);
 
@@ -358,8 +393,10 @@ void bv_execute_greater_equal(bv_scope* scope) {
 	bv_stack_push(&scope->stack, bv_variable_create_uchar(res));
 }
 void bv_execute_less_equal(bv_scope* scope) {
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments in stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 65, "Not enough values on the stack for the operator <=");
 		return;
+	}
 
 	bv_state* state = bv_scope_get_state(scope);
 
@@ -400,9 +437,10 @@ void bv_execute_get_local(bv_scope* scope) {
 
 	u32 index = bv_scope_get_locals_start(scope)+u16_read(&state->code);
 
-	if (index >= scope->locals.length)
+	if (index >= scope->locals.length) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 66, "Trying to access non-existent local value");
 		bv_stack_push(&scope->stack, bv_variable_create_int(0)); // push a 0 to the stack
-	else {
+	} else {
 		bv_variable* pLocal = &scope->locals.data[index];
 		bv_stack_push(&scope->stack, bv_variable_copy(*pLocal));
 	}
@@ -429,9 +467,10 @@ void bv_execute_get_global(bv_scope* scope) {
 
 	u16 index = u16_read(&state->code);
 
-	if (index >= state->prog->globals.length)
+	if (index >= state->prog->globals.length) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 67, "Trying to access non-existent global value");
 		bv_stack_push(&scope->stack, bv_variable_create_int(0)); // push a 0 to the stack
-	else
+	} else
 		bv_stack_push(&scope->stack, bv_variable_copy(state->prog->globals.data[index]));
 }
 void bv_execute_set_global(bv_scope* scope) {
@@ -524,8 +563,10 @@ void bv_execute_call(bv_scope* scope) {
 
 	bv_function* func = bv_program_get_function(state->prog, name);
 
-	if (scope->stack.length < argc)
-		return; // [ERRORHANDLER] error, not enough arguments
+	if (scope->stack.length < argc) {
+		bv_program_error(state->prog, 0, 1, "Not enough arguments for a function call (opcode call)");
+		return;
+	}
 
 	if (func != NULL)
 		bv_scope_push(scope, bv_scope_type_function, func->code, bv_scope_get_state(scope)->prog, func, NULL, argc);
@@ -551,8 +592,10 @@ void bv_execute_call_return(bv_scope* scope) {
 
 	bv_function* func = bv_program_get_function(state->prog, name);
 	
-	if (scope->stack.length < argc)
-		return; // [ERRORHANDLER] error, not enough arguments
+	if (scope->stack.length < argc) {
+		bv_program_error(state->prog, 0, 2, "Not enough arguments for a function call (opcode call_return)");
+		return;
+	}
 
 	if (func != NULL) {
 		bv_scope_push(scope, bv_scope_type_function, func->code, NULL, func, NULL, argc);
@@ -585,14 +628,6 @@ void bv_execute_if(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
 
 	u32 addr = u32_read(&state->code);
-	/*
-	Invalid read of size 8
-		==283==    at 0x405E8D: bv_stack_top (in /mnt/e/BlueVM/BlueVM)
-		==283==    by 0x40457A: bv_execute_if (in /mnt/e/BlueVM/BlueVM)
-		==283==    by 0x405CB1: bv_program_call (in /mnt/e/BlueVM/BlueVM)
-		==283==    by 0x400E29: main (in /mnt/e/BlueVM/BlueVM)
-		==283==  Address 0xfffffffffffffff8 is not stack'd, malloc'd or (recently) free'd
-	*/
 	bv_variable var = bv_stack_top(&scope->stack);
 
 	if (bv_type_is_integer(var.type))
@@ -623,12 +658,17 @@ void bv_execute_new_object(bv_scope* scope) {
 	bv_variable var = bv_variable_create_object(info);
 	bv_object* obj = bv_variable_get_object(var);
 
+	if (scope->stack.length < argc) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 68, "Not enough arguments provided to the object constructor");
+		return;
+	}
+
 	bv_stack func_args = bv_stack_create();
-	if (scope->stack.length >= argc)
-		for (u8 i = 0; i < argc; i++) {
-			bv_stack_push(&func_args, bv_stack_top(&scope->stack));
-			bv_stack_pop(&scope->stack);
-		}
+	
+	for (u8 i = 0; i < argc; i++) {
+		bv_stack_push(&func_args, bv_stack_top(&scope->stack));
+		bv_stack_pop(&scope->stack);
+	}
 
 	bv_function* constructor = bv_object_get_method(obj, info->name); // get constructor
 
@@ -658,8 +698,10 @@ void bv_execute_set_my_prop(bv_scope* scope) {
 
 	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 
-	if (state->obj == 0)
+	if (state->obj == 0) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 69, "Parent(self,this,etc...) not passed to this state");
 		return;
+	}
 
 	bv_object_set_property(state->obj, name, bv_stack_top(&scope->stack));
 	bv_stack_pop(&scope->stack);
@@ -682,8 +724,10 @@ void bv_execute_get_my_prop(bv_scope* scope) {
 
 	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 
-	if (state->obj == 0)
+	if (state->obj == 0) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 70, "Parent(self,this,etc...) not passed to this state");
 		return;
+	}
 
 	bv_stack_push(&scope->stack, bv_variable_copy(*bv_object_get_property(state->obj, name)));
 }
@@ -701,8 +745,10 @@ void bv_execute_call_method(bv_scope* scope) {
 
 	bv_object* obj = bv_variable_get_object(var);
 
-	if (scope->stack.length < argc)
-		return; // [ERRORHANDLER] error, not enough arguments
+	if (scope->stack.length < argc) {
+		bv_program_error(state->prog, 0, 3, "Not enough arguments for a method call (opcode call_method)");
+		return;
+	}
 
 	bv_object_call_method(obj, name, scope, argc);
 }
@@ -714,8 +760,10 @@ void bv_execute_call_my_method(bv_scope* scope) {
 
 	bv_object* obj = state->obj;
 
-	if (scope->stack.length < argc)
-		return; // [ERRORHANDLER] error, not enough arguments
+	if (scope->stack.length < argc) {
+		bv_program_error(state->prog, 0, 4, "Not enough arguments for a method call (opcode call_my_method)");
+		return;
+	}
 
 	bv_object_call_method(obj, name, scope, argc);
 }
@@ -735,8 +783,10 @@ void bv_execute_call_ret_method(bv_scope* scope) {
 
 	bv_function* func = bv_object_get_method(obj, name);
 
-	if (scope->stack.length < argc)
-		return; // [ERRORHANDLER] error, not enough arguments
+	if (scope->stack.length < argc) {
+		bv_program_error(state->prog, 0, 5, "Not enough arguments for a method call (opcode call_ret_method)");
+		return;
+	}
 
 	bv_variable ret = bv_object_call_method(obj, name, scope, argc);
 
@@ -753,8 +803,10 @@ void bv_execute_call_ret_my_method(bv_scope* scope) {
 
 	bv_function* func = bv_object_get_method(obj, name);
 
-	if (scope->stack.length < argc)
-		return; // [ERRORHANDLER] error, not enough arguments
+	if (scope->stack.length < argc) {
+		bv_program_error(state->prog, 0, 6, "Not enough arguments for a method call (opcode call_ret_my_method)");
+		return;
+	}
 
 	bv_variable ret = bv_object_call_method(obj, name, scope, argc);
 
@@ -772,8 +824,10 @@ void bv_execute_scope_end(bv_scope * scope)
 }
 void bv_execute_assign(bv_scope* scope)
 {
-	if (scope->stack.length < 2) // dont do anything if there is not enough arguments on stack
+	if (scope->stack.length < 2) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 71, "Not enough values on the stack for the assign operator");
 		return;
+	}
 
 	bv_state* state = bv_scope_get_state(scope);
 
@@ -827,8 +881,10 @@ void bv_execute_get_my_prop_pointer(bv_scope * scope)
 
 	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 
-	if (state->obj == 0)
+	if (state->obj == 0) {
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 72, "Parent(self,this,etc...) not passed to this state");
 		return;
+	}
 
 	bv_stack_push(&scope->stack, bv_variable_create_pointer(bv_object_get_property(state->obj, name)));
 }
@@ -842,6 +898,8 @@ void bv_execute_get_global_by_name(bv_scope* scope)
 
 	if (ind < state->prog->global_names.name_count)
 		bv_stack_push(&scope->stack, bv_variable_copy(state->prog->globals.data[ind]));
+	else
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 73, "Could not find global using it's name");
 }
 void bv_execute_get_global_by_name_ptr(bv_scope* scope)
 {
@@ -853,6 +911,8 @@ void bv_execute_get_global_by_name_ptr(bv_scope* scope)
 
 	if (ind < state->prog->global_names.name_count)
 		bv_stack_push(&scope->stack, bv_variable_create_pointer(&state->prog->globals.data[ind]));
+	else
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 74, "Could not find global (it's pointer) using it's name");
 }
 void bv_execute_set_global_by_name(bv_scope* scope)
 {
@@ -871,6 +931,8 @@ void bv_execute_set_global_by_name(bv_scope* scope)
 
 		*pLocal = var;
 	}
+	else
+		bv_program_error(bv_scope_get_state(scope)->prog, 0, 75, "Could not find global using it's name");
 }
 void bv_execute_empty_stack(bv_scope* scope)
 {

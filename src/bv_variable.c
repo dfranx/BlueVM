@@ -463,6 +463,8 @@ u8 bv_variable_op_greater_than(bv_program* prog, bv_variable left, bv_variable r
 
 			return out;
 		}
+
+		bv_program_error(prog, 0, 44, "Object does not have an operator > overload");
 	}
 	else if (left.type == bv_type_array || right.type == bv_type_array) {
 		if (left.type == bv_type_array && right.type == bv_type_array) {
@@ -531,6 +533,8 @@ void bv_variable_op_assign(bv_program* prog, bv_variable* left, bv_variable righ
 
 			bv_stack_delete(&args);
 		}
+		else
+			bv_program_error(prog, 0, 43, "Object does not have an operator = overload");
 	}
 	else *left = bv_variable_cast(prog, left->type, right);
 }
@@ -575,15 +579,20 @@ bv_variable bv_variable_op_add(bv_program* prog, bv_variable left, bv_variable r
 
 			return out;
 		}
+
+		bv_program_error(prog, 0, 42, "Object does not have an operator + overload");
 	}
 	else if (left.type == bv_type_array || right.type == bv_type_array) {
 		if (left.type == bv_type_array && right.type == bv_type_array) {
 			bv_array a1 = bv_variable_get_array(left);
 			bv_array a2 = bv_variable_get_array(right);
 
-			out = bv_variable_create_array(bv_array_merge(a1, a2));
+			out = bv_variable_create_array(bv_array_merge(prog, a1, a2));
 		}
-		else out = bv_variable_create_void(); // [ERRORHANDLER]
+		else {
+			bv_program_error(prog, 0, 7, "Cannot use operator + between one array and one non-array value");
+			out = bv_variable_create_void();
+		}
 	}
 	else if (left.type == bv_type_float || right.type == bv_type_float) {
 		float x = 0, y = 0;
@@ -603,8 +612,10 @@ bv_variable bv_variable_op_add(bv_program* prog, bv_variable left, bv_variable r
 		out = bv_variable_create_float(x + y);
 	}
 	else if (left.type == bv_type_string || right.type == bv_type_string) {
-		if (left.type == bv_type_string && right.type == bv_type_string)
+		if (left.type == bv_type_string && right.type == bv_type_string) {
 			out = bv_variable_create_string(strcat(bv_variable_get_string(left), bv_variable_get_string(right)));
+			bv_program_error(prog, 1, 41, "String concatenation");
+		}
 	}
 	else out = bv_variable_create(bv_type_get(left.type, right.type), (void*)(bv_variable_get_uint(left) + bv_variable_get_uint(right)));
 
@@ -652,10 +663,10 @@ bv_variable bv_variable_op_subtract(bv_program* prog, bv_variable left, bv_varia
 
 			return out;
 		}
+		bv_program_error(prog, 0, 40, "Object does not have an operator - overload");
 	}
-	else if (left.type == bv_type_array || right.type == bv_type_array) {
-		// ...
-	}
+	else if (left.type == bv_type_array || right.type == bv_type_array)
+		bv_program_error(prog, 0, 39, "Cannot use subtraction operator on the array");
 	else if (left.type == bv_type_float || right.type == bv_type_float) {
 		float x = 0, y = 0;
 
@@ -673,9 +684,8 @@ bv_variable bv_variable_op_subtract(bv_program* prog, bv_variable left, bv_varia
 
 		out = bv_variable_create_float(x - y);
 	}
-	else if (left.type == bv_type_string || right.type == bv_type_string) {
-		// ..
-	}
+	else if (left.type == bv_type_string || right.type == bv_type_string)
+		bv_program_error(prog, 0, 38, "Cannot use subtraction opreator on the string");
 	else out = bv_variable_create(bv_type_get(left.type, right.type), (void*)(bv_variable_get_uint(left) - bv_variable_get_uint(right)));
 
 	return out;
@@ -721,10 +731,11 @@ bv_variable bv_variable_op_divide(bv_program* prog, bv_variable left, bv_variabl
 
 			return out;
 		}
+
+		bv_program_error(prog, 0, 37, "Object does not have an operator / overload");
 	}
-	else if (left.type == bv_type_array || right.type == bv_type_array) {
-		// ...
-	}
+	else if (left.type == bv_type_array || right.type == bv_type_array)
+		bv_program_error(prog, 0, 36, "Cannot use division operator on the array");
 	else if (left.type == bv_type_float || right.type == bv_type_float) {
 		float x = 0, y = 0;
 
@@ -742,9 +753,8 @@ bv_variable bv_variable_op_divide(bv_program* prog, bv_variable left, bv_variabl
 
 		out = bv_variable_create_float(x / y);
 	}
-	else if (left.type == bv_type_string || right.type == bv_type_string) {
-		// ..
-	}
+	else if (left.type == bv_type_string || right.type == bv_type_string)
+		bv_program_error(prog, 0, 35, "Cannot use division operator on the string");
 	else out = bv_variable_create(bv_type_get(left.type, right.type), (void*)(bv_variable_get_uint(left) / bv_variable_get_uint(right)));
 
 	return out;
@@ -791,10 +801,10 @@ bv_variable bv_variable_op_multiply(bv_program* prog, bv_variable left, bv_varia
 
 			return out;
 		}
+		bv_program_error(prog, 0, 32, "Object does not have an operator * overload");
 	}
-	else if (left.type == bv_type_array || right.type == bv_type_array) {
-		// ...
-	}
+	else if (left.type == bv_type_array || right.type == bv_type_array)
+		bv_program_error(prog, 0, 33, "Cannot use multiplication operator on the array");
 	else if (left.type == bv_type_float || right.type == bv_type_float) {
 		float x = 0, y = 0;
 
@@ -812,9 +822,8 @@ bv_variable bv_variable_op_multiply(bv_program* prog, bv_variable left, bv_varia
 
 		out = bv_variable_create_float(x * y);
 	}
-	else if (left.type == bv_type_string || right.type == bv_type_string) {
-		// ..
-	}
+	else if (left.type == bv_type_string || right.type == bv_type_string)
+		bv_program_error(prog, 0, 34, "Cannot use multiplication operator on the string");
 	else out = bv_variable_create(bv_type_get(left.type, right.type), (void*)(bv_variable_get_uint(left) * bv_variable_get_uint(right)));
 
 	return out;
@@ -830,15 +839,15 @@ bv_variable bv_variable_op_increment(bv_program* prog, bv_variable left)
 		bv_function* func = bv_object_get_method(obj, "++");
 		if (func != 0)
 			out = bv_program_call(prog, func, NULL, obj);
+		else
+			bv_program_error(prog, 0, 31, "Object does not have an operator ++ overload");
 	}
-	else if (left.type == bv_type_array) {
-		// ...
-	}
+	else if (left.type == bv_type_array)
+		bv_program_error(prog, 0, 30, "Cannot use increment operator on the array");
 	else if (left.type == bv_type_float)
 		out = bv_variable_create_float(bv_variable_get_float(left)+1);
-	else if (left.type == bv_type_string) {
-		// ..
-	}
+	else if (left.type == bv_type_string)
+		bv_program_error(prog, 0, 29, "Cannot use increment operator on the string");
 	else out = bv_variable_create(left.type, (void*)(bv_variable_get_uint(left) + 1));
 
 	return out;
@@ -854,15 +863,15 @@ bv_variable bv_variable_op_decrement(bv_program* prog, bv_variable left)
 		bv_function* func = bv_object_get_method(obj, "--");
 		if (func != 0)
 			out = bv_program_call(prog, func, NULL, obj);
+		else
+			bv_program_error(prog, 0, 28, "Object does not have an operator -- overload");
 	}
-	else if (left.type == bv_type_array) {
-		// ...
-	}
+	else if (left.type == bv_type_array)
+		bv_program_error(prog, 0, 27, "Cannot use decrement operator on the array");
 	else if (left.type == bv_type_float)
 		out = bv_variable_create_float(bv_variable_get_float(left) - 1);
-	else if (left.type == bv_type_string) {
-		// ..
-	}
+	else if (left.type == bv_type_string)
+		bv_program_error(prog, 0, 26, "Cannot use decrement operator on the string");
 	else out = bv_variable_create(left.type, (void*)(bv_variable_get_uint(left) - 1));
 
 	return out;
@@ -878,15 +887,16 @@ bv_variable bv_variable_op_negate(bv_program* prog, bv_variable left)
 		bv_function* func = bv_object_get_method(obj, "-");
 		if (func != 0)
 			out = bv_program_call(prog, func, NULL, obj);
+		else
+			bv_program_error(prog, 0, 24, "Object does not have an operator - overload");
 	}
-	else if (left.type == bv_type_array) {
-		// ...
-	}
+	else if (left.type == bv_type_array)
+		bv_program_error(prog, 0, 22, "Cannot negate the array");
 	else if (left.type == bv_type_float)
 		out = bv_variable_create_float(-bv_variable_get_float(left));
-	else if (left.type == bv_type_string) {
-		// ..
-	}
+	else if (left.type == bv_type_string)
+		bv_program_error(prog, 0, 23, "Cannot negate the string");
+
 	else out = bv_variable_create(left.type, (void*)(-bv_variable_get_int(left)));
 
 	return out;
@@ -932,9 +942,10 @@ bv_variable bv_variable_op_modulo(bv_program* prog, bv_variable left, bv_variabl
 
 			return out;
 		}
+		bv_program_error(prog, 0, 19, "Object does not have an operator % overload");
 	}
 	else if (left.type == bv_type_array || right.type == bv_type_array) {
-		// ...
+		bv_program_error(prog, 0, 20, "Cannot use operator % on the array");
 	}
 	else if (left.type == bv_type_float || right.type == bv_type_float) {
 		float x = 0, y = 0;
@@ -953,9 +964,8 @@ bv_variable bv_variable_op_modulo(bv_program* prog, bv_variable left, bv_variabl
 
 		out = bv_variable_create_float((u32)x % (u32)y);
 	}
-	else if (left.type == bv_type_string || right.type == bv_type_string) {
-		// ..
-	}
+	else if (left.type == bv_type_string || right.type == bv_type_string)
+		bv_program_error(prog, 0, 21, "Cannot use operator % on the string");
 	else out = bv_variable_create(bv_type_get(left.type, right.type), (void*)(bv_variable_get_uint(left) % bv_variable_get_uint(right)));
 
 	return out;
@@ -971,15 +981,17 @@ u8 bv_variable_op_not(bv_program* prog, bv_variable left)
 		bv_function* func = bv_object_get_method(obj, "!");
 		if (func != 0)
 			out = bv_variable_get_uchar(bv_program_call(prog, func, NULL, obj));
+		else
+			bv_program_error(prog, 0, 18, "Object does not have an operator ! overload");
 	}
 	else if (left.type == bv_type_array) {
-		// ...
+		bv_program_error(prog, 0, 16, "Cannot use operator ! on the array");
 	}
 	else if (left.type == bv_type_float) {
 		out = !bv_variable_get_float(left);
 	}
 	else if (left.type == bv_type_string) {
-		// ..
+		bv_program_error(prog, 0, 17, "Cannot use operator ! on the string");
 	}
 	else out = !bv_variable_get_uint(left);
 
@@ -1014,42 +1026,52 @@ bv_variable bv_variable_cast(bv_program* prog, bv_type new_type, bv_variable rig
 		} else if (old_type == bv_type_float) {
 			float value = bv_variable_get_float(right);
 			ret = bv_variable_create_string(bv_ftoa(value, 6));
-		}
-		else if (old_type == bv_type_object) // [ERRORHANDLER]
+		} else if (old_type == bv_type_object) {
+			bv_program_error(prog, 0, 8, "Cannot cast the object to a string");
 			ret = bv_variable_create_string("[Object]");
-		else if (old_type == bv_type_array)
+		} else if (old_type == bv_type_array) {
+			bv_program_error(prog, 0, 9, "Cannot cast the array to a string");
 			ret = bv_variable_create_string("[Array]");
+		}
 	}
 	else if (new_type == bv_type_float) {
 		if (old_type == bv_type_int || old_type == bv_type_short || old_type == bv_type_char)
 			ret = bv_variable_create_float(bv_variable_get_int(right));
 		else if (old_type == bv_type_uint || old_type == bv_type_ushort || old_type == bv_type_uchar)
 			ret = bv_variable_create_float(bv_variable_get_uint(right));
-		else if (old_type == bv_type_object) // [ERRORHANDLER]
+		else if (old_type == bv_type_object) {
+			bv_program_error(prog, 0, 13, "Casting an object to a float is not implemented");
 			ret = bv_variable_create_float(0);
-		else if (old_type == bv_type_array)
+		} else if (old_type == bv_type_array) {
+			bv_program_error(prog, 0, 14, "Cannot cast the array to a float");
 			ret = bv_variable_create_float(0);
-		else // bv_string, etc... 
+		} else {
+			bv_program_error(prog, 0, 15, "Cannot cast given value to a float");
 			ret = bv_variable_create_float(0);
+		}
 	}
 	else if (bv_type_is_integer(new_type)) {
 		if (old_type == bv_type_float) {
 			float value = bv_variable_get_float(right);
 
 			ret = bv_variable_create(new_type, (void*)((int)value));
+		} else if (old_type == bv_type_object) {
+			bv_program_error(prog, 0, 45, "Cannot cast the object to an integer");
+			ret = bv_variable_create(new_type, 0);
+		} else if (old_type == bv_type_array) {
+			bv_program_error(prog, 0, 46, "Cannot cast the array to an integer");
+			ret = bv_variable_create(new_type, 0);
 		}
-		else if (old_type == bv_type_object) // [ERRORHANDLER]
-			ret = bv_variable_create(new_type, 0);
-		else if (old_type == bv_type_array)
-			ret = bv_variable_create(new_type, 0);
 	}
-	else if (new_type == bv_type_object)
+	else if (new_type == bv_type_object) {
+		bv_program_error(prog, 0, 10, "Casting to an object is not implemented");
 		ret = bv_variable_create_null_object();
-	else if (new_type == bv_type_array)
-		ret = bv_variable_create_array(bv_array_create(0, 0));
-	else {
-		// do nothing
 	}
+	else if (new_type == bv_type_array) {
+		bv_program_error(prog, 0, 11, "Casting to an array is not implemented");
+		ret = bv_variable_create_array(bv_array_create(0, 0));
+	}
+	else bv_program_error(prog, 0, 12, "Undefined cast");
 
 
 	return ret;

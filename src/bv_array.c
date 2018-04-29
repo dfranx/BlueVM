@@ -1,5 +1,6 @@
 #include <BlueVM/bv_array.h>
 #include <BlueVM/bv_variable.h>
+#include <BlueVM/bv_program.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -50,10 +51,12 @@ void bv_array_set(bv_array arr, u16* atInd, bv_variable val)
 	arr.data[index] = bv_variable_copy(val);
 }
 
-bv_array bv_array_merge(bv_array a1, bv_array a2)
+bv_array bv_array_merge(bv_program* prog, bv_array a1, bv_array a2)
 {
-	if (a1.dim != a2.dim)
-		return bv_array_create(0, 0); // [ERRORHANDLER]
+	if (a1.dim != a2.dim) {
+		bv_program_error(prog, 0, 0, "Cannot merge arrays with different dimensions");
+		return bv_array_create(0, 0);
+	}
 
 	u8 new_dim = a1.dim;
 	u16* lens = (u16*)malloc(new_dim * sizeof(u16));
@@ -66,9 +69,6 @@ bv_array bv_array_merge(bv_array a1, bv_array a2)
 	u32 range1 = bv_array_get_range(a1);
 	u32 range2 = bv_array_get_range(a2);
 	
-	if (range1 + range2 != bv_array_get_range(ret))
-		return bv_array_create(0, 0); // [ERRORHANDLER] remove this later
-
 	// copy first array
 	for (u32 i = 0; i < range1; i++)
 		ret.data[i] = bv_variable_copy(a1.data[i]);

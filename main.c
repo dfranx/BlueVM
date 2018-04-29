@@ -46,6 +46,25 @@ bv_variable Vehicle_status(bv_object* obj, u8 count, bv_variable* args)
 	return bv_variable_create_void();
 }
 
+void my_error_handler(u8 lvl, u16 id, const bv_string msg, s32 line, const bv_string file)
+{
+	const bv_string s[3] = { "ERROR", "WARNING", "MESSAGE" };
+	printf("[%s %c%03d] %s", s[lvl], s[lvl][0], (int)id, msg);
+
+	if (line != -1 || file != NULL)
+		printf(" (");
+
+	if (line != -1)
+		printf("L%d ", line);
+	if (file != NULL)
+		printf("in %s", file);
+
+	if (line != -1 || file != NULL)
+		printf(")");
+
+	printf("\n");
+}
+
 int main()
 {
 #if defined(_WIN32)
@@ -70,6 +89,9 @@ int main()
 	}
 
 	bv_program* prog = bv_program_create((byte*)mem);
+	
+	// set error handler
+	bv_program_set_error_handler(prog, my_error_handler);
 	
 	// external object
 	bv_object_info* Animal = bv_object_info_create("Animal");

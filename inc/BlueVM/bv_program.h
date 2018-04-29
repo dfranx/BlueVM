@@ -9,6 +9,7 @@
 #include <BlueVM/bv_name_list.h>
 #include <BlueVM/bv_string_table.h>
 #include <BlueVM/bv_execute.h>
+#include <BlueVM/bv_error.h>
 
 typedef struct bv_program {
 	bv_header header;
@@ -24,11 +25,18 @@ typedef struct bv_program {
 
 	bv_stack globals;
 	bv_name_list global_names;
+
+	bv_string current_file;
+	s32 current_line;
+	bv_error_handler error;
 } bv_program;
 
 bv_program* bv_program_create(byte* mem);
 void bv_program_build_opcode_table(bv_program* prog);
 void bv_program_delete(bv_program* program);
+
+void bv_program_set_error_handler(bv_program* prog, bv_error_handler errh);
+void bv_program_error(bv_program* prog, u8 lvl, u16 id, const bv_string msg);
 
 u16 bv_program_get_function_count(bv_program* prog);
 bv_function* bv_program_get_function(bv_program* prog, const bv_string str);
