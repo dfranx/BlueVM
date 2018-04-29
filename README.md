@@ -8,8 +8,8 @@
 - [x] (last) bv_opcode_get_global_by_name, bv_opcode_empty_stack
 - [x] (last) remove return type from functions
 - [x] (last) fix external method returning value
-- [ ] (last) fix it so that it can compile as C++
-- [ ] (last) do all TODOs and remove itoa func
+- [x] (last) fix it so that it can compile as C++
+- [x] (last) do all TODOs and remove itoa func
 - [ ] (last) opcodes for debugging (bv_opcode_debug_file, bv_opcode_debug_line_number, bv_opcode_breakpoint, bv_opcode_breakpoint_line)
 - [ ] (last) ^---> function pointers: bv_breakpoint_handler and bv_error_handler
 - [ ] (last) bv_function_stepper

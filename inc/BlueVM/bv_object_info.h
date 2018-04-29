@@ -18,7 +18,7 @@ typedef struct bv_object_info {
 	bv_function_pool* method_info;
 	bv_function** methods;	// method data
 
-	u16 ext_method_count; // todo: change to u16
+	u16 ext_method_count;
 	bv_external_method* ext_methods;
 	bv_string* ext_method_names;
 } bv_object_info;

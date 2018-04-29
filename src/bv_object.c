@@ -72,7 +72,7 @@ bv_variable bv_object_call_method(bv_object* obj, const char* name, bv_scope* sc
 		}
 
 		bv_external_method ext_func = bv_object_get_ext_method(obj, name);
-		bv_variable var = (*ext_func)(obj, argc, func_args.data); //TODO: object method returning value
+		bv_variable var = (*ext_func)(obj, argc, func_args.data);
 
 		bv_stack_delete(&func_args);
 

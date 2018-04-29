@@ -24,4 +24,7 @@ s32 s32_read(byte** mem);
 float float_read(byte** mem);
 bv_string string_read(byte** mem);
 
+bv_string bv_itoa(s32 val, s32 base);
+bv_string bv_ftoa(float val, u8 dec);
+
 #endif

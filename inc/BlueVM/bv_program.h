@@ -18,7 +18,7 @@ typedef struct bv_program {
 
 	bv_execute* opcodes;
 
-	u16 external_function_count; // todo: change to u16
+	u16 external_function_count;
 	bv_external_function* external_functions;
 	bv_string* external_function_names;
 

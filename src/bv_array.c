@@ -38,11 +38,6 @@ u32 bv_array_get_index(bv_array arr, u16* atInd)
 	return index;
 }
 
-u32 bv_array_get_size(bv_array arr)
-{
-	return sizeof(u8) + sizeof(u16) * arr.dim + bv_array_get_range(arr) * sizeof(bv_variable);
-}
-
 bv_variable bv_array_get(bv_array arr, u16* atInd)
 {
 	return arr.data[bv_array_get_index(arr, atInd)];
@@ -55,6 +50,37 @@ void bv_array_set(bv_array arr, u16* atInd, bv_variable val)
 	arr.data[index] = bv_variable_copy(val);
 }
 
+bv_array bv_array_merge(bv_array a1, bv_array a2)
+{
+	if (a1.dim != a2.dim)
+		return bv_array_create(0, 0); // [ERRORHANDLER]
+
+	u8 new_dim = a1.dim;
+	u16* lens = (u16*)malloc(new_dim * sizeof(u16));
+
+	for (u8 i = 0; i < new_dim; i++)
+		lens[i] = a1.length[i] + a2.length[i];
+
+	bv_array ret = bv_array_create(new_dim, lens);
+
+	u32 range1 = bv_array_get_range(a1);
+	u32 range2 = bv_array_get_range(a2);
+	
+	if (range1 + range2 != bv_array_get_range(ret))
+		return bv_array_create(0, 0); // [ERRORHANDLER] remove this later
+
+	// copy first array
+	for (u32 i = 0; i < range1; i++)
+		ret.data[i] = bv_variable_copy(a1.data[i]);
+
+	// copy second array
+	for (u32 i = 0; i < range2; i++)
+		ret.data[range1 + i] = bv_variable_copy(a2.data[i]);
+
+	free(lens);
+	return ret;
+}
+
 void bv_array_deinitialize(bv_array* arr)
 {
 	u32 size = bv_array_get_range(*arr);
@@ -64,5 +90,6 @@ void bv_array_deinitialize(bv_array* arr)
 
 	free(arr->data);
 	free(arr->length);
-	free(arr);
+
+	arr->dim = 0;
 }

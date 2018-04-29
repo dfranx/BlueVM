@@ -525,7 +525,7 @@ void bv_execute_call(bv_scope* scope) {
 	bv_function* func = bv_program_get_function(state->prog, name);
 
 	if (scope->stack.length < argc)
-		return; // [TODO] error, not enough arguments
+		return; // [ERRORHANDLER] error, not enough arguments
 
 	if (func != NULL)
 		bv_scope_push(scope, bv_scope_type_function, func->code, bv_scope_get_state(scope)->prog, func, NULL, argc);
@@ -552,10 +552,10 @@ void bv_execute_call_return(bv_scope* scope) {
 	bv_function* func = bv_program_get_function(state->prog, name);
 	
 	if (scope->stack.length < argc)
-		return; // [TODO] error, not enough arguments
+		return; // [ERRORHANDLER] error, not enough arguments
 
 	if (func != NULL) {
-		bv_scope_push(scope, bv_scope_type_function, func->code, NULL, func, NULL, argc); // TODO: no need for the call_return anymore
+		bv_scope_push(scope, bv_scope_type_function, func->code, NULL, func, NULL, argc);
 	} else {
 		bv_stack func_args = bv_stack_create();
 
@@ -702,7 +702,7 @@ void bv_execute_call_method(bv_scope* scope) {
 	bv_object* obj = bv_variable_get_object(var);
 
 	if (scope->stack.length < argc)
-		return; // [TODO] error, not enough arguments
+		return; // [ERRORHANDLER] error, not enough arguments
 
 	bv_object_call_method(obj, name, scope, argc);
 }
@@ -715,7 +715,7 @@ void bv_execute_call_my_method(bv_scope* scope) {
 	bv_object* obj = state->obj;
 
 	if (scope->stack.length < argc)
-		return; // [TODO] error, not enough arguments
+		return; // [ERRORHANDLER] error, not enough arguments
 
 	bv_object_call_method(obj, name, scope, argc);
 }
@@ -736,7 +736,7 @@ void bv_execute_call_ret_method(bv_scope* scope) {
 	bv_function* func = bv_object_get_method(obj, name);
 
 	if (scope->stack.length < argc)
-		return; // [TODO] error, not enough arguments
+		return; // [ERRORHANDLER] error, not enough arguments
 
 	bv_variable ret = bv_object_call_method(obj, name, scope, argc);
 
@@ -754,7 +754,7 @@ void bv_execute_call_ret_my_method(bv_scope* scope) {
 	bv_function* func = bv_object_get_method(obj, name);
 
 	if (scope->stack.length < argc)
-		return; // [TODO] error, not enough arguments
+		return; // [ERRORHANDLER] error, not enough arguments
 
 	bv_variable ret = bv_object_call_method(obj, name, scope, argc);
 
