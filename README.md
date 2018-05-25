@@ -1,15 +1,11 @@
-## todo
+# BlueVM
+BlueVM is a stack-based virtual machine. It is fast and simple to use.
 
-- [x] (last) pointers (for example, local0 pointing to object on stack so when that object changes the value, the value of local0 also changes - removes the need for pushing object on stack after modifying it) / gcollector
-- [x] (last) dont push object to stack after bv_opcode_call_method
-- [x] (last) add bv_opcode_set (operator =) changes the value of variable without changing its type (calls operator= for objects)
-- [x] (last) remove ids from bv_name_list
-- [x] (last) bv_program_add_global
-- [x] (last) bv_opcode_get_global_by_name, bv_opcode_empty_stack
-- [x] (last) remove return type from functions
-- [x] (last) fix external method returning value
-- [x] (last) fix it so that it can compile as C++
-- [x] (last) do all TODOs and remove itoa func
-- [x] (last) opcodes for debugging (bv_opcode_debug_file, bv_opcode_debug_line_number, bv_opcode_breakpoint, bv_opcode_breakpoint_line)
-- [x] (last) ^---> function pointers: bv_breakpoint_handler and bv_error_handler
-- [x] (last) bv_function_stepper
+## Building
+CMake variables:
+ * `LINK_LIBM` - set this to TRUE/1 if our compiler requires us to link libm in order to use `math.h` header
+ * `BUILD_EXAMPLES` - should we automatically build all the examples? note: make sure you already built library
+ * `BLUEVM_PATH` - root directory of our library. only necessary if we are building examples (so that we can find .a/.lib files)
+
+## Examples 
+Check the `examples` directory.

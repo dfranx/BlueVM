@@ -1,7 +1,7 @@
 #ifndef __BLUEVM_ERROR_H__
 #define __BLUEVM_ERROR_H__
-#include <BlueVM/types.h>
 
+#include <BlueVM/types.h>
 
 /*
 arguments:

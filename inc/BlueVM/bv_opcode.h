@@ -5,7 +5,7 @@
 
 typedef u8 bv_opcode;
 
-// {} represents top of the stack
+// {} represents stack
 // [] represents parameters
 
 typedef enum __bv_opcode {
@@ -43,12 +43,12 @@ typedef enum __bv_opcode {
 	bv_opcode_duplicate,			// duplicate {value} -> {value, value}
 	bv_opcode_swap,					// swap {value1, value2} -> {value2, value1}
 	bv_opcode_get_local,			// get_local [index] {} -> { loc[index] }
-	bv_opcode_set_local,			// set_local [index] {value} -> {}			NOTE: stack if local at given index is array: { value, ind0, ..., indN } 
+	bv_opcode_set_local,			// set_local [index] {value} -> {}
 	bv_opcode_get_global,			// get_global [index] {} -> { glob[index] }
 	bv_opcode_set_global,			// set_global [index] {value} -> {}
 	bv_opcode_push_array,			// push_array [dim] { size0, ..., sizeN } -> { }
-	bv_opcode_set_array_el,			// set_array_el { array, value, ind0, ..., indN } -> { array_with_changed_value }
-	bv_opcode_get_array_el,			// get_array_el { array, ind0, ..., indN } -> { gotten_value }
+	bv_opcode_set_array_el,			// set_array_el { array, ind0, ..., indN, value } -> { array_with_changed_value } (can be string instead of an array)
+	bv_opcode_get_array_el,			// get_array_el { array, ind0, ..., indN } -> { array[ind0]...[indN] } (can be string instead of an array)
 	bv_opcode_call,					// call [name] {arg1, arg2 ... argN} -> {}
 	bv_opcode_call_return,			// call_return [name] {arg1, arg2, ... argN} -> {return_value}
 	bv_opcode_is_type_of,			// is_type [type] {value} -> {false/true}
@@ -76,7 +76,10 @@ typedef enum __bv_opcode {
 	bv_opcode_empty_stack,			// empty_stack {...} -> {}
 	bv_opcode_debug_line_number,	// debug_line_number [line_number]
 	bv_opcode_debug_file,			// debug_file [file_name]
-	bv_opcode_debug_breakpoint,		// debig_breakpoint
+	bv_opcode_debug_breakpoint,		// debug_breakpoint
+	bv_opcode_new_object_by_name,	// new_object_by_name [name] {} -> { object }
+	bv_opcode_push_stack_function,	// push_stack_function [name] { ... } -> { ..., function }
+	bv_opcode_call_stack,			// call_stack [argc] { args, function } -> {} call function from stack
 	bv_opcode_COUNT					// this is not an actual opcode
 } __bv_opcode;
 

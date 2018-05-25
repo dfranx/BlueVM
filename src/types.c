@@ -64,7 +64,7 @@ bv_string string_read(byte** mem)
 	return ret;
 }
 
-u8 get_digit_count(s32 val) {
+u8 digit_count(s32 val) {
 	u8 ret = 0;
 
 	while (val != 0) {
@@ -88,7 +88,7 @@ bv_string bv_itoa(s32 val, s32 base) {
 	}
 
 	// get all digits
-	u8 dig_count = get_digit_count(val);
+	u8 dig_count = digit_count(val);
 	u32 i = 0;
 	while (val != 0)
 	{

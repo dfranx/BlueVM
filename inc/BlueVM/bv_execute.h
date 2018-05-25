@@ -1,5 +1,6 @@
 #ifndef __BLUEVM_EXECUTE_H__
 #define __BLUEVM_EXECUTE_H__
+
 #include <BlueVM/bv_scope.h>
 
 typedef void(*bv_execute)(bv_scope* scope);
@@ -72,5 +73,8 @@ void bv_execute_empty_stack(bv_scope* scope);
 void bv_execute_debug_line_number(bv_scope* scope);
 void bv_execute_debug_file(bv_scope* scope);
 void bv_execute_debug_breakpoint(bv_scope* scope);
+void bv_execute_new_object_by_name(bv_scope* scope);
+void bv_execute_push_stack_function(bv_scope* scope);
+void bv_execute_call_stack(bv_scope* scope);
 
 #endif // __BLUEVM_EXECUTE_H__

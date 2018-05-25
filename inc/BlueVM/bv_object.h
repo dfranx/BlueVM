@@ -13,6 +13,7 @@ typedef struct bv_scope bv_scope;
 typedef struct bv_object {
 	bv_object_info* type;	// points to information object
 	bv_variable* prop;		// properties
+	void* user_data;		// store your objects here if you want to
 } bv_object;
 
 bv_object* bv_object_create(bv_object_info* info);

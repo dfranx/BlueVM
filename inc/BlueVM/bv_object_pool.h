@@ -13,6 +13,7 @@ typedef struct bv_object_pool {
 
 bv_object_pool* bv_object_pool_create(byte** mem, byte* orig_mem);
 bv_object_info* bv_object_pool_get(bv_object_pool* pool, bv_string name);
+void bv_object_pool_add(bv_object_pool* pool, bv_object_info* info);
 void bv_object_pool_delete(bv_object_pool* pool);
 
 #endif

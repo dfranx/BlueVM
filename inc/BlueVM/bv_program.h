@@ -11,6 +11,7 @@
 #include <BlueVM/bv_execute.h>
 #include <BlueVM/bv_error.h>
 #include <BlueVM/bv_debug.h>
+#include <BlueVM/bv_library.h>
 
 typedef struct bv_program {
 	bv_header header;
@@ -24,6 +25,9 @@ typedef struct bv_program {
 	bv_external_function* external_functions;
 	bv_string* external_function_names;
 
+	bv_library** libraries;
+	u8 lib_count;
+
 	bv_stack globals;
 	bv_name_list global_names;
 
@@ -34,7 +38,6 @@ typedef struct bv_program {
 } bv_program;
 
 bv_program* bv_program_create(byte* mem);
-void bv_program_build_opcode_table(bv_program* prog);
 void bv_program_delete(bv_program* program);
 
 void bv_program_set_error_handler(bv_program* prog, bv_error_handler errh);
@@ -45,12 +48,13 @@ u16 bv_program_get_function_count(bv_program* prog);
 bv_function* bv_program_get_function(bv_program* prog, const bv_string str);
 bv_external_function bv_program_get_ext_function(bv_program* prog, const bv_string str);
 void bv_program_add_function(bv_program* prog, const bv_string name, bv_external_function ext_func);
+void bv_program_add_library(bv_program* prog, bv_library* lib);
 
 void bv_program_add_object_info(bv_program* prog, bv_object_info* obj);
 bv_object_info* bv_program_get_object_info(bv_program* prog, const bv_string name);
 
 u16 bv_program_get_global_count(bv_program* prog);
-bv_variable bv_program_get_global(bv_program* prog, bv_string name);
+bv_variable* bv_program_get_global(bv_program* prog, bv_string name);
 void bv_program_add_global(bv_program* prog, bv_string name);
 void bv_program_set_global(bv_program* prog, const bv_string name, bv_variable var);
 

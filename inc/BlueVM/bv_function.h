@@ -3,9 +3,8 @@
 
 #include <BlueVM/types.h>
 #include <BlueVM/bv_type.h>
-#include <BlueVM/bv_opcode.h>
-#include <BlueVM/bv_variable.h>
 #include <BlueVM/bv_function_pool.h>
+#include <BlueVM/bv_variable.h>
 
 typedef bv_variable (*bv_external_function)(u8, bv_variable*);
 

@@ -23,6 +23,14 @@ bv_object_info* bv_object_pool_get(bv_object_pool* pool, bv_string name)
 	return 0;
 }
 
+void bv_object_pool_add(bv_object_pool * pool, bv_object_info * info)
+{
+	pool->count++;
+
+	pool->info = (bv_object_info**)realloc(pool->info, pool->count * sizeof(bv_object_info));
+	pool->info[pool->count - 1] = info;
+}
+
 void bv_object_pool_delete(bv_object_pool* pool)
 {
 	for (u16 i = 0; i < pool->count; i++)

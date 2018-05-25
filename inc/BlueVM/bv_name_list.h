@@ -1,4 +1,6 @@
-#pragma once
+#ifndef __BLUEVM_NAME_LIST_H__
+#define __BLUEVM_NAME_LIST_H__
+
 #include <BlueVM/types.h>
 
 typedef struct bv_name_list {
@@ -11,3 +13,5 @@ bv_name_list bv_name_list_create_empty();
 u16 bv_name_list_get_id(bv_name_list nlist, const bv_string name);
 void bv_name_list_add(bv_name_list* nlist, const bv_string name);
 void bv_name_list_delete(bv_name_list* nlist);
+
+#endif

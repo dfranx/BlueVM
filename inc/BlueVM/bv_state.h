@@ -1,5 +1,6 @@
 #ifndef __BLUEVM_STATE_H__
 #define __BLUEVM_STATE_H__
+
 #include <BlueVM/types.h>
 #include <BlueVM/bv_stack.h>
 #include <BlueVM/bv_object.h>

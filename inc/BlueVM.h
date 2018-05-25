@@ -8,5 +8,7 @@
 #include <BlueVM/bv_debug.h>
 #include <BlueVM/bv_error.h>
 #include <BlueVM/bv_function_stepper.h>
+#include <BlueVM/bv_object.h>
+#include <BlueVM/bv_object_info.h>
 
 #endif

@@ -3,6 +3,7 @@
 #include <BlueVM/bv_object.h>
 #include <BlueVM/bv_object_info.h>
 #include <BlueVM/bv_program.h>
+#include <BlueVM/bv_function.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -50,6 +51,11 @@ bv_object* bv_variable_get_object(bv_variable var)
 bv_variable* bv_variable_get_pointer(bv_variable var)
 {
 	return (bv_variable*)var.value;
+}
+
+bv_function* bv_variable_get_function(bv_variable var)
+{
+	return (bv_function*)var.value;
 }
 
 
@@ -161,6 +167,14 @@ bv_variable bv_variable_create_pointer(bv_variable* var)
 	return ret;
 }
 
+bv_variable bv_variable_create_function(bv_function* func)
+{
+	bv_variable ret;
+	ret.type = bv_type_function;
+	ret.value = func;
+	return ret;
+}
+
 void bv_variable_set_int(bv_variable * var, s32 val)
 {
 	if (var->type != bv_type_int)
@@ -236,6 +250,14 @@ void bv_variable_set_pointer(bv_variable* var, bv_variable* val)
 	var->value = val;
 }
 
+void bv_variable_set_function(bv_variable* var, bv_function* val)
+{
+	if (var->type != bv_type_function)
+		return;
+	var->type = bv_type_function;
+	var->value = val;
+}
+
 void bv_variable_deinitialize(bv_variable * var)
 {
 	// this is sort of deconstructor
@@ -286,28 +308,23 @@ bv_variable bv_variable_copy(bv_variable var)
 }
 bv_variable bv_variable_read(byte** mem, bv_type type)
 {
-	if (type == bv_type_uint)
-		return bv_variable_create_uint(u32_read(mem));
-	else if (type == bv_type_int)
-		return bv_variable_create_int(s32_read(mem));
-	else if (type == bv_type_short)
-		return bv_variable_create_short(s16_read(mem));
-	else if (type == bv_type_ushort)
-		return bv_variable_create_ushort(u16_read(mem));
-	else if (type == bv_type_char)
-		return bv_variable_create_char(s8_read(mem));
-	else if (type == bv_type_uchar)
-		return bv_variable_create_uchar(u8_read(mem));
-	else if (type == bv_type_float)
-		return bv_variable_create_float(float_read(mem));
-	else if (type == bv_type_string) {
-		bv_variable var;
-		var.type = bv_type_string;
-		var.value = string_read(mem);
-		return var;
+	switch (type) {
+		case bv_type_uint: return bv_variable_create_uint(u32_read(mem));
+		case bv_type_int: return bv_variable_create_int(s32_read(mem));
+		case bv_type_short: return bv_variable_create_short(s16_read(mem));
+		case bv_type_ushort: return bv_variable_create_ushort(u16_read(mem));
+		case bv_type_char: return bv_variable_create_char(s8_read(mem));
+		case bv_type_uchar: return bv_variable_create_uchar(u8_read(mem));
+		case bv_type_float: return bv_variable_create_float(float_read(mem));
+		case bv_type_string: {
+			bv_variable var;
+			var.type = bv_type_string;
+			var.value = string_read(mem);
+			return var;
+		}
 	}
 
-	return bv_variable_create_int(0);
+	return bv_variable_create_void();
 }
 
 
@@ -316,7 +333,13 @@ u8 bv_variable_op_equal(bv_program* prog, bv_variable left, bv_variable right)
 {
 	u8 out = 0;
 
-	if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
+	if (left.type == bv_type_function || right.type == bv_type_function) {
+		if (left.type == bv_type_pointer && right.type == bv_type_pointer)
+			return ((bv_function*)left.value)->code == ((bv_function*)right.value);
+		else
+			return 0;
+	}
+	else if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
 		if (left.type == bv_type_pointer && right.type == bv_type_pointer)
 			return bv_variable_op_equal(prog, *((bv_variable*)left.value), *((bv_variable*)right.value));
 		else if (left.type == bv_type_pointer)
@@ -422,7 +445,13 @@ u8 bv_variable_op_greater_than(bv_program* prog, bv_variable left, bv_variable r
 {
 	u8 out = 0;
 
-	if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
+	if (left.type == bv_type_function || right.type == bv_type_function) {
+		if (left.type == bv_type_pointer && right.type == bv_type_pointer)
+			return ((bv_function*)left.value)->code_length > ((bv_function*)right.value)->code_length;
+		else
+			return 0;
+	}
+	else if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
 		if (left.type == bv_type_pointer && right.type == bv_type_pointer)
 			return bv_variable_op_greater_than(prog, *((bv_variable*)left.value), *((bv_variable*)right.value));
 		else if (left.type == bv_type_pointer)
@@ -520,7 +549,9 @@ u8 bv_variable_op_less_equal(bv_program* prog, bv_variable left, bv_variable rig
 }
 void bv_variable_op_assign(bv_program* prog, bv_variable* left, bv_variable right)
 {
-	if (left->type == bv_type_pointer)
+	if (left->type == bv_type_function) {
+		// do nothing
+	} else if (left->type == bv_type_pointer)
 		bv_variable_op_assign(prog, ((bv_variable*)left->value), right);
 	else if (left->type == bv_type_object) {
 		bv_object* obj = bv_variable_get_object(*left);
@@ -542,7 +573,11 @@ bv_variable bv_variable_op_add(bv_program* prog, bv_variable left, bv_variable r
 {
 	bv_variable out = bv_variable_create_null_object();
 
-	if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
+
+	if (left.type == bv_type_function || right.type == bv_type_function) {
+		return bv_variable_create_null_object(); // do nothing
+	}
+	else if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
 		if (left.type == bv_type_pointer && right.type == bv_type_pointer)
 			return bv_variable_op_add(prog, *((bv_variable*)left.value), *((bv_variable*)right.value));
 		else if (left.type == bv_type_pointer)
@@ -613,8 +648,20 @@ bv_variable bv_variable_op_add(bv_program* prog, bv_variable left, bv_variable r
 	}
 	else if (left.type == bv_type_string || right.type == bv_type_string) {
 		if (left.type == bv_type_string && right.type == bv_type_string) {
-			out = bv_variable_create_string(strcat(bv_variable_get_string(left), bv_variable_get_string(right)));
-			bv_program_error(prog, 1, 41, "String concatenation");
+			bv_string str1 = bv_variable_get_string(left);
+			u32 strl1 = strlen(str1);
+
+			bv_string str2 = bv_variable_get_string(right);
+			u32 strl2 = strlen(str2);
+
+			bv_string res = (bv_string)calloc(strl1+strl2+1, strl1 + strl2 + 1);
+			strcat(res, str1);
+			strcat(res, str2);
+			res[strl1 + strl2] = '\0';
+
+			out = bv_variable_create_string(res);
+
+			free(res);
 		}
 	}
 	else out = bv_variable_create(bv_type_get(left.type, right.type), (void*)(bv_variable_get_uint(left) + bv_variable_get_uint(right)));
@@ -626,7 +673,10 @@ bv_variable bv_variable_op_subtract(bv_program* prog, bv_variable left, bv_varia
 	bv_variable out = bv_variable_create_null_object();
 
 
-	if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
+	if (left.type == bv_type_function || right.type == bv_type_function) {
+		return bv_variable_create_null_object(); // do nothing
+	}
+	else if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
 		if (left.type == bv_type_pointer && right.type == bv_type_pointer)
 			return bv_variable_op_subtract(prog, *((bv_variable*)left.value), *((bv_variable*)right.value));
 		else if (left.type == bv_type_pointer)
@@ -694,7 +744,10 @@ bv_variable bv_variable_op_divide(bv_program* prog, bv_variable left, bv_variabl
 {
 	bv_variable out = bv_variable_create_null_object();
 
-	if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
+	if (left.type == bv_type_function || right.type == bv_type_function) {
+		return bv_variable_create_null_object(); // do nothing
+	}
+	else if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
 		if (left.type == bv_type_pointer && right.type == bv_type_pointer)
 			return bv_variable_op_divide(prog, *((bv_variable*)left.value), *((bv_variable*)right.value));
 		else if (left.type == bv_type_pointer)
@@ -764,7 +817,10 @@ bv_variable bv_variable_op_multiply(bv_program* prog, bv_variable left, bv_varia
 	bv_variable out = bv_variable_create_null_object();
 
 
-	if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
+	if (left.type == bv_type_function || right.type == bv_type_function) {
+		return bv_variable_create_null_object(); // do nothing
+	}
+	else if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
 		if (left.type == bv_type_pointer && right.type == bv_type_pointer)
 			return bv_variable_op_multiply(prog, *((bv_variable*)left.value), *((bv_variable*)right.value));
 		else if (left.type == bv_type_pointer)
@@ -828,59 +884,61 @@ bv_variable bv_variable_op_multiply(bv_program* prog, bv_variable left, bv_varia
 
 	return out;
 }
-bv_variable bv_variable_op_increment(bv_program* prog, bv_variable left)
+void bv_variable_op_increment(bv_program* prog, bv_variable* left)
 {
 	bv_variable out = bv_variable_create_null_object();
 
-	if (left.type == bv_type_pointer)
-		return bv_variable_op_increment(prog, *((bv_variable*)left.value));
-	else if (left.type == bv_type_object) {
-		bv_object* obj = bv_variable_get_object(left);
+	if (left->type == bv_type_function)
+		return bv_variable_create_null_object(); // do nothing
+	else if (left->type == bv_type_pointer)
+		return bv_variable_op_increment(prog, ((bv_variable*)left->value));
+	else if (left->type == bv_type_object) {
+		bv_object* obj = bv_variable_get_object(*left);
 		bv_function* func = bv_object_get_method(obj, "++");
 		if (func != 0)
-			out = bv_program_call(prog, func, NULL, obj);
+			*left = bv_program_call(prog, func, NULL, obj);
 		else
 			bv_program_error(prog, 0, 31, "Object does not have an operator ++ overload");
 	}
-	else if (left.type == bv_type_array)
+	else if (left->type == bv_type_array)
 		bv_program_error(prog, 0, 30, "Cannot use increment operator on the array");
-	else if (left.type == bv_type_float)
-		out = bv_variable_create_float(bv_variable_get_float(left)+1);
-	else if (left.type == bv_type_string)
+	else if (left->type == bv_type_float)
+		*left = bv_variable_create_float(bv_variable_get_float(*left)+1);
+	else if (left->type == bv_type_string)
 		bv_program_error(prog, 0, 29, "Cannot use increment operator on the string");
-	else out = bv_variable_create(left.type, (void*)(bv_variable_get_uint(left) + 1));
-
-	return out;
+	else left->value = (void*)((u32)left->value+1);
 }
-bv_variable bv_variable_op_decrement(bv_program* prog, bv_variable left)
+void bv_variable_op_decrement(bv_program* prog, bv_variable* left)
 {
 	bv_variable out = bv_variable_create_null_object();
 
-	if (left.type == bv_type_pointer)
-		return bv_variable_op_decrement(prog, *((bv_variable*)left.value));
-	else if (left.type == bv_type_object) {
-		bv_object* obj = bv_variable_get_object(left);
+	if (left->type == bv_type_function)
+		return bv_variable_create_null_object(); // do nothing
+	else if (left->type == bv_type_pointer)
+		return bv_variable_op_decrement(prog, ((bv_variable*)left->value));
+	else if (left->type == bv_type_object) {
+		bv_object* obj = bv_variable_get_object(*left);
 		bv_function* func = bv_object_get_method(obj, "--");
 		if (func != 0)
-			out = bv_program_call(prog, func, NULL, obj);
+			*left = bv_program_call(prog, func, NULL, obj);
 		else
 			bv_program_error(prog, 0, 28, "Object does not have an operator -- overload");
 	}
-	else if (left.type == bv_type_array)
+	else if (left->type == bv_type_array)
 		bv_program_error(prog, 0, 27, "Cannot use decrement operator on the array");
-	else if (left.type == bv_type_float)
-		out = bv_variable_create_float(bv_variable_get_float(left) - 1);
-	else if (left.type == bv_type_string)
+	else if (left->type == bv_type_float)
+		*left = bv_variable_create_float(bv_variable_get_float(*left) - 1);
+	else if (left->type == bv_type_string)
 		bv_program_error(prog, 0, 26, "Cannot use decrement operator on the string");
-	else out = bv_variable_create(left.type, (void*)(bv_variable_get_uint(left) - 1));
-
-	return out;
+	else left->value = (void*)((u32)left->value - 1);
 }
 bv_variable bv_variable_op_negate(bv_program* prog, bv_variable left)
 {
 	bv_variable out = bv_variable_create_null_object();
 
-	if (left.type == bv_type_pointer)
+	if (left.type == bv_type_function)
+		return bv_variable_create_null_object(); // do nothing
+	else if (left.type == bv_type_pointer)
 		return bv_variable_op_negate(prog, *((bv_variable*)left.value));
 	else if (left.type == bv_type_object) {
 		bv_object* obj = bv_variable_get_object(left);
@@ -905,7 +963,9 @@ bv_variable bv_variable_op_modulo(bv_program* prog, bv_variable left, bv_variabl
 {
 	bv_variable out = bv_variable_create_null_object();
 
-	if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
+	if (left.type == bv_type_function || right.type == bv_type_function)
+		return bv_variable_create_null_object(); // do nothing
+	else if (left.type == bv_type_pointer || right.type == bv_type_pointer) {
 		if (left.type == bv_type_pointer && right.type == bv_type_pointer)
 			return bv_variable_op_modulo(prog, *((bv_variable*)left.value), *((bv_variable*)right.value));
 		else if (left.type == bv_type_pointer)
@@ -974,7 +1034,9 @@ u8 bv_variable_op_not(bv_program* prog, bv_variable left)
 {
 	u8 out = 0;
 
-	if (left.type == bv_type_pointer)
+	if (left.type == bv_type_function)
+		return 0; // do nothing
+	else if (left.type == bv_type_pointer)
 		return bv_variable_op_not(prog, *((bv_variable*)left.value));
 	else if (left.type == bv_type_object) {
 		bv_object* obj = bv_variable_get_object(left);
@@ -1006,6 +1068,8 @@ bv_variable bv_variable_cast(bv_program* prog, bv_type new_type, bv_variable rig
 
 	if (new_type == old_type)
 		return bv_variable_copy(right);
+	else if (new_type == bv_type_function)
+		return bv_variable_create_null_object();
 	else if (old_type == bv_type_pointer)
 		return bv_variable_cast(prog, new_type, *((bv_variable*)right.value));
 	else if (new_type == bv_type_pointer)

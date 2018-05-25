@@ -1,5 +1,6 @@
 #ifndef __BLUEVM_ARRAY_H__
 #define __BLUEVM_ARRAY_H__
+
 #include <BlueVM/types.h>
 
 typedef struct bv_variable bv_variable;

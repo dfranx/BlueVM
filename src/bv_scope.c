@@ -34,9 +34,18 @@ void bv_scope_push(bv_scope* scp, bv_scope_type type, byte* code, bv_program* pr
 	}
 
 	scp->start_local[current] = scp->locals.length;
-	for (u8 i = 0; i < argc; i++) {
-		bv_stack_push(&scp->locals, bv_stack_top(&scp->stack));
-		bv_stack_pop(&scp->stack);
+	if (type == bv_scope_type_function) {
+		for (u8 i = 0; i < argc; i++) {
+			bv_stack_push(&scp->locals, bv_stack_top(&scp->stack));
+			bv_stack_pop(&scp->stack);
+		}
+	} else if (type == bv_scope_type_constructor) {
+		bv_variable obj = bv_stack_top(&scp->stack);
+		for (u8 i = 0; i < argc; i++) {
+			bv_stack_push(&scp->locals, bv_stack_penultimate(&scp->stack));
+			scp->stack.length--;
+		}
+		scp->stack.data[scp->stack.length - 1] = obj;
 	}
 	scp->start_stack[current] = scp->stack.length;
 
@@ -44,7 +53,7 @@ void bv_scope_push(bv_scope* scp, bv_scope_type type, byte* code, bv_program* pr
 
 	bv_state* state = &scp->state[current];
 
-	if (type == bv_scope_type_function) {
+	if (type == bv_scope_type_function || bv_scope_type_constructor) {
 		// set current bv_program
 		if (prog != 0)
 			state->prog = prog;
@@ -97,7 +106,7 @@ u32 bv_scope_get_locals_start(bv_scope* scp)
 	if (scp->type[func_loc] == bv_scope_type_normal) {
 		do {
 			func_loc--;
-			if (scp->type[func_loc] == bv_scope_type_function)
+			if (scp->type[func_loc] == bv_scope_type_function || scp->type[func_loc] == bv_scope_type_constructor)
 				break;
 		} while (func_loc != 0);
 	}
@@ -110,7 +119,7 @@ u32 bv_scope_get_stack_start(bv_scope* scp)
 	if (scp->type[func_loc] == bv_scope_type_normal) {
 		do {
 			func_loc--;
-			if (scp->type[func_loc] == bv_scope_type_function)
+			if (scp->type[func_loc] == bv_scope_type_function || scp->type[func_loc] == bv_scope_type_constructor)
 				break;
 		} while (func_loc != 0);
 	}

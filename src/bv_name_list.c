@@ -42,7 +42,7 @@ void bv_name_list_add(bv_name_list* nlist, const bv_string name)
 	name_ptr = (bv_string)malloc((name_len+1) * sizeof(char));
 	memcpy(name_ptr, name, name_len);
 
-	name_ptr[name_len - 1] = 0;
+	name_ptr[name_len] = 0;
 
 	nlist->names[nlist->name_count - 1] = name_ptr;
 }

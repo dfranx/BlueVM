@@ -11,9 +11,9 @@ typedef struct bv_variable bv_variable;
 typedef bv_variable(*bv_external_method)(bv_object*, u8, bv_variable*);
 
 typedef struct bv_object_info {
-	bv_string name;	// class type/object name (eg "Vehicle", "Animal", etc...)
+	bv_string name;			// class type/object name (eg "Vehicle", "Animal", etc...)
 
-	bv_name_list props;			// property names
+	bv_name_list props;		// property names
 
 	bv_function_pool* method_info;
 	bv_function** methods;	// method data

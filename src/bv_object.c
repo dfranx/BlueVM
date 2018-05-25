@@ -9,11 +9,9 @@
 bv_object* bv_object_create(bv_object_info* info)
 {
 	bv_object* ret = (bv_object*)malloc(sizeof(bv_object));
-	ret->prop = (bv_variable*)malloc(sizeof(bv_variable) * info->props.name_count);
+	ret->prop = (bv_variable*)calloc(info->props.name_count , sizeof(bv_variable));
 	ret->type = info;
-
-	for (u16 i = 0; i < info->props.name_count; i++)
-		ret->prop[i] = bv_variable_create_void();
+	ret->user_data = NULL;
 
 	return ret;
 }

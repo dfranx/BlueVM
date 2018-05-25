@@ -17,7 +17,8 @@ typedef enum __bv_type {
 	bv_type_string,	// bv_string
 	bv_type_array,	// bv_array
 	bv_type_object,	// bv_object
-	bv_type_pointer,// C99 pointer to bv_variable
+	bv_type_pointer,// holds pointer to another bv_variable
+	bv_type_function// pointer to a function
 } __bv_type;
 
 #define bv_type_read u8_read

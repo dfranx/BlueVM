@@ -1,9 +1,10 @@
 #include <BlueVM/bv_function_stepper.h>
 #include <BlueVM/bv_state.h>
 #include <BlueVM/bv_program.h>
+#include <BlueVM/bv_opcode.h>
 #include <stdlib.h>
 
-bv_function_stepper* bv_function_stepper_create(bv_program* prog, bv_object* parent, bv_function* func, bv_stack* args)
+bv_function_stepper* bv_function_stepper_create(bv_program* prog, bv_function* func, bv_object* parent, bv_stack* args)
 {
 	bv_function_stepper* ret = (bv_function_stepper*)malloc(sizeof(bv_function_stepper));
 
