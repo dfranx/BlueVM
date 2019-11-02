@@ -91,6 +91,11 @@ bv_program* bv_program_create(byte* mem)
 	byte* original_mem = mem;
 
 	ret->header = bv_header_create(&mem);
+	if (strcmp(ret->header.signature, "BVM") != 0) { // prevent invalid code
+		free(ret);
+		return (bv_program*)0;
+	}
+
 	ret->string_table = bv_string_table_create(&mem);
 	ret->global_names = bv_name_list_create(&mem);
 	ret->globals = bv_stack_create();

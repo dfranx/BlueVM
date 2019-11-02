@@ -355,12 +355,12 @@ void bv_execute_less(bv_scope* scope) {
 		bv_program_error(bv_scope_get_state(scope)->prog, 0, 63, "Not enough values on the stack for the operator <");
 		return;
 	}
-		
+
 	bv_state* state = bv_scope_get_state(scope);
 
 	bv_variable var1 = bv_stack_penultimate(&scope->stack);
 	bv_variable var2 = bv_stack_top(&scope->stack);
-	
+
 	u8 res = bv_variable_op_less_than(state->prog, var1, var2);
 
 	bv_stack_pop_free(&scope->stack);

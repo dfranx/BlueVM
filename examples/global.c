@@ -30,7 +30,7 @@ int main()
 		// we have to deinitialize returned variables
 		bv_variable_deinitialize(&ret);
 	}
-
+	
 	// we can also get their values
 	bv_variable* minutes = bv_program_get_global(prog, "minutes");
 	printf("minutes = %d\n", bv_variable_get_int(*minutes));

@@ -531,7 +531,7 @@ u8 bv_variable_op_greater_than(bv_program* prog, bv_variable left, bv_variable r
 		if (left.type == bv_type_string && right.type == bv_type_string)
 			out = strlen(bv_variable_get_string(left)) > strlen(bv_variable_get_string(right));
 	}
-	else out = (bv_variable_get_uint(left) > bv_variable_get_uint(right));
+	else out = (bv_variable_get_int(left) > bv_variable_get_int(right));
 
 	return out;
 }
