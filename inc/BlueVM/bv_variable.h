@@ -78,6 +78,6 @@ void bv_variable_op_decrement(bv_program* prog, bv_variable* left);
 bv_variable bv_variable_op_negate(bv_program* prog, bv_variable left);
 bv_variable bv_variable_op_modulo(bv_program* prog, bv_variable left, bv_variable right);
 u8 bv_variable_op_not(bv_program* prog, bv_variable left);
-bv_variable bv_variable_cast(bv_program* prog, bv_type new_type, bv_variable right);
+bv_variable bv_variable_cast(bv_type new_type, bv_variable right);
 
 #endif

@@ -567,7 +567,7 @@ void bv_variable_op_assign(bv_program* prog, bv_variable* left, bv_variable righ
 		else
 			bv_program_error(prog, 0, 43, "Object does not have an operator = overload");
 	}
-	else *left = bv_variable_cast(prog, left->type, right);
+	else *left = bv_variable_cast(left->type, right);
 }
 bv_variable bv_variable_op_add(bv_program* prog, bv_variable left, bv_variable right)
 {
@@ -1059,7 +1059,7 @@ u8 bv_variable_op_not(bv_program* prog, bv_variable left)
 
 	return out;
 }
-bv_variable bv_variable_cast(bv_program* prog, bv_type new_type, bv_variable right)
+bv_variable bv_variable_cast(bv_type new_type, bv_variable right)
 {
 	bv_type old_type = right.type;
 
@@ -1071,7 +1071,7 @@ bv_variable bv_variable_cast(bv_program* prog, bv_type new_type, bv_variable rig
 	else if (new_type == bv_type_function)
 		return bv_variable_create_null_object();
 	else if (old_type == bv_type_pointer)
-		return bv_variable_cast(prog, new_type, *((bv_variable*)right.value));
+		return bv_variable_cast(new_type, *((bv_variable*)right.value));
 	else if (new_type == bv_type_pointer)
 		return bv_variable_create_pointer(&right);
 	else if (new_type == bv_type_string) {
@@ -1090,52 +1090,38 @@ bv_variable bv_variable_cast(bv_program* prog, bv_type new_type, bv_variable rig
 		} else if (old_type == bv_type_float) {
 			float value = bv_variable_get_float(right);
 			ret = bv_variable_create_string(bv_ftoa(value, 6));
-		} else if (old_type == bv_type_object) {
-			bv_program_error(prog, 0, 8, "Cannot cast the object to a string");
+		} else if (old_type == bv_type_object)
 			ret = bv_variable_create_string("[Object]");
-		} else if (old_type == bv_type_array) {
-			bv_program_error(prog, 0, 9, "Cannot cast the array to a string");
+		else if (old_type == bv_type_array)
 			ret = bv_variable_create_string("[Array]");
-		}
 	}
 	else if (new_type == bv_type_float) {
 		if (old_type == bv_type_int || old_type == bv_type_short || old_type == bv_type_char)
 			ret = bv_variable_create_float(bv_variable_get_int(right));
 		else if (old_type == bv_type_uint || old_type == bv_type_ushort || old_type == bv_type_uchar)
 			ret = bv_variable_create_float(bv_variable_get_uint(right));
-		else if (old_type == bv_type_object) {
-			bv_program_error(prog, 0, 13, "Casting an object to a float is not implemented");
+		else if (old_type == bv_type_object)
 			ret = bv_variable_create_float(0);
-		} else if (old_type == bv_type_array) {
-			bv_program_error(prog, 0, 14, "Cannot cast the array to a float");
+		else if (old_type == bv_type_array)
 			ret = bv_variable_create_float(0);
-		} else {
-			bv_program_error(prog, 0, 15, "Cannot cast given value to a float");
+		else
 			ret = bv_variable_create_float(0);
-		}
 	}
 	else if (bv_type_is_integer(new_type)) {
 		if (old_type == bv_type_float) {
 			float value = bv_variable_get_float(right);
 
 			ret = bv_variable_create(new_type, (void*)((int)value));
-		} else if (old_type == bv_type_object) {
-			bv_program_error(prog, 0, 45, "Cannot cast the object to an integer");
+		} else if (old_type == bv_type_object)
 			ret = bv_variable_create(new_type, 0);
-		} else if (old_type == bv_type_array) {
-			bv_program_error(prog, 0, 46, "Cannot cast the array to an integer");
+		else if (old_type == bv_type_array)
 			ret = bv_variable_create(new_type, 0);
-		}
 	}
-	else if (new_type == bv_type_object) {
-		bv_program_error(prog, 0, 10, "Casting to an object is not implemented");
+	else if (new_type == bv_type_object)
 		ret = bv_variable_create_null_object();
-	}
-	else if (new_type == bv_type_array) {
-		bv_program_error(prog, 0, 11, "Casting to an array is not implemented");
+	else if (new_type == bv_type_array)
 		ret = bv_variable_create_array(bv_array_create(0, 0));
-	}
-	else bv_program_error(prog, 0, 12, "Undefined cast");
+	/* else bv_program_error(0, 12, "Undefined cast"); */
 
 
 	return ret;

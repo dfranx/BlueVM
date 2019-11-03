@@ -32,6 +32,7 @@ void bv_object_set_property(bv_object* obj, const char* name, bv_variable val)
 
 	for (u16 i = 0; i < props->name_count; i++)
 		if (strcmp(props->names[i], name) == 0) {
+			bv_variable_deinitialize(&obj->prop[i]);
 			obj->prop[i] = val;
 			return;
 		}

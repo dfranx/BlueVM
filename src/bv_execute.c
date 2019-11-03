@@ -411,7 +411,7 @@ void bv_execute_convert(bv_scope* scope) {
 	bv_variable var = bv_stack_top(&scope->stack);
 	bv_type new_type = bv_type_read(&state->code);
 
-	bv_variable res = bv_variable_cast(state->prog, new_type, var);
+	bv_variable res = bv_variable_cast(new_type, var);
 
 	bv_stack_pop_free(&scope->stack);
 	bv_stack_push(&scope->stack, res);
@@ -690,8 +690,6 @@ void bv_execute_new_object(bv_scope* scope) {
 
 	bv_function* constructor = bv_object_get_method(obj, info->name); // get constructor
 
-	bv_stack_push(&scope->stack, var);
-
 	if (constructor != 0)
 		bv_scope_push(scope, bv_scope_type_constructor, constructor->code, state->prog, constructor, obj, argc);
 	else {
@@ -707,6 +705,8 @@ void bv_execute_new_object(bv_scope* scope) {
 
 		bv_stack_delete(&func_args);
 	}
+
+	bv_stack_push(&scope->stack, var);
 }
 void bv_execute_set_prop(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);
@@ -1014,8 +1014,6 @@ void bv_execute_new_object_by_name(bv_scope* scope)
 
 	bv_function* constructor = bv_object_get_method(obj, info->name); // get constructor
 
-	bv_stack_push(&scope->stack, var);
-
 	if (constructor != NULL)
 		bv_scope_push(scope, bv_scope_type_constructor, constructor->code, state->prog, constructor, obj, argc);
 	else {
@@ -1034,6 +1032,8 @@ void bv_execute_new_object_by_name(bv_scope* scope)
 			bv_stack_delete(&func_args);
 		}
 	}
+
+	bv_stack_push(&scope->stack, var);
 }
 void bv_execute_push_stack_function(bv_scope* scope)
 {
