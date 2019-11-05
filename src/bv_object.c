@@ -91,4 +91,7 @@ void bv_object_deinitialize(bv_object* val)
 
 	free(val->prop);
 	free(val);
+
+	val->prop = NULL;
+	val = NULL;
 }
