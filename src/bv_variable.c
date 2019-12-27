@@ -348,46 +348,47 @@ u8 bv_variable_op_equal(bv_program* prog, bv_variable left, bv_variable right)
 			return bv_variable_op_equal(prog, left, *((bv_variable*)right.value));
 	}
 	else if (left.type == bv_type_object || right.type == bv_type_object) {
+		bv_object* obj = NULL;
+		bv_variable* arg = NULL;
 		if (left.type == bv_type_object) {
-			bv_object* obj = bv_variable_get_object(left);
-
-			if (obj == 0)
-				return left.value == right.value; // are we check if the object is null?
-
-			bv_function* func = bv_object_get_method(obj, "==");
-			if (func == 0)
-				return left.value == right.value; // just check pointers if operator== does not exist
-			else {
-				bv_stack args = bv_stack_create();
-				bv_stack_push(&args, right);
-
-				out = bv_variable_get_uchar(bv_program_call(prog, func, &args, obj));
-
-				bv_stack_delete(&args);
-			}
-
-			return out;
+			obj = bv_variable_get_object(left);
+			arg = &right;
 		}
 		else if (right.type == bv_type_object) {
-			bv_object* obj = bv_variable_get_object(right);
+			obj = bv_variable_get_object(right);
+			arg = &left;
+		}
 
-			if (obj == 0)
-				return left.value == right.value; // are we check if the object is null?
+		if (obj == NULL) {
+			return obj == arg->value;
+		}
 
-			bv_function* func = bv_object_get_method(obj, "==");
+		bv_function* func = bv_object_get_method(obj, "==");
+		if (func != 0) {
+			bv_stack args = bv_stack_create();
+			bv_stack_push(&args, *arg);
 
-			if (func == 0)
-				return left.value == right.value; // just check pointers if operator== does not exist
-			else {
+			bv_variable outvar = bv_program_call(prog, func, &args, obj);
+			out = bv_variable_get_uchar(outvar);
+			bv_variable_deinitialize(&outvar);
+
+			bv_stack_delete_memory(&args);
+		}
+		else {
+			bv_external_method ext_op = bv_object_get_ext_method(obj, "==");
+
+			if (ext_op != NULL) {
 				bv_stack args = bv_stack_create();
-				bv_stack_push(&args, left);
+				bv_stack_push(&args, *arg);
 
-				out = bv_variable_get_uchar(bv_program_call(prog, func, &args, obj));
+				bv_variable outvar = (*ext_op)(obj, args.length, args.data);
+				out = bv_variable_get_uchar(outvar);
+				bv_variable_deinitialize(&outvar);
 
-				bv_stack_delete(&args);
+				bv_stack_delete_memory(&args);
 			}
-
-			return out;
+			else
+				bv_program_error(prog, 0, 42, "Object does not have an operator== overload");
 		}
 	}
 	else if (left.type == bv_type_array || right.type == bv_type_array) {
@@ -460,40 +461,44 @@ u8 bv_variable_op_greater_than(bv_program* prog, bv_variable left, bv_variable r
 			return bv_variable_op_greater_than(prog, left, *((bv_variable*)right.value));
 	}
 	else if (left.type == bv_type_object || right.type == bv_type_object) {
+		bv_object* obj = NULL;
+		bv_variable* arg = NULL;
 		if (left.type == bv_type_object) {
-			bv_object* obj = bv_variable_get_object(left);
-			bv_function* func = bv_object_get_method(obj, ">");
-			if (func == 0)
-				return 0;
-			else {
-				bv_stack args = bv_stack_create();
-				bv_stack_push(&args, right);
-
-				out = bv_variable_get_uchar(bv_program_call(prog, func, &args, obj));
-
-				bv_stack_delete(&args);
-			}
-
-			return out;
+			obj = bv_variable_get_object(left);
+			arg = &right;
 		}
 		else if (right.type == bv_type_object) {
-			bv_object* obj = bv_variable_get_object(right);
-			bv_function* func = bv_object_get_method(obj, ">");
-			if (func == 0)
-				return 0;
-			else {
-				bv_stack args = bv_stack_create();
-				bv_stack_push(&args, left);
-
-				out = !bv_variable_get_uchar(bv_program_call(prog, func, &args, obj));
-
-				bv_stack_delete(&args);
-			}
-
-			return out;
+			obj = bv_variable_get_object(right);
+			arg = &left;
 		}
 
-		bv_program_error(prog, 0, 44, "Object does not have an operator > overload");
+		bv_function* func = bv_object_get_method(obj, ">");
+		if (func != 0) {
+			bv_stack args = bv_stack_create();
+			bv_stack_push(&args, *arg);
+
+			bv_variable outvar = bv_program_call(prog, func, &args, obj);
+			out = !bv_variable_get_uchar(outvar);
+			bv_variable_deinitialize(&outvar);
+
+			bv_stack_delete_memory(&args);
+		}
+		else {
+			bv_external_method ext_op = bv_object_get_ext_method(obj, ">");
+
+			if (ext_op != NULL) {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, *arg);
+
+				bv_variable outvar = (*ext_op)(obj, args.length, args.data);
+				out = !bv_variable_get_uchar(outvar);
+				bv_variable_deinitialize(&outvar);
+
+				bv_stack_delete_memory(&args);
+			}
+			else
+				bv_program_error(prog, 0, 42, "Object does not have an operator> overload");
+		}
 	}
 	else if (left.type == bv_type_array || right.type == bv_type_array) {
 		if (left.type == bv_type_array && right.type == bv_type_array) {
@@ -586,36 +591,42 @@ bv_variable bv_variable_op_add(bv_program* prog, bv_variable left, bv_variable r
 			return bv_variable_op_add(prog, left, *((bv_variable*)right.value));
 	}
 	else if (left.type == bv_type_object || right.type == bv_type_object) {
+		bv_object* obj = NULL;
+		bv_variable* arg = NULL;
 		if (left.type == bv_type_object) {
-			bv_object* obj = bv_variable_get_object(left);
-			bv_function* func = bv_object_get_method(obj, "+");
-			if (func != 0) {
-				bv_stack args = bv_stack_create();
-				bv_stack_push(&args, right);
-
-				out = bv_program_call(prog, func, &args, obj);
-
-				bv_stack_delete(&args);
-			}
-
-			return out;
+			obj = bv_variable_get_object(left);
+			arg = &right;
 		}
 		else if (right.type == bv_type_object) {
-			bv_object* obj = bv_variable_get_object(right);
-			bv_function* func = bv_object_get_method(obj, "+");
-			if (func != 0) {
-				bv_stack args = bv_stack_create();
-				bv_stack_push(&args, left);
-
-				out = bv_program_call(prog, func, &args, obj);
-
-				bv_stack_delete(&args);
-			}
-
-			return out;
+			obj = bv_variable_get_object(right);
+			arg = &left;
 		}
 
-		bv_program_error(prog, 0, 42, "Object does not have an operator + overload");
+		bv_function* func = bv_object_get_method(obj, "+");
+		if (func != 0) {
+			bv_stack args = bv_stack_create();
+			bv_stack_push(&args, *arg);
+
+			out = bv_program_call(prog, func, &args, obj);
+
+			bv_stack_delete_memory(&args);
+		} 
+		else {
+			bv_external_method ext_op = bv_object_get_ext_method(obj, "+");
+
+			if (ext_op != NULL) {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, *arg);
+
+				out = (*ext_op)(obj, args.length, args.data);
+
+				bv_stack_delete_memory(&args);
+			}
+			else
+				bv_program_error(prog, 0, 42, "Object does not have an operator+ overload");
+		}
+
+		return out;
 	}
 	else if (left.type == bv_type_array || right.type == bv_type_array) {
 		if (left.type == bv_type_array && right.type == bv_type_array) {
@@ -685,35 +696,40 @@ bv_variable bv_variable_op_subtract(bv_program* prog, bv_variable left, bv_varia
 			return bv_variable_op_subtract(prog, left, *((bv_variable*)right.value));
 	}
 	else if (left.type == bv_type_object || right.type == bv_type_object) {
+		bv_object* obj = NULL;
+		bv_variable* arg = NULL;
 		if (left.type == bv_type_object) {
-			bv_object* obj = bv_variable_get_object(left);
-			bv_function* func = bv_object_get_method(obj, "-");
-			if (func != 0) {
-				bv_stack args = bv_stack_create();
-				bv_stack_push(&args, right);
-
-				out = bv_program_call(prog, func, &args, obj);
-
-				bv_stack_delete(&args);
-			}
-
-			return out;
+			obj = bv_variable_get_object(left);
+			arg = &right;
 		}
 		else if (right.type == bv_type_object) {
-			bv_object* obj = bv_variable_get_object(right);
-			bv_function* func = bv_object_get_method(obj, "-");
-			if (func != 0) {
-				bv_stack args = bv_stack_create();
-				bv_stack_push(&args, left);
-
-				out = bv_program_call(prog, func, &args, obj);
-
-				bv_stack_delete(&args);
-			}
-
-			return out;
+			obj = bv_variable_get_object(right);
+			arg = &left;
 		}
-		bv_program_error(prog, 0, 40, "Object does not have an operator - overload");
+
+		bv_function* func = bv_object_get_method(obj, "-");
+		if (func != 0) {
+			bv_stack args = bv_stack_create();
+			bv_stack_push(&args, *arg);
+
+			out = bv_program_call(prog, func, &args, obj);
+
+			bv_stack_delete_memory(&args);
+		}
+		else {
+			bv_external_method ext_op = bv_object_get_ext_method(obj, "-");
+
+			if (ext_op != NULL) {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, *arg);
+
+				out = (*ext_op)(obj, args.length, args.data);
+
+				bv_stack_delete_memory(&args);
+			}
+			else
+				bv_program_error(prog, 0, 42, "Object does not have an operator- overload");
+		}
 	}
 	else if (left.type == bv_type_array || right.type == bv_type_array)
 		bv_program_error(prog, 0, 39, "Cannot use subtraction operator on the array");
@@ -756,36 +772,40 @@ bv_variable bv_variable_op_divide(bv_program* prog, bv_variable left, bv_variabl
 			return bv_variable_op_divide(prog, left, *((bv_variable*)right.value));
 	}
 	else if (left.type == bv_type_object || right.type == bv_type_object) {
+		bv_object* obj = NULL;
+		bv_variable* arg = NULL;
 		if (left.type == bv_type_object) {
-			bv_object* obj = bv_variable_get_object(left);
-			bv_function* func = bv_object_get_method(obj, "/");
-			if (func != 0) {
-				bv_stack args = bv_stack_create();
-				bv_stack_push(&args, right);
-
-				out = bv_program_call(prog, func, &args, obj);
-
-				bv_stack_delete(&args);
-			}
-
-			return out;
+			obj = bv_variable_get_object(left);
+			arg = &right;
 		}
 		else if (right.type == bv_type_object) {
-			bv_object* obj = bv_variable_get_object(right);
-			bv_function* func = bv_object_get_method(obj, "/");
-			if (func != 0) {
-				bv_stack args = bv_stack_create();
-				bv_stack_push(&args, left);
-
-				out = bv_program_call(prog, func, &args, obj);
-
-				bv_stack_delete(&args);
-			}
-
-			return out;
+			obj = bv_variable_get_object(right);
+			arg = &left;
 		}
 
-		bv_program_error(prog, 0, 37, "Object does not have an operator / overload");
+		bv_function* func = bv_object_get_method(obj, "/");
+		if (func != 0) {
+			bv_stack args = bv_stack_create();
+			bv_stack_push(&args, *arg);
+
+			out = bv_program_call(prog, func, &args, obj);
+
+			bv_stack_delete_memory(&args);
+		}
+		else {
+			bv_external_method ext_op = bv_object_get_ext_method(obj, "/");
+
+			if (ext_op != NULL) {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, *arg);
+
+				out = (*ext_op)(obj, args.length, args.data);
+
+				bv_stack_delete_memory(&args);
+			}
+			else
+				bv_program_error(prog, 0, 42, "Object does not have an operator/ overload");
+		}
 	}
 	else if (left.type == bv_type_array || right.type == bv_type_array)
 		bv_program_error(prog, 0, 36, "Cannot use division operator on the array");
@@ -829,35 +849,41 @@ bv_variable bv_variable_op_multiply(bv_program* prog, bv_variable left, bv_varia
 			return bv_variable_op_multiply(prog, left, *((bv_variable*)right.value));
 	}
 	else if (left.type == bv_type_object || right.type == bv_type_object) {
+
+		bv_object* obj = NULL;
+		bv_variable* arg = NULL;
 		if (left.type == bv_type_object) {
-			bv_object* obj = bv_variable_get_object(left);
-			bv_function* func = bv_object_get_method(obj, "*");
-			if (func != 0) {
-				bv_stack args = bv_stack_create();
-				bv_stack_push(&args, right);
-
-				out = bv_program_call(prog, func, &args, obj);
-
-				bv_stack_delete(&args);
-			}
-
-			return out;
+			obj = bv_variable_get_object(left);
+			arg = &right;
 		}
 		else if (right.type == bv_type_object) {
-			bv_object* obj = bv_variable_get_object(right);
-			bv_function* func = bv_object_get_method(obj, "*");
-			if (func != 0) {
-				bv_stack args = bv_stack_create();
-				bv_stack_push(&args, left);
-
-				out = bv_program_call(prog, func, &args, obj);
-
-				bv_stack_delete(&args);
-			}
-
-			return out;
+			obj = bv_variable_get_object(right);
+			arg = &left;
 		}
-		bv_program_error(prog, 0, 32, "Object does not have an operator * overload");
+
+		bv_function* func = bv_object_get_method(obj, "*");
+		if (func != 0) {
+			bv_stack args = bv_stack_create();
+			bv_stack_push(&args, *arg);
+
+			out = bv_program_call(prog, func, &args, obj);
+
+			bv_stack_delete_memory(&args);
+		}
+		else {
+			bv_external_method ext_op = bv_object_get_ext_method(obj, "*");
+
+			if (ext_op != NULL) {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, *arg);
+
+				out = (*ext_op)(obj, args.length, args.data);
+
+				bv_stack_delete_memory(&args);
+			}
+			else
+				bv_program_error(prog, 0, 42, "Object does not have an operator* overload");
+		}
 	}
 	else if (left.type == bv_type_array || right.type == bv_type_array)
 		bv_program_error(prog, 0, 33, "Cannot use multiplication operator on the array");
@@ -897,8 +923,15 @@ void bv_variable_op_increment(bv_program* prog, bv_variable* left)
 		bv_function* func = bv_object_get_method(obj, "++");
 		if (func != 0)
 			*left = bv_program_call(prog, func, NULL, obj);
-		else
-			bv_program_error(prog, 0, 31, "Object does not have an operator ++ overload");
+		else {
+			bv_external_method ext_op = bv_object_get_ext_method(obj, "++");
+
+			if (ext_op != NULL) {
+				out = (*ext_op)(obj, 0, NULL);
+			}
+			else
+				bv_program_error(prog, 0, 42, "Object does not have an operator++ overload");
+		}
 	}
 	else if (left->type == bv_type_array)
 		bv_program_error(prog, 0, 30, "Cannot use increment operator on the array");
@@ -921,8 +954,15 @@ void bv_variable_op_decrement(bv_program* prog, bv_variable* left)
 		bv_function* func = bv_object_get_method(obj, "--");
 		if (func != 0)
 			*left = bv_program_call(prog, func, NULL, obj);
-		else
-			bv_program_error(prog, 0, 28, "Object does not have an operator -- overload");
+		else {
+			bv_external_method ext_op = bv_object_get_ext_method(obj, "--");
+
+			if (ext_op != NULL) {
+				out = (*ext_op)(obj, 0, NULL);
+			}
+			else
+				bv_program_error(prog, 0, 42, "Object does not have an operator-- overload");
+		}
 	}
 	else if (left->type == bv_type_array)
 		bv_program_error(prog, 0, 27, "Cannot use decrement operator on the array");
@@ -945,8 +985,15 @@ bv_variable bv_variable_op_negate(bv_program* prog, bv_variable left)
 		bv_function* func = bv_object_get_method(obj, "-");
 		if (func != 0)
 			out = bv_program_call(prog, func, NULL, obj);
-		else
-			bv_program_error(prog, 0, 24, "Object does not have an operator - overload");
+		else {
+			bv_external_method ext_op = bv_object_get_ext_method(obj, "-");
+
+			if (ext_op != NULL) {
+				out = (*ext_op)(obj, 0, NULL);
+			}
+			else
+				bv_program_error(prog, 0, 42, "Object does not have an operator- overload");
+		}
 	}
 	else if (left.type == bv_type_array)
 		bv_program_error(prog, 0, 22, "Cannot negate the array");
@@ -974,35 +1021,40 @@ bv_variable bv_variable_op_modulo(bv_program* prog, bv_variable left, bv_variabl
 			return bv_variable_op_modulo(prog, left, *((bv_variable*)right.value));
 	}
 	else if (left.type == bv_type_object || right.type == bv_type_object) {
+		bv_object* obj = NULL;
+		bv_variable* arg = NULL;
 		if (left.type == bv_type_object) {
-			bv_object* obj = bv_variable_get_object(left);
-			bv_function* func = bv_object_get_method(obj, "%");
-			if (func != 0) {
-				bv_stack args = bv_stack_create();
-				bv_stack_push(&args, right);
-
-				out = bv_program_call(prog, func, &args, obj);
-
-				bv_stack_delete(&args);
-			}
-
-			return out;
+			obj = bv_variable_get_object(left);
+			arg = &right;
 		}
 		else if (right.type == bv_type_object) {
-			bv_object* obj = bv_variable_get_object(right);
-			bv_function* func = bv_object_get_method(obj, "%");
-			if (func != 0) {
-				bv_stack args = bv_stack_create();
-				bv_stack_push(&args, left);
-
-				out = bv_program_call(prog, func, &args, obj);
-
-				bv_stack_delete(&args);
-			}
-
-			return out;
+			obj = bv_variable_get_object(right);
+			arg = &left;
 		}
-		bv_program_error(prog, 0, 19, "Object does not have an operator % overload");
+
+		bv_function* func = bv_object_get_method(obj, "%");
+		if (func != 0) {
+			bv_stack args = bv_stack_create();
+			bv_stack_push(&args, *arg);
+
+			out = bv_program_call(prog, func, &args, obj);
+
+			bv_stack_delete_memory(&args);
+		}
+		else {
+			bv_external_method ext_op = bv_object_get_ext_method(obj, "%");
+
+			if (ext_op != NULL) {
+				bv_stack args = bv_stack_create();
+				bv_stack_push(&args, *arg);
+
+				out = (*ext_op)(obj, args.length, args.data);
+
+				bv_stack_delete_memory(&args);
+			}
+			else
+				bv_program_error(prog, 0, 42, "Object does not have an operator% overload");
+		}
 	}
 	else if (left.type == bv_type_array || right.type == bv_type_array) {
 		bv_program_error(prog, 0, 20, "Cannot use operator % on the array");
@@ -1041,10 +1093,22 @@ u8 bv_variable_op_not(bv_program* prog, bv_variable left)
 	else if (left.type == bv_type_object) {
 		bv_object* obj = bv_variable_get_object(left);
 		bv_function* func = bv_object_get_method(obj, "!");
-		if (func != 0)
-			out = bv_variable_get_uchar(bv_program_call(prog, func, NULL, obj));
-		else
-			bv_program_error(prog, 0, 18, "Object does not have an operator ! overload");
+		if (func != 0) {
+			bv_variable outvar = bv_program_call(prog, func, NULL, obj);
+			out = bv_variable_get_uchar(outvar);
+			bv_variable_deinitialize(&outvar);
+		}
+		else {
+			bv_external_method ext_op = bv_object_get_ext_method(obj, "!");
+
+			if (ext_op != NULL) {
+				bv_variable outvar = (*ext_op)(obj, 0, NULL);
+				out = bv_variable_get_uchar(outvar);
+				bv_variable_deinitialize(&outvar);
+			}
+			else
+				bv_program_error(prog, 0, 42, "Object does not have an operator! overload");
+		}
 	}
 	else if (left.type == bv_type_array) {
 		bv_program_error(prog, 0, 16, "Cannot use operator ! on the array");

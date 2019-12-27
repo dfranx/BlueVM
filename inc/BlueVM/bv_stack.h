@@ -13,6 +13,7 @@ typedef struct bv_stack_s {
 
 bv_stack bv_stack_create();
 void bv_stack_delete(bv_stack* stack);
+void bv_stack_delete_memory(bv_stack* stack);
 
 bv_variable bv_stack_top(bv_stack* stack);
 bv_variable bv_stack_penultimate(bv_stack* stack);

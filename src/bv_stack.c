@@ -17,6 +17,12 @@ void bv_stack_delete(bv_stack* stack)
 	stack->length = 0;
 	stack->capacity = 0;
 }
+void bv_stack_delete_memory(bv_stack* stack)
+{
+	free(stack->data);
+	stack->length = 0;
+	stack->capacity = 0;
+}
 
 
 bv_variable bv_stack_penultimate(bv_stack* stack)
