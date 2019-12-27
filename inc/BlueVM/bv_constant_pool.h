@@ -5,7 +5,7 @@
 #include <BlueVM/bv_type.h>
 #include <BlueVM/bv_variable.h>
 
-typedef struct bv_constant_pool {
+typedef struct bv_constant_pool_s {
 	u8 type_count;
 	bv_type* val_type;
 	u16* val_count;

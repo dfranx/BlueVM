@@ -5,12 +5,12 @@
 #include <BlueVM/bv_name_list.h>
 #include <BlueVM/bv_function.h>
 
-typedef struct bv_function_pool bv_function_pool;
-typedef struct bv_variable bv_variable;
+typedef struct bv_function_pool_s bv_function_pool;
+typedef struct bv_variable_s bv_variable;
 
 typedef bv_variable(*bv_external_method)(bv_object*, u8, bv_variable*);
 
-typedef struct bv_object_info {
+typedef struct bv_object_info_s {
 	bv_string name;			// class type/object name (eg "Vehicle", "Animal", etc...)
 
 	bv_name_list props;		// property names

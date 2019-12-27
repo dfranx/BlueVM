@@ -7,7 +7,7 @@
 #include <BlueVM/bv_name_list.h>
 #include <BlueVM/bv_object_pool.h>
 
-typedef struct bv_library {
+typedef struct bv_library_s {
 	u16 external_function_count;
 	bv_external_function* external_functions;
 	bv_string* external_function_names;

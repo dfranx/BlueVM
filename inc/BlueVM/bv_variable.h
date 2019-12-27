@@ -3,13 +3,13 @@
 
 #include <BlueVM/bv_type.h>
 
-typedef struct bv_array bv_array;
-typedef struct bv_object bv_object;
-typedef struct bv_object_info bv_object_info;
-typedef struct bv_function bv_function;
-typedef struct bv_program bv_program;
+typedef struct bv_array_s bv_array;
+typedef struct bv_object_s bv_object;
+typedef struct bv_object_info_s bv_object_info;
+typedef struct bv_function_s bv_function;
+typedef struct bv_program_s bv_program;
 
-typedef struct bv_variable {
+typedef struct bv_variable_s {
 	bv_type type;
 	void* value;
 } bv_variable;
@@ -22,7 +22,7 @@ s8 bv_variable_get_char(bv_variable var);
 u8 bv_variable_get_uchar(bv_variable var);
 float bv_variable_get_float(bv_variable var);
 bv_string bv_variable_get_string(bv_variable var);
-bv_array bv_variable_get_array(bv_variable var);
+bv_array* bv_variable_get_array(bv_variable var);
 bv_object* bv_variable_get_object(bv_variable var);
 bv_variable* bv_variable_get_pointer(bv_variable var);
 bv_function* bv_variable_get_function(bv_variable var);

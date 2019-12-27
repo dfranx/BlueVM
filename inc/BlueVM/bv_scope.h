@@ -9,7 +9,7 @@
 
 #define SCOPE_RULE 8
 
-typedef struct bv_scope {
+typedef struct bv_scope_s {
 	u32 capacity;
 	u32 count;
 	u32* start_local;	// scope's start index

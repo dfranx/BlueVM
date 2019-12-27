@@ -1,9 +1,9 @@
 #include <BlueVM/bv_variable.h>
+#include <BlueVM/bv_program.h>
+#include <BlueVM/bv_function.h>
 #include <BlueVM/bv_array.h>
 #include <BlueVM/bv_object.h>
 #include <BlueVM/bv_object_info.h>
-#include <BlueVM/bv_program.h>
-#include <BlueVM/bv_function.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -40,9 +40,9 @@ bv_string bv_variable_get_string(bv_variable var)
 {
 	return (bv_string)var.value;
 }
-bv_array bv_variable_get_array(bv_variable var)
+bv_array* bv_variable_get_array(bv_variable var)
 {
-	return *((bv_array*)var.value);
+	return ((bv_array*)var.value);
 }
 bv_object* bv_variable_get_object(bv_variable var)
 {
@@ -282,12 +282,12 @@ bv_variable bv_variable_copy(bv_variable var)
 		memcpy(ret.value, var.value, len);
 		((bv_string)ret.value)[len] = 0;
 	} else if (var.type == bv_type_array) {
-		bv_array from = bv_variable_get_array(var);
-		bv_array cpy = bv_array_create(from.dim, from.length);
+		bv_array* from = bv_variable_get_array(var);
+		bv_array cpy = bv_array_create(from->dim, from->length);
 
-		u32 cnt = bv_array_get_range(from);
+		u32 cnt = bv_array_get_range(*from);
 		for (u32 i = 0; i < cnt; i++)
-			cpy.data[i] = bv_variable_copy(from.data[i]);
+			cpy.data[i] = bv_variable_copy(from->data[i]);
 
 		ret = bv_variable_create_array(cpy);
 	}
@@ -392,21 +392,21 @@ u8 bv_variable_op_equal(bv_program* prog, bv_variable left, bv_variable right)
 	}
 	else if (left.type == bv_type_array || right.type == bv_type_array) {
 		if (left.type == bv_type_array && right.type == bv_type_array) {
-			bv_array a1 = bv_variable_get_array(left);
-			bv_array a2 = bv_variable_get_array(right);
+			bv_array* a1 = bv_variable_get_array(left);
+			bv_array* a2 = bv_variable_get_array(right);
 
-			if (a2.dim != a1.dim)
+			if (a2->dim != a1->dim)
 				return 0;
 			else {
-				for (u32 i = 0; i < a2.dim; i++) {
-					if (a1.length[i] != a2.length[i])
+				for (u32 i = 0; i < a2->dim; i++) {
+					if (a1->length[i] != a2->length[i])
 						return 0;
 				}
 				
-				u32 rng = bv_array_get_range(a2);
+				u32 rng = bv_array_get_range(*a2);
 
 				for (u32 i = 0; i < rng; i++)
-					if (bv_variable_op_equal(prog, a1.data[rng], a2.data[rng]) == 0)
+					if (bv_variable_op_equal(prog, a1->data[rng], a2->data[rng]) == 0)
 						return 0;
 			}
 			out = 1;
@@ -497,15 +497,15 @@ u8 bv_variable_op_greater_than(bv_program* prog, bv_variable left, bv_variable r
 	}
 	else if (left.type == bv_type_array || right.type == bv_type_array) {
 		if (left.type == bv_type_array && right.type == bv_type_array) {
-			bv_array a1 = bv_variable_get_array(left);
-			bv_array a2 = bv_variable_get_array(right);
+			bv_array* a1 = bv_variable_get_array(left);
+			bv_array* a2 = bv_variable_get_array(right);
 
-			if (a2.dim != a1.dim)
-				return a1.dim > a2.dim;
+			if (a2->dim != a1->dim)
+				return a1->dim > a2->dim;
 			else {
-				for (u8 i = 0; i < a2.dim; i++) {
-					if (a1.length[i] != a2.length[i])
-						return a1.dim > a2.dim;
+				for (u8 i = 0; i < a2->dim; i++) {
+					if (a1->length[i] != a2->length[i])
+						return a1->dim > a2->dim;
 				}
 			}
 		}
@@ -619,10 +619,10 @@ bv_variable bv_variable_op_add(bv_program* prog, bv_variable left, bv_variable r
 	}
 	else if (left.type == bv_type_array || right.type == bv_type_array) {
 		if (left.type == bv_type_array && right.type == bv_type_array) {
-			bv_array a1 = bv_variable_get_array(left);
-			bv_array a2 = bv_variable_get_array(right);
+			bv_array* a1 = bv_variable_get_array(left);
+			bv_array* a2 = bv_variable_get_array(right);
 
-			out = bv_variable_create_array(bv_array_merge(prog, a1, a2));
+			out = bv_variable_create_array(bv_array_merge(prog, *a1, *a2));
 		}
 		else {
 			bv_program_error(prog, 0, 7, "Cannot use operator + between one array and one non-array value");
@@ -889,9 +889,9 @@ void bv_variable_op_increment(bv_program* prog, bv_variable* left)
 	bv_variable out = bv_variable_create_null_object();
 
 	if (left->type == bv_type_function)
-		return bv_variable_create_null_object(); // do nothing
+		return; // do nothing
 	else if (left->type == bv_type_pointer)
-		return bv_variable_op_increment(prog, ((bv_variable*)left->value));
+		bv_variable_op_increment(prog, ((bv_variable*)left->value));
 	else if (left->type == bv_type_object) {
 		bv_object* obj = bv_variable_get_object(*left);
 		bv_function* func = bv_object_get_method(obj, "++");
@@ -913,9 +913,9 @@ void bv_variable_op_decrement(bv_program* prog, bv_variable* left)
 	bv_variable out = bv_variable_create_null_object();
 
 	if (left->type == bv_type_function)
-		return bv_variable_create_null_object(); // do nothing
+		return; // do nothing
 	else if (left->type == bv_type_pointer)
-		return bv_variable_op_decrement(prog, ((bv_variable*)left->value));
+		bv_variable_op_decrement(prog, ((bv_variable*)left->value));
 	else if (left->type == bv_type_object) {
 		bv_object* obj = bv_variable_get_object(*left);
 		bv_function* func = bv_object_get_method(obj, "--");

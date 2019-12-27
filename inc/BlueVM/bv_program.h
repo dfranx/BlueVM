@@ -13,7 +13,7 @@
 #include <BlueVM/bv_debug.h>
 #include <BlueVM/bv_library.h>
 
-typedef struct bv_program {
+typedef struct bv_program_s {
 	bv_header header;
 	bv_string_table* string_table;
 	bv_block* block;

@@ -5,7 +5,7 @@
 #include <BlueVM/bv_variable.h>
 #include <BlueVM/bv_scope.h>
 
-typedef struct bv_function_stepper {
+typedef struct bv_function_stepper_s {
 	bv_variable result;
 	bv_scope* scope;
 	bv_function* func;

@@ -516,17 +516,17 @@ void bv_execute_get_array_el(bv_scope* scope) {
 
 		bv_stack_push(&scope->stack, bv_variable_create_char(str[ind]));
 	} else {
-		bv_array arr = bv_variable_get_array(var);
+		bv_array* arr = bv_variable_get_array(var);
 
-		u16* lens = (u16*)malloc(sizeof(u16) * arr.dim);
-		u8 i = arr.dim;
+		u16* lens = (u16*)malloc(sizeof(u16) * arr->dim);
+		u8 i = arr->dim;
 		while (i != 0) {
-			lens[arr.dim - i] = bv_variable_get_int(bv_stack_top(&scope->stack));
+			lens[arr->dim - i] = bv_variable_get_int(bv_stack_top(&scope->stack));
 			bv_stack_pop_free(&scope->stack);
 			i--;
 		}
 
-		bv_stack_push(&scope->stack, bv_variable_copy(bv_array_get(arr, lens)));
+		bv_stack_push(&scope->stack, bv_variable_copy(bv_array_get(*arr, lens)));
 
 		bv_variable_deinitialize(&var);
 		free(lens);
@@ -555,13 +555,13 @@ void bv_execute_set_array_el(bv_scope* scope) {
 
 		bv_stack_push(&scope->stack, var);
 	} else {
-		bv_array arr = bv_variable_get_array(var);
+		bv_array* arr = bv_variable_get_array(var);
 
-		u16* lens = (u16*)malloc(sizeof(u16) * arr.dim);
-		u8 i = arr.dim;
+		u16* lens = (u16*)malloc(sizeof(u16) * arr->dim);
+		u8 i = arr->dim;
 
 		while (i != 0) {
-			lens[arr.dim - i] = bv_variable_get_int(bv_stack_top(&scope->stack));
+			lens[arr->dim - i] = bv_variable_get_int(bv_stack_top(&scope->stack));
 			bv_stack_pop_free(&scope->stack);
 			i--;
 		}
@@ -569,8 +569,8 @@ void bv_execute_set_array_el(bv_scope* scope) {
 		bv_variable value = bv_stack_top(&scope->stack);
 		bv_stack_pop(&scope->stack);
 
-		bv_array_set(arr, lens, value);
-		bv_variable_set_array(&var, arr);
+		bv_array_set(*arr, lens, value);
+		bv_variable_set_array(&var, *arr);
 
 		bv_stack_push(&scope->stack, var);
 

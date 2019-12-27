@@ -33,7 +33,7 @@ void bv_function_step(bv_function_stepper * func)
 		bv_state* state = bv_scope_get_state(func->scope);
 		cnt = func->scope->count;
 
-		if (cnt == func->scope->count && (is_in = (u32)(state->code - state->func->code) < state->func->code_length)) {
+		if (cnt == func->scope->count && (is_in = ((u32)(state->code - state->func->code) < state->func->code_length))) {
 			bv_opcode op = bv_opcode_read(&state->code);
 			(*state->prog->opcodes[op])(func->scope);
 		}

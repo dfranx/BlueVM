@@ -5,12 +5,12 @@
 #include <BlueVM/bv_name_list.h>
 #include <BlueVM/bv_object_info.h>
 
-typedef struct bv_variable bv_variable;
-typedef struct bv_program bv_program;
-typedef struct bv_stack bv_stack;
-typedef struct bv_scope bv_scope;
+typedef struct bv_variable_s bv_variable;
+typedef struct bv_program_s bv_program;
+typedef struct bv_stack_s bv_stack;
+typedef struct bv_scope_s bv_scope;
 
-typedef struct bv_object {
+typedef struct bv_object_s {
 	bv_object_info* type;	// points to information object
 	bv_variable* prop;		// properties
 	void* user_data;		// store your objects here if you want to

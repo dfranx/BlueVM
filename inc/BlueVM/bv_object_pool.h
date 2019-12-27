@@ -4,9 +4,9 @@
 #include <BlueVM/types.h>
 #include <BlueVM/bv_object_info.h>
 
-typedef struct bv_variable bv_variable;
+typedef struct bv_variable_s bv_variable;
 
-typedef struct bv_object_pool {
+typedef struct bv_object_pool_s {
 	u16 count;
 	bv_object_info** info;
 } bv_object_pool;

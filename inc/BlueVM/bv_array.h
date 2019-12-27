@@ -3,10 +3,10 @@
 
 #include <BlueVM/types.h>
 
-typedef struct bv_variable bv_variable;
-typedef struct bv_program bv_program;
+typedef struct bv_variable_s bv_variable;
+typedef struct bv_program_s bv_program;
 
-typedef struct bv_array {
+typedef struct bv_array_s {
 	u8 dim;			// number of dimensions
 	u16* length;		// array that contains the length of each dimension
 	bv_variable* data;	// values

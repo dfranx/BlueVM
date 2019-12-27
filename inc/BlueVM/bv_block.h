@@ -5,7 +5,7 @@
 #include <BlueVM/bv_constant_pool.h>
 #include <BlueVM/bv_object_pool.h>
 
-typedef struct bv_block {
+typedef struct bv_block_s {
 	bv_function_pool* functions;
 	bv_constant_pool* constants;
 	bv_object_pool* objects;

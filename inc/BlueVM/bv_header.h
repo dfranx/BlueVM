@@ -3,7 +3,7 @@
 
 #include <BlueVM/types.h>
 
-typedef struct bv_header {
+typedef struct bv_header_s {
 	u8 signature[3];
 	u8 major;
 	u16 minor;

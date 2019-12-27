@@ -8,7 +8,7 @@
 
 typedef bv_variable (*bv_external_function)(u8, bv_variable*);
 
-typedef struct bv_function
+typedef struct bv_function_s
 {
 	u8 args;
 	u32 code_length;

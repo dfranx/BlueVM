@@ -3,7 +3,7 @@
 
 #include <BlueVM/types.h>
 
-typedef struct bv_function_pool {
+typedef struct bv_function_pool_s {
 	u16 count;
 	bv_string* names;
 	u32* address;

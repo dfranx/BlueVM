@@ -3,7 +3,7 @@
 
 #include <BlueVM/types.h>
 
-typedef struct bv_string_table {
+typedef struct bv_string_table_s {
 	u32 count;
 	bv_string* strings;
 } bv_string_table;

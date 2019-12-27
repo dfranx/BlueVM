@@ -1,4 +1,5 @@
 #include <BlueVM/bv_library.h>
+#include <stdlib.h>
 
 bv_library* bv_library_create()
 {

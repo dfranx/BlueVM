@@ -3,7 +3,7 @@
 
 #include <BlueVM/types.h>
 
-typedef struct bv_name_list {
+typedef struct bv_name_list_s {
 	u16 name_count; // number of global variables with names
 	bv_string* names;	// name for a global variable
 } bv_name_list;

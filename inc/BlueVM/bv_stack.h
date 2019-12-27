@@ -5,7 +5,7 @@
 
 #define STACK_RULE 24
 
-typedef struct bv_stack {
+typedef struct bv_stack_s {
 	bv_variable* data;
 	u16 capacity;
 	u16 length;

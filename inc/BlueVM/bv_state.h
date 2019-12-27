@@ -6,9 +6,9 @@
 #include <BlueVM/bv_object.h>
 #include <BlueVM/bv_scope_type.h>
 
-typedef struct bv_program bv_program;
+typedef struct bv_program_s bv_program;
 
-typedef struct bv_state
+typedef struct bv_state_s
 {
 	bv_program* prog;
 	bv_function* func;
