@@ -721,7 +721,29 @@ void bv_execute_set_prop(bv_scope* scope) {
 
 	bv_variable val = bv_variable_copy(bv_stack_top(&scope->stack));
 
-	bv_object_set_property(bv_variable_get_object(obj), name, val);
+	u8 res = bv_object_set_property(bv_variable_get_object(obj), name, val);
+	if (!res) {
+		if (state->prog->property_getter != NULL) {
+			bv_variable props = state->prog->property_getter(state->prog, bv_variable_get_object(obj), name);
+			
+			// object that contains pointer properties
+			if (props.type == bv_type_object) {
+				bv_object* valueObj = bv_variable_get_object(val);
+				bv_object* propextObj = bv_variable_get_object(props);
+				for (u16 i = 0; i < propextObj->type->props.name_count; i++) {
+					bv_variable* propVal = (bv_variable*)propextObj->prop[i].value;
+					bv_variable_deinitialize(propVal);
+					*propVal = valueObj->prop[i];
+				}
+			}
+			// pointer
+			else if (props.type == bv_type_pointer) {
+				bv_variable* propVal = (bv_variable*)props.value;
+				bv_variable_deinitialize(propVal);
+				*propVal = val;
+			}
+		}
+	}
 	bv_stack_pop_free(&scope->stack);
 }
 void bv_execute_set_my_prop(bv_scope* scope) {
@@ -749,9 +771,25 @@ void bv_execute_get_prop(bv_scope* scope) {
 
 	bv_stack_pop(&scope->stack);
 
-	bv_stack_push(&scope->stack, bv_variable_copy(*bv_object_get_property(top, name)));
+	bv_variable* prop = bv_object_get_property(top, name);
+	if (prop == NULL) {
+		if (state->prog->property_getter != NULL) {
+			bv_variable propext = state->prog->property_getter(state->prog, top, name);
 
-	//bv_variable_deinitialize(&var);
+			// object that contains pointer properties
+			if (propext.type == bv_type_object) {
+				bv_object* propextObj = bv_variable_get_object(propext);
+				for (u16 i = 0; i < propextObj->type->props.name_count; i++)
+					propextObj->prop[i] = *((bv_variable*)propextObj->prop[i].value);
+			}
+			// pointer
+			else if (propext.type == bv_type_pointer)
+				propext = *((bv_variable*)propext.value);
+
+			bv_stack_push(&scope->stack, bv_variable_copy(propext));
+		}
+	}
+	else bv_stack_push(&scope->stack, bv_variable_copy(*prop));
 }
 void bv_execute_get_my_prop(bv_scope* scope) {
 	bv_state* state = bv_scope_get_state(scope);

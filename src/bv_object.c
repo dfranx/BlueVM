@@ -26,7 +26,7 @@ bv_variable* bv_object_get_property(bv_object* obj, const bv_string name)
 
 	return 0;
 }
-void bv_object_set_property(bv_object* obj, const char* name, bv_variable val)
+u8 bv_object_set_property(bv_object* obj, const char* name, bv_variable val)
 {
 	bv_name_list* props = &obj->type->props;
 
@@ -34,8 +34,9 @@ void bv_object_set_property(bv_object* obj, const char* name, bv_variable val)
 		if (strcmp(props->names[i], name) == 0) {
 			bv_variable_deinitialize(&obj->prop[i]);
 			obj->prop[i] = val;
-			return;
+			return 1;
 		}
+	return 0;
 }
 
 bv_function* bv_object_get_method(bv_object* obj, const char* name)

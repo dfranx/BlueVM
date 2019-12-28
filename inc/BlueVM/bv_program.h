@@ -35,6 +35,7 @@ typedef struct bv_program_s {
 	s32 current_line;
 	bv_error_handler error;
 	bv_breakpoint_handler debugger;
+	bv_object_get_property_ext property_getter;
 } bv_program;
 
 bv_program* bv_program_create(byte* mem);
