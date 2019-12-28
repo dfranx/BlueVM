@@ -191,7 +191,7 @@ bv_function* bv_program_get_function_match(bv_program* prog, const bv_string str
 				if (func->arg_type[j] == args[arr_len - 1 - j].type) {
 					if (func->arg_type[j] == bv_type_object) {
 						// check if structure types match
-						if (strcmp(func->arg_obj_name, bv_variable_get_object(args[arr_len - 1 - j])->type->name) == 0)
+						if (strcmp(func->arg_obj_name[j], bv_variable_get_object(args[arr_len - 1 - j])->type->name) == 0)
 							func_matches++;
 					}
 					else func_matches++;
@@ -203,6 +203,7 @@ bv_function* bv_program_get_function_match(bv_program* prog, const bv_string str
 				if (func_matches == argc)
 					return func; // optimization: all arguments match type -> return the function
 				ret = func;
+				most_matches = func_matches;
 			}
 		}
 

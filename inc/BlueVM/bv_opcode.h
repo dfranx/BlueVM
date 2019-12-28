@@ -71,8 +71,8 @@ typedef enum __bv_opcode {
 	bv_opcode_get_prop_pointer,		// get_prop_pointer [name] {object} -> { &property_value }
 	bv_opcode_get_my_prop_pointer,	// get_my_prop_pointer [name] {} -> { &propert_value }
 	bv_opcode_get_global_by_name,	// get_global_by_name [name] {} -> { glob[name] }
-	bv_opcode_get_global_by_name_ptr,// get_global_by_name [name] {} -> { &glob[name] }
-	bv_opcode_set_global_by_name,	// get_global_by_name [name] {} -> { glob[name] }
+	bv_opcode_get_global_by_name_ptr,// get_global_by_name_ptr [name] {} -> { &glob[name] }
+	bv_opcode_set_global_by_name,	// set_global_by_name [name] {} -> { }
 	bv_opcode_empty_stack,			// empty_stack {...} -> {}
 	bv_opcode_debug_line_number,	// debug_line_number [line_number]
 	bv_opcode_debug_file,			// debug_file [file_name]
