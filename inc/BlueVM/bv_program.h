@@ -46,6 +46,7 @@ void bv_program_error(bv_program* prog, u8 lvl, u16 id, const bv_string msg);
 
 u16 bv_program_get_function_count(bv_program* prog);
 bv_function* bv_program_get_function(bv_program* prog, const bv_string str);
+bv_function* bv_program_get_function_match(bv_program* prog, const bv_string str, u32 arr_len, u8 argc, bv_variable* args);
 bv_external_function bv_program_get_ext_function(bv_program* prog, const bv_string str);
 void bv_program_add_function(bv_program* prog, const bv_string name, bv_external_function ext_func);
 void bv_program_add_library(bv_program* prog, bv_library* lib);

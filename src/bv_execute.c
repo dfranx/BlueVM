@@ -584,7 +584,7 @@ void bv_execute_call(bv_scope* scope) {
 	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 	u8 argc = u8_read(&state->code);
 
-	bv_function* func = bv_program_get_function(state->prog, name);
+	bv_function* func = bv_program_get_function_match(state->prog, name, scope->stack.length, argc, scope->stack.data);
 
 	if (scope->stack.length < argc) {
 		bv_program_error(state->prog, 0, 1, "Not enough arguments for a function call (opcode call)");
@@ -613,8 +613,8 @@ void bv_execute_call_return(bv_scope* scope) {
 	bv_string name = bv_string_table_get_string(state->prog->string_table, u32_read(&state->code));
 	u8 argc = u8_read(&state->code);
 
-	bv_function* func = bv_program_get_function(state->prog, name);
-	
+	bv_function* func = bv_program_get_function_match(state->prog, name, scope->stack.length, argc, scope->stack.data);
+
 	if (scope->stack.length < argc) {
 		bv_program_error(state->prog, 0, 2, "Not enough arguments for a function call (opcode call_return)");
 		return;

@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-bv_name_list bv_name_list_create(byte** mem)
+bv_name_list bv_name_list_create(bv_header header, byte** mem)
 {
 	bv_name_list ret;
 	ret.name_count = u16_read(mem);
-
+	
 	ret.names = (bv_string*)malloc(sizeof(bv_string)*ret.name_count);
 
 	for (u16 i = 0; i < ret.name_count; i++)

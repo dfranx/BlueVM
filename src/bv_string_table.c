@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-bv_string_table* bv_string_table_create(byte** mem)
+bv_string_table* bv_string_table_create(bv_header header, byte** mem)
 {
 	bv_string_table* ret = (bv_string_table*)malloc(sizeof(bv_string_table));
 

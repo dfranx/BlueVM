@@ -3,6 +3,7 @@
 
 #include <BlueVM/types.h>
 #include <BlueVM/bv_type.h>
+#include <BlueVM/bv_header.h>
 #include <BlueVM/bv_function_pool.h>
 #include <BlueVM/bv_variable.h>
 
@@ -13,11 +14,14 @@ typedef struct bv_function_s
 	u8 args;
 	u32 code_length;
 	byte* code;
+
+	bv_type* arg_type;
+	bv_string* arg_obj_name;
 } bv_function;
 
-bv_function* bv_function_create(byte* mem);
+bv_function* bv_function_create(bv_header header, byte* mem);
 void bv_function_delete(bv_function* func);
-bv_function** bv_function_create_array(bv_function_pool* funcs, byte* mem);
+bv_function** bv_function_create_array(bv_header header, bv_function_pool* funcs, byte* mem);
 void bv_function_delete_array(bv_function** data, u16 len);
 
 #endif

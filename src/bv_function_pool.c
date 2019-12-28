@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-bv_function_pool* bv_function_pool_create(byte** mem)
+bv_function_pool* bv_function_pool_create(bv_header header, byte** mem)
 {
 	bv_function_pool* pool = (bv_function_pool*)malloc(sizeof(bv_function_pool));
 

@@ -1,7 +1,7 @@
 #include <BlueVM/bv_constant_pool.h>
 #include <stdlib.h>
 
-bv_constant_pool * bv_constant_pool_create(byte** mem)
+bv_constant_pool * bv_constant_pool_create(bv_header header, byte** mem)
 {
 	bv_constant_pool* pool = (bv_constant_pool*)malloc(sizeof(bv_constant_pool));
 

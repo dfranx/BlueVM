@@ -3,6 +3,7 @@
 
 #include <BlueVM/types.h>
 #include <BlueVM/bv_type.h>
+#include <BlueVM/bv_header.h>
 #include <BlueVM/bv_variable.h>
 
 typedef struct bv_constant_pool_s {
@@ -12,7 +13,7 @@ typedef struct bv_constant_pool_s {
 	bv_variable** val;
 } bv_constant_pool;
 
-bv_constant_pool* bv_constant_pool_create(byte** mem);
+bv_constant_pool* bv_constant_pool_create(bv_header header, byte** mem);
 void bv_constant_pool_delete(bv_constant_pool* pool);
 
 #endif

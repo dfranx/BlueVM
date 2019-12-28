@@ -96,11 +96,11 @@ bv_program* bv_program_create(byte* mem)
 		return (bv_program*)0;
 	}
 
-	ret->string_table = bv_string_table_create(&mem);
-	ret->global_names = bv_name_list_create(&mem);
+	ret->string_table = bv_string_table_create(ret->header, &mem);
+	ret->global_names = bv_name_list_create(ret->header, &mem);
 	ret->globals = bv_stack_create();
-	ret->block = bv_block_create(&mem, original_mem);
-	ret->functions = bv_function_create_array(ret->block->functions, original_mem);
+	ret->block = bv_block_create(ret->header, &mem, original_mem);
+	ret->functions = bv_function_create_array(ret->header, ret->block->functions, original_mem);
 
 	bv_program_build_opcode_table(ret);
 
@@ -166,6 +166,47 @@ bv_function* bv_program_get_function(bv_program* prog, const bv_string str)
 			return prog->functions[i];
 	
 	return 0;
+}
+bv_function* bv_program_get_function_match(bv_program* prog, const bv_string str, u32 arr_len, u8 argc, bv_variable* args)
+{
+	u16 func_count = bv_program_get_function_count(prog);
+
+	s16 most_matches = -1; // max argument type matches
+	bv_function* ret = NULL;
+
+	for (u16 i = 0; i < func_count; i++)
+		if (strcmp(prog->block->functions->names[i], str) == 0) {
+			bv_function* func = prog->functions[i];
+
+			if (func->args != argc)
+				continue;
+
+			if (func->arg_type == NULL)
+				return func;
+
+			s16 func_matches = 0;
+
+			// count argument type matches
+			for (u8 j = 0; j < argc; j++) {
+				if (func->arg_type[j] == args[arr_len - 1 - j].type) {
+					if (func->arg_type[j] == bv_type_object) {
+						// check if structure types match
+						if (strcmp(func->arg_obj_name, bv_variable_get_object(args[arr_len - 1 - j])->type->name) == 0)
+							func_matches++;
+					}
+					else func_matches++;
+				}
+			}
+
+			// check if we found a new function
+			if (func_matches > most_matches) {
+				if (func_matches == argc)
+					return func; // optimization: all arguments match type -> return the function
+				ret = func;
+			}
+		}
+
+	return ret;
 }
 bv_external_function bv_program_get_ext_function(bv_program * prog, const bv_string str)
 {

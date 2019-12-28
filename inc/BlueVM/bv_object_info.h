@@ -2,6 +2,7 @@
 #define __BLUEVM_OBJECT_INFO_H__
 
 #include <BlueVM/types.h>
+#include <BlueVM/bv_header.h>
 #include <BlueVM/bv_name_list.h>
 #include <BlueVM/bv_function.h>
 
@@ -24,7 +25,7 @@ typedef struct bv_object_info_s {
 } bv_object_info;
 
 bv_object_info* bv_object_info_create(const bv_string name);
-bv_object_info* bv_object_info_read(byte** mem, byte* orig_mem);
+bv_object_info* bv_object_info_read(bv_header header, byte** mem, byte* orig_mem);
 void bv_object_info_delete(bv_object_info* info);
 
 void bv_object_info_add_property(bv_object_info* info, const bv_string name);

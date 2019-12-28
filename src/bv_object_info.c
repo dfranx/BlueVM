@@ -3,18 +3,18 @@
 #include <string.h>
 #include <stdlib.h>
 
-bv_object_info* bv_object_info_read(byte** mem, byte* orig_mem)
+bv_object_info* bv_object_info_read(bv_header header, byte** mem, byte* orig_mem)
 {
 	bv_object_info* ret = (bv_object_info*)malloc(sizeof(bv_object_info));
 	ret->name = string_read(mem);
-	ret->props = bv_name_list_create(mem);
+	ret->props = bv_name_list_create(header, mem);
 
 	ret->ext_methods = 0;
 	ret->ext_method_count = 0;
 	ret->ext_method_names = 0;
 
-	ret->method_info = bv_function_pool_create(mem);
-	ret->methods = bv_function_create_array(ret->method_info, orig_mem);
+	ret->method_info = bv_function_pool_create(header, mem);
+	ret->methods = bv_function_create_array(header, ret->method_info, orig_mem);
 
 	return ret;
 }
