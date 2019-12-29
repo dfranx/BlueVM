@@ -479,20 +479,20 @@ u8 bv_variable_op_greater_than(bv_program* prog, bv_variable left, bv_variable r
 			bv_stack_push(&args, *arg);
 
 			bv_variable outvar = bv_program_call(prog, func, &args, obj);
-			out = !bv_variable_get_uchar(outvar);
+			out = bv_variable_get_uchar(outvar);
 			bv_variable_deinitialize(&outvar);
 
 			bv_stack_delete_memory(&args);
 		}
 		else {
-			bv_external_method ext_op = bv_object_get_ext_method(prog, obj, ">");
+			bv_external_method ext_op = bv_object_get_ext_method(obj, ">");
 
 			if (ext_op != NULL) {
 				bv_stack args = bv_stack_create();
 				bv_stack_push(&args, *arg);
 
 				bv_variable outvar = (*ext_op)(prog, obj, args.length, args.data);
-				out = !bv_variable_get_uchar(outvar);
+				out = bv_variable_get_uchar(outvar);
 				bv_variable_deinitialize(&outvar);
 
 				bv_stack_delete_memory(&args);
@@ -1177,10 +1177,13 @@ bv_variable bv_variable_cast(bv_type new_type, bv_variable right)
 			float value = bv_variable_get_float(right);
 
 			ret = bv_variable_create(new_type, (void*)((int)value));
-		} else if (old_type == bv_type_object)
+		}
+		else if (old_type == bv_type_object)
 			ret = bv_variable_create(new_type, 0);
 		else if (old_type == bv_type_array)
 			ret = bv_variable_create(new_type, 0);
+		else if (bv_type_is_integer(old_type))
+			ret.value = right.value;
 	}
 	else if (new_type == bv_type_object)
 		ret = bv_variable_create_null_object();
