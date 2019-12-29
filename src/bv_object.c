@@ -71,8 +71,12 @@ bv_variable bv_object_call_method(bv_object* obj, const char* name, bv_scope* sc
 			bv_stack_pop(&scope->stack);
 		}
 
+		bv_program* prog = NULL;
+		if (scope->count != 0)
+			prog = bv_scope_get_state(scope)->prog;
+
 		bv_external_method ext_func = bv_object_get_ext_method(obj, name);
-		bv_variable var = (*ext_func)(obj, argc, func_args.data);
+		bv_variable var = (*ext_func)(prog, obj, argc, func_args.data);
 
 		bv_stack_delete(&func_args);
 

@@ -7,7 +7,7 @@
 #include <BlueVM/bv_function_pool.h>
 #include <BlueVM/bv_variable.h>
 
-typedef bv_variable (*bv_external_function)(u8, bv_variable*);
+typedef bv_variable (*bv_external_function)(bv_program*, u8, bv_variable*);
 
 typedef struct bv_function_s
 {

@@ -5,7 +5,7 @@
 #include "common.h"
 
 // super simple print function that only accepts one argument (int)
-bv_variable my_print(u8 count, bv_variable* args)
+bv_variable my_print(bv_program* prog, u8 count, bv_variable* args)
 {
 	if (count == 1 && args[0].type == bv_type_int)
 		printf("%d\n", bv_variable_get_int(args[0]));
@@ -13,13 +13,13 @@ bv_variable my_print(u8 count, bv_variable* args)
 }
 
 // clock() wrapper
-bv_variable my_clock(u8 count, bv_variable* args)
+bv_variable my_clock(bv_program* prog, u8 count, bv_variable* args)
 {
 	return bv_variable_create_int(clock());
 }
 
 // rand() wrapper
-bv_variable my_rand(u8 count, bv_variable* args)
+bv_variable my_rand(bv_program* prog, u8 count, bv_variable* args)
 {
 	return bv_variable_create_int(rand());
 }

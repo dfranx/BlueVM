@@ -4,7 +4,7 @@
 #include "common.h"
 
 // super simple print function that only accepts one argument (string)
-bv_variable print(u8 count, bv_variable* args)
+bv_variable print(bv_program* prog, u8 count, bv_variable* args)
 {
 	if (count == 1 && args[0].type == bv_type_string)
 			printf("%s\n", bv_variable_get_string(args[0]));

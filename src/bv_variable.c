@@ -299,6 +299,7 @@ bv_variable bv_variable_copy(bv_variable var)
 			bv_object* nobj = bv_object_create(cobj->type);
 			for (u16 i = 0; i < nobj->type->props.name_count; i++)
 				nobj->prop[i] = bv_variable_copy(cobj->prop[i]);
+			nobj->user_data = cobj->user_data;
 			ret.value = nobj;			
 		}
 	} else
@@ -381,7 +382,7 @@ u8 bv_variable_op_equal(bv_program* prog, bv_variable left, bv_variable right)
 				bv_stack args = bv_stack_create();
 				bv_stack_push(&args, *arg);
 
-				bv_variable outvar = (*ext_op)(obj, args.length, args.data);
+				bv_variable outvar = (*ext_op)(prog, obj, args.length, args.data);
 				out = bv_variable_get_uchar(outvar);
 				bv_variable_deinitialize(&outvar);
 
@@ -484,13 +485,13 @@ u8 bv_variable_op_greater_than(bv_program* prog, bv_variable left, bv_variable r
 			bv_stack_delete_memory(&args);
 		}
 		else {
-			bv_external_method ext_op = bv_object_get_ext_method(obj, ">");
+			bv_external_method ext_op = bv_object_get_ext_method(prog, obj, ">");
 
 			if (ext_op != NULL) {
 				bv_stack args = bv_stack_create();
 				bv_stack_push(&args, *arg);
 
-				bv_variable outvar = (*ext_op)(obj, args.length, args.data);
+				bv_variable outvar = (*ext_op)(prog, obj, args.length, args.data);
 				out = !bv_variable_get_uchar(outvar);
 				bv_variable_deinitialize(&outvar);
 
@@ -618,7 +619,7 @@ bv_variable bv_variable_op_add(bv_program* prog, bv_variable left, bv_variable r
 				bv_stack args = bv_stack_create();
 				bv_stack_push(&args, *arg);
 
-				out = (*ext_op)(obj, args.length, args.data);
+				out = (*ext_op)(prog, obj, args.length, args.data);
 
 				bv_stack_delete_memory(&args);
 			}
@@ -723,7 +724,7 @@ bv_variable bv_variable_op_subtract(bv_program* prog, bv_variable left, bv_varia
 				bv_stack args = bv_stack_create();
 				bv_stack_push(&args, *arg);
 
-				out = (*ext_op)(obj, args.length, args.data);
+				out = (*ext_op)(prog, obj, args.length, args.data);
 
 				bv_stack_delete_memory(&args);
 			}
@@ -799,7 +800,7 @@ bv_variable bv_variable_op_divide(bv_program* prog, bv_variable left, bv_variabl
 				bv_stack args = bv_stack_create();
 				bv_stack_push(&args, *arg);
 
-				out = (*ext_op)(obj, args.length, args.data);
+				out = (*ext_op)(prog, obj, args.length, args.data);
 
 				bv_stack_delete_memory(&args);
 			}
@@ -877,7 +878,7 @@ bv_variable bv_variable_op_multiply(bv_program* prog, bv_variable left, bv_varia
 				bv_stack args = bv_stack_create();
 				bv_stack_push(&args, *arg);
 
-				out = (*ext_op)(obj, args.length, args.data);
+				out = (*ext_op)(prog, obj, args.length, args.data);
 
 				bv_stack_delete_memory(&args);
 			}
@@ -927,7 +928,7 @@ void bv_variable_op_increment(bv_program* prog, bv_variable* left)
 			bv_external_method ext_op = bv_object_get_ext_method(obj, "++");
 
 			if (ext_op != NULL) {
-				out = (*ext_op)(obj, 0, NULL);
+				out = (*ext_op)(prog, obj, 0, NULL);
 			}
 			else
 				bv_program_error(prog, 0, 42, "Object does not have an operator++ overload");
@@ -958,7 +959,7 @@ void bv_variable_op_decrement(bv_program* prog, bv_variable* left)
 			bv_external_method ext_op = bv_object_get_ext_method(obj, "--");
 
 			if (ext_op != NULL) {
-				out = (*ext_op)(obj, 0, NULL);
+				out = (*ext_op)(prog, obj, 0, NULL);
 			}
 			else
 				bv_program_error(prog, 0, 42, "Object does not have an operator-- overload");
@@ -989,7 +990,7 @@ bv_variable bv_variable_op_negate(bv_program* prog, bv_variable left)
 			bv_external_method ext_op = bv_object_get_ext_method(obj, "-");
 
 			if (ext_op != NULL) {
-				out = (*ext_op)(obj, 0, NULL);
+				out = (*ext_op)(prog, obj, 0, NULL);
 			}
 			else
 				bv_program_error(prog, 0, 42, "Object does not have an operator- overload");
@@ -1048,7 +1049,7 @@ bv_variable bv_variable_op_modulo(bv_program* prog, bv_variable left, bv_variabl
 				bv_stack args = bv_stack_create();
 				bv_stack_push(&args, *arg);
 
-				out = (*ext_op)(obj, args.length, args.data);
+				out = (*ext_op)(prog, obj, args.length, args.data);
 
 				bv_stack_delete_memory(&args);
 			}
@@ -1102,7 +1103,7 @@ u8 bv_variable_op_not(bv_program* prog, bv_variable left)
 			bv_external_method ext_op = bv_object_get_ext_method(obj, "!");
 
 			if (ext_op != NULL) {
-				bv_variable outvar = (*ext_op)(obj, 0, NULL);
+				bv_variable outvar = (*ext_op)(prog, obj, 0, NULL);
 				out = bv_variable_get_uchar(outvar);
 				bv_variable_deinitialize(&outvar);
 			}

@@ -19,43 +19,43 @@ float parse_arg(bv_variable val) {
 }
 
 // Math.sin, Math.cos and other implementations
-bv_variable math_sin(bv_object* obj, u8 count, bv_variable* args)
+bv_variable math_sin(bv_program* prog, bv_object* obj, u8 count, bv_variable* args)
 {
 	float in = parse_arg(args[0]);
 	return bv_variable_create_float(sin(in));
 }
-bv_variable math_cos(bv_object* obj, u8 count, bv_variable* args)
+bv_variable math_cos(bv_program* prog, bv_object* obj, u8 count, bv_variable* args)
 {
 	float in = parse_arg(args[0]);
 	return bv_variable_create_float(cos(in));
 }
-bv_variable math_tan(bv_object* obj, u8 count, bv_variable* args)
+bv_variable math_tan(bv_program* prog, bv_object* obj, u8 count, bv_variable* args)
 {
 	float in = parse_arg(args[0]);
 	return bv_variable_create_float(tan(in));
 }
-bv_variable math_floor(bv_object* obj, u8 count, bv_variable* args)
+bv_variable math_floor(bv_program* prog, bv_object* obj, u8 count, bv_variable* args)
 {
 	float in = parse_arg(args[0]);
 	return bv_variable_create_float(floor(in));
 }
-bv_variable math_abs(bv_object* obj, u8 count, bv_variable* args)
+bv_variable math_abs(bv_program* prog, bv_object* obj, u8 count, bv_variable* args)
 {
 	float in = parse_arg(args[0]);
 	return bv_variable_create_float(abs(in));
 }
-bv_variable math_sqrt(bv_object* obj, u8 count, bv_variable* args)
+bv_variable math_sqrt(bv_program* prog, bv_object* obj, u8 count, bv_variable* args)
 {
 	float in = parse_arg(args[0]);
 	return bv_variable_create_float(sqrt(in));
 }
-bv_variable math_pow(bv_object* obj, u8 count, bv_variable* args)
+bv_variable math_pow(bv_program* prog, bv_object* obj, u8 count, bv_variable* args)
 {
 	float in = parse_arg(args[0]);
 	float pw = parse_arg(args[1]);
 	return bv_variable_create_float(pow(in, pw));
 }
-bv_variable my_print(u8 count, bv_variable* args)
+bv_variable my_print(bv_program* prog, u8 count, bv_variable* args)
 {
 	for (int i = 0; i < count; i++) {
 		if (args[i].type == bv_type_int)

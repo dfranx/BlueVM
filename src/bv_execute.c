@@ -602,7 +602,7 @@ void bv_execute_call(bv_scope* scope) {
 		}
 
 		bv_external_function ext_func = bv_program_get_ext_function(state->prog, name);
-		(*ext_func)(argc, func_args.data);
+		(*ext_func)(state->prog, argc, func_args.data);
 
 		bv_stack_delete(&func_args);
 	}
@@ -631,7 +631,7 @@ void bv_execute_call_return(bv_scope* scope) {
 		}
 
 		bv_external_function ext_func = bv_program_get_ext_function(state->prog, name);
-		bv_stack_push(&scope->stack, (*ext_func)(argc, func_args.data));
+		bv_stack_push(&scope->stack, (*ext_func)(state->prog, argc, func_args.data));
 
 		bv_stack_delete(&func_args);
 	}
@@ -701,7 +701,7 @@ void bv_execute_new_object(bv_scope* scope) {
 		}
 
 		bv_external_method ext_func = bv_object_get_ext_method(obj, info->name);
-		(*ext_func)(obj, argc, func_args.data);
+		(*ext_func)(state->prog, obj, argc, func_args.data);
 
 		bv_stack_delete(&func_args);
 	}
@@ -1085,7 +1085,7 @@ void bv_execute_new_object_by_name(bv_scope* scope)
 				bv_stack_pop(&scope->stack);
 			}
 
-			(*ext_func)(obj, argc, func_args.data);
+			(*ext_func)(state->prog, obj, argc, func_args.data);
 
 			bv_stack_delete(&func_args);
 		}

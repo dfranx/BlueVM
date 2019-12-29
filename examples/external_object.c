@@ -4,7 +4,7 @@
 #include "common.h"
 
 // simple console.log implementation
-bv_variable console_log(bv_object* obj, u8 count, bv_variable* args)
+bv_variable console_log(bv_program* prog, bv_object* obj, u8 count, bv_variable* args)
 {
 	for (u8 i = 0; i < count; i++) {
 		bv_variable val = args[i];
