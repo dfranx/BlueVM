@@ -946,7 +946,27 @@ void bv_execute_get_prop_pointer(bv_scope * scope)
 	
 	bv_stack_pop(&scope->stack);
 
-	bv_stack_push(&scope->stack, bv_variable_create_pointer(bv_object_get_property(obj, name)));
+	bv_variable* prop = bv_object_get_property(obj, name);
+	if (prop == NULL) {
+		if (state->prog->property_getter != NULL) {
+			bv_variable propext = state->prog->property_getter(state->prog, obj, name);
+
+			bv_variable* propPtr = NULL;
+
+			// object that contains pointer properties
+			if (propext.type == bv_type_object) {
+				bv_object* propextObj = bv_variable_get_object(propext);
+				for (u16 i = 0; i < propextObj->type->props.name_count; i++)
+					propextObj->prop[i] = *((bv_variable*)propextObj->prop[i].value);
+			}
+			// pointer
+			else if (propext.type == bv_type_pointer)
+				propPtr = ((bv_variable*)propext.value);
+
+			bv_stack_push(&scope->stack, bv_variable_create_pointer(propPtr));
+		}
+	}
+	else bv_stack_push(&scope->stack, bv_variable_create_pointer(prop));
 
 	// TODO: push object to garbage collector
 	//bv_variable_deinitialize(&var);
