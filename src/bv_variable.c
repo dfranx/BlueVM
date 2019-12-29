@@ -1135,8 +1135,10 @@ bv_variable bv_variable_cast(bv_type new_type, bv_variable right)
 		return bv_variable_copy(right);
 	else if (new_type == bv_type_function)
 		return bv_variable_create_null_object();
-	else if (old_type == bv_type_pointer)
-		return bv_variable_cast(new_type, *((bv_variable*)right.value));
+	else if (old_type == bv_type_pointer) {
+		bv_variable* ptrVal = ((bv_variable*)right.value);
+		return bv_variable_cast(new_type, *ptrVal);
+	}
 	else if (new_type == bv_type_pointer)
 		return bv_variable_create_pointer(&right);
 	else if (new_type == bv_type_string) {

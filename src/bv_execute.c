@@ -515,7 +515,33 @@ void bv_execute_get_array_el(bv_scope* scope) {
 		bv_stack_pop(&scope->stack);
 
 		bv_stack_push(&scope->stack, bv_variable_create_char(str[ind]));
-	} else {
+	} 
+	else if (var.type == bv_type_object) {
+		bv_state* state = bv_scope_get_state(scope);
+
+		u16 ind = bv_variable_get_ushort(bv_stack_top(&scope->stack));
+		bv_stack indArgs = bv_stack_create();
+		bv_stack_push(&indArgs, bv_variable_create_int(ind));
+
+
+		bv_object* obj = bv_variable_get_object(var);
+		bv_function* func = bv_object_get_method(obj, "[]");
+		if (func != 0) {
+			bv_variable outvar = bv_program_call(state->prog, func, &indArgs, obj);
+			bv_stack_push(&scope->stack, outvar);
+		}
+		else {
+			bv_external_method ext_op = bv_object_get_ext_method(obj, "[]");
+
+			if (ext_op != NULL) {
+				bv_variable outvar = (*ext_op)(state->prog, obj, 1, indArgs.data);
+				bv_stack_push(&scope->stack, outvar);
+			}
+		}
+		bv_variable_deinitialize(&var); // TODO: should we do this?
+		bv_stack_delete(&indArgs);
+	}
+	else {
 		bv_array* arr = bv_variable_get_array(var);
 
 		u16* lens = (u16*)malloc(sizeof(u16) * arr->dim);
@@ -554,7 +580,35 @@ void bv_execute_set_array_el(bv_scope* scope) {
 		}
 
 		bv_stack_push(&scope->stack, var);
-	} else {
+	}
+	else if (var.type == bv_type_object) {
+		bv_state* state = bv_scope_get_state(scope);
+
+		bv_stack indArgs = bv_stack_create();
+
+		u16 ind = bv_variable_get_ushort(bv_stack_top(&scope->stack));
+		bv_stack_pop(&scope->stack);
+		bv_stack_push(&indArgs, bv_variable_create_int(ind));
+
+		bv_variable value = bv_stack_top(&scope->stack);
+		bv_stack_pop(&scope->stack);
+		bv_stack_push(&indArgs, value);
+
+
+		bv_object* obj = bv_variable_get_object(var);
+		bv_function* func = bv_object_get_method(obj, "[]="); // i know, pretty ugly, but library/user should control how to set the value
+		if (func != 0)
+			bv_program_call(state->prog, func, &indArgs, obj);
+		else {
+			bv_external_method ext_op = bv_object_get_ext_method(obj, "[]=");
+
+			if (ext_op != NULL)
+				(*ext_op)(state->prog, obj, 2, indArgs.data);
+		}
+		bv_stack_delete(&indArgs);
+		bv_stack_push(&scope->stack, var); // TODO: should we do this?
+	}
+	else {
 		bv_array* arr = bv_variable_get_array(var);
 
 		u16* lens = (u16*)malloc(sizeof(u16) * arr->dim);
