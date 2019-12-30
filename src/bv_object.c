@@ -91,6 +91,9 @@ void bv_object_deinitialize(bv_object* val)
 	if (val == NULL) // dont delete null objects
 		return;
 
+	if (val->type->on_delete)
+		val->type->on_delete(val);
+
 	for (u16 i = 0; i < val->type->props.name_count; i++)
 		bv_variable_deinitialize(&val->prop[i]);
 

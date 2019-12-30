@@ -586,9 +586,15 @@ void bv_execute_set_array_el(bv_scope* scope) {
 
 		bv_stack indArgs = bv_stack_create();
 
-		u16 ind = bv_variable_get_ushort(bv_stack_top(&scope->stack));
+		s8 indCount = bv_variable_get_char(bv_stack_top(&scope->stack));
 		bv_stack_pop(&scope->stack);
-		bv_stack_push(&indArgs, bv_variable_create_int(ind));
+		bv_stack_push(&indArgs, bv_variable_create_int(indCount));
+
+		for (s8 i = 0; i < indCount; i++) {
+			u16 ind = bv_variable_get_ushort(bv_stack_top(&scope->stack));
+			bv_stack_pop(&scope->stack);
+			bv_stack_push(&indArgs, bv_variable_create_int(ind));
+		}
 
 		bv_variable value = bv_stack_top(&scope->stack);
 		bv_stack_pop(&scope->stack);
@@ -603,7 +609,7 @@ void bv_execute_set_array_el(bv_scope* scope) {
 			bv_external_method ext_op = bv_object_get_ext_method(obj, "[]=");
 
 			if (ext_op != NULL)
-				(*ext_op)(state->prog, obj, 2, indArgs.data);
+				(*ext_op)(state->prog, obj, indArgs.length, indArgs.data);
 		}
 		bv_stack_delete(&indArgs);
 		bv_stack_push(&scope->stack, var); // TODO: should we do this?

@@ -299,7 +299,13 @@ bv_variable bv_variable_copy(bv_variable var)
 			bv_object* nobj = bv_object_create(cobj->type);
 			for (u16 i = 0; i < nobj->type->props.name_count; i++)
 				nobj->prop[i] = bv_variable_copy(cobj->prop[i]);
-			nobj->user_data = cobj->user_data;
+
+			// user controlled copy or basic value copy
+			if (nobj->type->on_copy)
+				nobj->user_data = nobj->type->on_copy(cobj->user_data);
+			else
+				nobj->user_data = cobj->user_data;
+
 			ret.value = nobj;			
 		}
 	} else
@@ -1128,7 +1134,7 @@ bv_variable bv_variable_cast(bv_type new_type, bv_variable right)
 {
 	bv_type old_type = right.type;
 
-	bv_variable ret; 
+	bv_variable ret;
 	ret.type = new_type;
 
 	if (new_type == old_type)

@@ -12,6 +12,8 @@ bv_object_info* bv_object_info_read(bv_header header, byte** mem, byte* orig_mem
 	ret->ext_methods = 0;
 	ret->ext_method_count = 0;
 	ret->ext_method_names = 0;
+	ret->on_copy = 0;
+	ret->on_delete = 0;
 
 	ret->method_info = bv_function_pool_create(header, mem);
 	ret->methods = bv_function_create_array(header, ret->method_info, orig_mem);
@@ -48,6 +50,8 @@ bv_object_info* bv_object_info_create(const bv_string name)
 	ret->ext_methods = 0;
 	ret->ext_method_count = 0;
 	ret->ext_method_names = 0;
+	ret->on_copy = 0;
+	ret->on_delete = 0;
 
 	size_t strl = strlen(name);
 	ret->name = (bv_string)malloc((strl + 1) * sizeof(char));
