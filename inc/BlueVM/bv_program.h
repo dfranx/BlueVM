@@ -36,6 +36,8 @@ typedef struct bv_program_s {
 	bv_error_handler error;
 	bv_breakpoint_handler debugger;
 	bv_object_get_property_ext property_getter;
+
+	void* user_data;
 } bv_program;
 
 bv_program* bv_program_create(byte* mem);

@@ -113,6 +113,7 @@ bv_program* bv_program_create(byte* mem)
 	ret->current_line = -1;
 	ret->error = NULL;
 	ret->debugger = NULL;
+	ret->user_data = NULL;
 
 	ret->globals.length = ret->global_names.name_count;
 	ret->globals.data = (bv_variable*)malloc(sizeof(bv_variable) * ret->globals.length);
