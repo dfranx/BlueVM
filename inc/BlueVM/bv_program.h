@@ -58,8 +58,8 @@ void bv_program_add_object_info(bv_program* prog, bv_object_info* obj);
 bv_object_info* bv_program_get_object_info(bv_program* prog, const bv_string name);
 
 u16 bv_program_get_global_count(bv_program* prog);
-bv_variable* bv_program_get_global(bv_program* prog, bv_string name);
-void bv_program_add_global(bv_program* prog, bv_string name);
+bv_variable* bv_program_get_global(bv_program* prog, const bv_string name);
+void bv_program_add_global(bv_program* prog, const bv_string name);
 void bv_program_set_global(bv_program* prog, const bv_string name, bv_variable var);
 
 bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args, bv_object* parent);

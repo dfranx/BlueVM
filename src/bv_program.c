@@ -268,7 +268,7 @@ u16 bv_program_get_global_count(bv_program * prog)
 {
 	return prog->globals.length;
 }
-bv_variable* bv_program_get_global(bv_program* prog, bv_string name)
+bv_variable* bv_program_get_global(bv_program* prog, const bv_string name)
 {
 	u16 ind = bv_name_list_get_id(prog->global_names, name);
 
@@ -284,7 +284,7 @@ bv_variable* bv_program_get_global(bv_program* prog, bv_string name)
 
 	return NULL;
 }
-void bv_program_add_global(bv_program * prog, bv_string name)
+void bv_program_add_global(bv_program * prog, const bv_string name)
 {
 	bv_stack_push(&prog->globals, bv_variable_create_null_object());
 	bv_name_list_add(&prog->global_names, name);
