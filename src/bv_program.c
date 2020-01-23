@@ -235,6 +235,21 @@ void bv_program_add_function(bv_program * prog, const bv_string name, bv_externa
 	prog->external_function_count++;
 }
 
+void bv_program_add_function_pointer(bv_program* prog, const bv_string fname, bv_function* func)
+{
+	// expand function pool
+	u16 fcnt = ++prog->block->functions->count;
+	prog->block->functions->names = (char**)realloc(prog->block->functions->names, sizeof(char*) * fcnt);
+	prog->block->functions->names[fcnt - 1] = (char*)calloc(strlen(fname) + 1, sizeof(char));
+	strcpy(prog->block->functions->names[fcnt - 1], fname);
+
+	// add the actual function
+	prog->functions = (bv_function**)realloc(prog->functions, sizeof(bv_function*) * fcnt);
+	prog->functions[fcnt - 1] = (bv_function*)malloc(sizeof(bv_function));
+	memcpy(prog->functions[fcnt - 1], func, sizeof(bv_function));
+	prog->functions[fcnt - 1]->is_pointer = 1;
+}
+
 void bv_program_add_library(bv_program * prog, bv_library * lib)
 {
 	prog->lib_count++;

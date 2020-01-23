@@ -17,6 +17,8 @@ typedef struct bv_function_s
 
 	bv_type* arg_type;
 	bv_string* arg_obj_name;
+
+	u8 is_pointer; // added from another program? don't delete it then
 } bv_function;
 
 bv_function* bv_function_create(bv_header header, byte* mem);

@@ -12,6 +12,7 @@ bv_function* bv_function_create(bv_header header, byte* mem)
 	func->args = u8_read(&mem);
 	func->arg_type = NULL;
 	func->arg_obj_name = NULL;
+	func->is_pointer = 0;
 
 	if (!(header.major == 0 && header.minor == 1) && func->args != 0) {
 		func->arg_type = (bv_type*)malloc(sizeof(bv_type) * func->args);
@@ -57,8 +58,14 @@ bv_function** bv_function_create_array(bv_header header, bv_function_pool* funcs
 
 void bv_function_delete_array(bv_function** data, u16 len)
 {
-	for (u16 i = 0; i < len; i++)
-		bv_function_delete(data[i]);
+	for (u16 i = 0; i < len; i++) {
+		if (data[i]) {
+			if (data[i]->is_pointer)
+				free(data[i]);
+			else
+				bv_function_delete(data[i]);
+		}
+	}
 
 	free(data);
 }
