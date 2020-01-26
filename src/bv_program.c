@@ -114,6 +114,7 @@ bv_program* bv_program_create(byte* mem)
 	ret->error = NULL;
 	ret->debugger = NULL;
 	ret->user_data = NULL;
+	ret->current_scope = NULL;
 
 	ret->globals.length = ret->global_names.name_count;
 	ret->globals.data = (bv_variable*)malloc(sizeof(bv_variable) * ret->globals.length);
@@ -323,7 +324,7 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args,
 {
 	bv_variable rtrn;
 
-	bv_scope* scope = bv_scope_create();
+	bv_scope* scope = prog->current_scope = bv_scope_create();
 	bv_scope_push(scope, bv_scope_type_function, func->code, prog, func, parent, 0);
 
 	if (args != NULL && args->length == func->args) {
@@ -356,6 +357,15 @@ bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args,
 		rtrn = bv_variable_create_void();
 
 	bv_scope_delete(scope);
+	prog->current_scope = NULL;
 
 	return rtrn;
+}
+void bv_program_abort(bv_program* prog)
+{
+	if (!prog->current_scope)
+		return;
+
+	while (prog->current_scope->count != 0)
+		bv_scope_pop(prog->current_scope);
 }

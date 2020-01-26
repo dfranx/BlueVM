@@ -37,6 +37,8 @@ typedef struct bv_program_s {
 	bv_breakpoint_handler debugger;
 	bv_object_get_property_ext property_getter;
 
+	bv_scope* current_scope;
+
 	void* user_data;
 } bv_program;
 
@@ -64,5 +66,6 @@ void bv_program_add_global(bv_program* prog, const bv_string name);
 void bv_program_set_global(bv_program* prog, const bv_string name, bv_variable var);
 
 bv_variable bv_program_call(bv_program* prog, bv_function* func, bv_stack* args, bv_object* parent);
+void bv_program_abort(bv_program* prog);
 
 #endif

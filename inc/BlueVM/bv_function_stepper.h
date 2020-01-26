@@ -15,5 +15,6 @@ bv_function_stepper* bv_function_stepper_create(bv_program* prog, bv_function* f
 void bv_function_step(bv_function_stepper* func);
 byte bv_function_stepper_is_done(bv_function_stepper* func);
 void bv_function_stepper_delete(bv_function_stepper* func);
+void bv_function_stepper_abort(bv_function_stepper* func);
 
 #endif

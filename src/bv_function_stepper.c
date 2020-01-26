@@ -62,3 +62,9 @@ void bv_function_stepper_delete(bv_function_stepper * func)
 	bv_scope_delete(func->scope);
 	free(func);
 }
+
+void bv_function_stepper_abort(bv_function_stepper* func)
+{
+	while (func->scope->count != 0)
+		bv_scope_pop(func->scope);
+}
