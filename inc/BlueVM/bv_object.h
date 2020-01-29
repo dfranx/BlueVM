@@ -11,6 +11,7 @@ typedef struct bv_stack_s bv_stack;
 typedef struct bv_scope_s bv_scope;
 
 typedef bv_variable (*bv_object_get_property_ext)(bv_program*, bv_object*, const bv_string);
+typedef void (*bv_object_default_constructor_ext)(bv_program*, bv_object*);
 
 typedef struct bv_object_s {
 	bv_object_info* type;	// points to information object

@@ -753,19 +753,25 @@ void bv_execute_new_object(bv_scope* scope) {
 	if (constructor != 0)
 		bv_scope_push(scope, bv_scope_type_constructor, constructor->code, state->prog, constructor, obj, argc);
 	else {
-		bv_stack func_args = bv_stack_create();
-
-		for (u8 i = 0; i < argc; i++) {
-			bv_stack_push(&func_args, bv_stack_top(&scope->stack));
-			bv_stack_pop(&scope->stack);
-		}
-
 		bv_external_method ext_func = bv_object_get_ext_method(obj, info->name);
-		(*ext_func)(state->prog, obj, argc, func_args.data);
 
-		bv_stack_delete(&func_args);
+		if (ext_func != NULL) {
+			bv_stack func_args = bv_stack_create();
+
+			for (u8 i = 0; i < argc; i++) {
+				bv_stack_push(&func_args, bv_stack_top(&scope->stack));
+				bv_stack_pop(&scope->stack);
+			}
+
+			(*ext_func)(state->prog, obj, argc, func_args.data);
+
+			bv_stack_delete(&func_args);
+		}
+		else if (state->prog->default_constructor != NULL)
+			state->prog->default_constructor(state->prog, obj);
 	}
 
+	// are we pushing this to the constructor scope?
 	bv_stack_push(&scope->stack, var);
 }
 void bv_execute_set_prop(bv_scope* scope) {
@@ -1146,8 +1152,13 @@ void bv_execute_new_object_by_name(bv_scope* scope)
 
 			bv_stack_delete(&func_args);
 		}
+		// if no constructor is provided, call our own, built-in one... this is usually used for user defined structures
+		else if (state->prog->default_constructor != NULL) {
+			state->prog->default_constructor(state->prog, obj);
+		}
 	}
 
+	// maybe this should be before the scope_push call?
 	bv_stack_push(&scope->stack, var);
 }
 void bv_execute_push_stack_function(bv_scope* scope)

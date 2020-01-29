@@ -8,6 +8,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+union bv_float_converter {
+	float fValue;
+	u32   iValue;
+};
+
 s32 bv_variable_get_int(bv_variable var)
 {
 	return (intptr_t)var.value;
@@ -34,7 +39,10 @@ u8 bv_variable_get_uchar(bv_variable var)
 }
 float bv_variable_get_float(bv_variable var)
 {
-	return *((float*)var.value);
+	union bv_float_converter conv;
+	conv.iValue = (intptr_t)var.value;
+
+	return conv.fValue;
 }
 bv_string bv_variable_get_string(bv_variable var)
 {
@@ -119,10 +127,12 @@ bv_variable bv_variable_create_uchar(u8 var)
 }
 bv_variable bv_variable_create_float(float var)
 {
+	union bv_float_converter conv;
+	conv.fValue = var;
+
 	bv_variable ret;
 	ret.type = bv_type_float;
-	ret.value = malloc(sizeof(float));
-	*((float*)ret.value) = var;
+	ret.value = (void*)conv.iValue;
 	return ret;
 }
 bv_variable bv_variable_create_string(const bv_string var)
@@ -215,7 +225,9 @@ void bv_variable_set_float(bv_variable * var, float val)
 {
 	if (var->type != bv_type_float)
 		return;
-	*((float*)var->value) = val;
+	union bv_float_converter conv;
+	conv.fValue = val;
+	var->value = (void*)conv.iValue;
 }
 void bv_variable_set_string(bv_variable * var, const bv_string val)
 {
@@ -261,7 +273,7 @@ void bv_variable_set_function(bv_variable* var, bv_function* val)
 void bv_variable_deinitialize(bv_variable * var)
 {
 	// this is sort of deconstructor
-	if (var->type == bv_type_float || var->type == bv_type_string)
+	if (var->type == bv_type_string)
 		free(var->value);
 	else if (var->type == bv_type_array) {
 		bv_array_deinitialize((bv_array*)var->value);
@@ -273,10 +285,9 @@ bv_variable bv_variable_copy(bv_variable var)
 	bv_variable ret;
 	ret.type = var.type;
 
-	if (var.type == bv_type_float) {
-		ret.value = malloc(sizeof(float));
-		memcpy(ret.value, var.value, sizeof(float));
-	} else if (var.type == bv_type_string) {
+	if (var.type == bv_type_float)
+		ret.value = var.value;
+	else if (var.type == bv_type_string) {
 		s32 len = strlen((bv_string)var.value);
 		ret.value = malloc((len + 1) * sizeof(char));
 		memcpy(ret.value, var.value, len);

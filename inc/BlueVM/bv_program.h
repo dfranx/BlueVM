@@ -36,6 +36,7 @@ typedef struct bv_program_s {
 	bv_error_handler error;
 	bv_breakpoint_handler debugger;
 	bv_object_get_property_ext property_getter;
+	bv_object_default_constructor_ext default_constructor;
 
 	bv_scope* current_scope;
 

@@ -116,6 +116,9 @@ bv_program* bv_program_create(byte* mem)
 	ret->user_data = NULL;
 	ret->current_scope = NULL;
 
+	ret->property_getter = NULL;
+	ret->default_constructor = NULL;
+
 	ret->globals.length = ret->global_names.name_count;
 	ret->globals.data = (bv_variable*)malloc(sizeof(bv_variable) * ret->globals.length);
 	for (u16 i = 0; i < ret->globals.length; i++)
