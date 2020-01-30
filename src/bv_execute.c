@@ -969,8 +969,8 @@ void bv_execute_assign(bv_scope* scope)
 
 	bv_state* state = bv_scope_get_state(scope);
 
-	bv_variable var = bv_stack_penultimate(&scope->stack);
-	bv_variable val = bv_stack_top(&scope->stack);
+	bv_variable var = bv_stack_top(&scope->stack);
+	bv_variable val = bv_stack_penultimate(&scope->stack);
 
 	bv_variable_op_assign(state->prog, &var, val);
 

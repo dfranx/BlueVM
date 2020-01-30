@@ -10,5 +10,6 @@
 #include <BlueVM/bv_function_stepper.h>
 #include <BlueVM/bv_object.h>
 #include <BlueVM/bv_object_info.h>
+#include <BlueVM/bv_array.h>
 
 #endif
