@@ -98,8 +98,8 @@ void bv_object_deinitialize(bv_object* val)
 		bv_variable_deinitialize(&val->prop[i]);
 
 	free(val->prop);
-	free(val);
-
 	val->prop = NULL;
+
+	free(val);
 	val = NULL;
 }
