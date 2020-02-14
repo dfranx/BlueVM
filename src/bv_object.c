@@ -18,6 +18,9 @@ bv_object* bv_object_create(bv_object_info* info)
 
 bv_variable* bv_object_get_property(bv_object* obj, const bv_string name)
 {
+	if (obj == NULL)
+		return 0;
+
 	bv_name_list* props = &obj->type->props;
 
 	for (u16 i = 0; i < props->name_count; i++)
@@ -98,8 +101,8 @@ void bv_object_deinitialize(bv_object* val)
 		bv_variable_deinitialize(&val->prop[i]);
 
 	free(val->prop);
-	val->prop = NULL;
-
 	free(val);
+
+	val->prop = NULL;
 	val = NULL;
 }
