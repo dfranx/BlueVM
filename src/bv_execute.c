@@ -682,18 +682,22 @@ void bv_execute_call_return(bv_scope* scope) {
 
 	if (func != NULL) {
 		bv_scope_push(scope, bv_scope_type_function, func->code, NULL, func, NULL, argc);
-	} else {
-		bv_stack func_args = bv_stack_create();
-
-		for (u8 i = 0; i < argc; i++) {
-			bv_stack_push(&func_args, bv_stack_top(&scope->stack));
-			bv_stack_pop(&scope->stack);
-		}
-
+	}
+	else {
 		bv_external_function ext_func = bv_program_get_ext_function(state->prog, name);
-		bv_stack_push(&scope->stack, (*ext_func)(state->prog, argc, func_args.data));
 
-		bv_stack_delete(&func_args);
+		if (ext_func != NULL) {
+			bv_stack func_args = bv_stack_create();
+
+			for (u8 i = 0; i < argc; i++) {
+				bv_stack_push(&func_args, bv_stack_top(&scope->stack));
+				bv_stack_pop(&scope->stack);
+			}
+
+			bv_stack_push(&scope->stack, (*ext_func)(state->prog, argc, func_args.data));
+
+			bv_stack_delete(&func_args);
+		}
 	}
 }
 void bv_execute_is_type_of(bv_scope* scope) {
