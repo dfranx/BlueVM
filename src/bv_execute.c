@@ -454,6 +454,14 @@ void bv_execute_set_local(bv_scope* scope) {
 		bv_variable_deinitialize(pLocal); // first deinitialize old value
 
 		*pLocal = var;
+
+		// expand stack
+		if (index >= scope->locals.length) {
+			u16 prevLen = scope->locals.length;
+			scope->locals.length = index + 1;
+			for (u16 i = prevLen; i < index; i++)
+				scope->locals.data[i].type = bv_type_void;
+		}
 	}
 }
 void bv_execute_get_global(bv_scope* scope) {

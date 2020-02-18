@@ -42,9 +42,9 @@ void bv_stack_pop(bv_stack* stack)
 }
 void bv_stack_pop_free(bv_stack* stack)
 {
-	bv_variable_deinitialize(&stack->data[stack->length - 1]);
-
 	stack->length--;
+
+	bv_variable_deinitialize(&stack->data[stack->length]);
 
 	if (stack->capacity - stack->length > STACK_RULE) {
 		stack->capacity = (((stack->length / STACK_RULE) + 1)*STACK_RULE);

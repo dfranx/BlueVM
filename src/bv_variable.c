@@ -279,6 +279,7 @@ void bv_variable_deinitialize(bv_variable * var)
 		bv_array_deinitialize((bv_array*)var->value);
 	} else if (var->type == bv_type_object)
 		bv_object_deinitialize((bv_object*)var->value);
+	var->type = bv_type_void;
 }
 bv_variable bv_variable_copy(bv_variable var)
 {
